@@ -5,14 +5,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class RobotroopersTest extends OpMode {
 
-    DcMotor thing;
+    DcMotor FL;
     @Override
     public void init() {
+        FL = hardwareMap.get(DcMotor.class,"Frontleft");
 
-    }
+        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
     @Override
-    public void loop() {
+    public void loop(){
 
     }
 }
