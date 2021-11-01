@@ -1,5 +1,0 @@
-<root>
-    <item name='com.qualcomm.robotcore.eventloop.opmode.OpMode void loop()'>
-        <annotation name='java.lang.Deprecated' />
-    </item>
-</root>
