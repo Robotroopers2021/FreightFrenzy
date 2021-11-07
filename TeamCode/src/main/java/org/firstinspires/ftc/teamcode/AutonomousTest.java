@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous (name= "AutonomousTest")
 public class AutonomousTest extends LinearOpMode {
@@ -11,6 +12,8 @@ public class AutonomousTest extends LinearOpMode {
     DcMotor FL;
     DcMotor BR;
     DcMotor BL;
+
+    Servo LH;
 
     @Override
     public void runOpMode() throws InterruptedException {

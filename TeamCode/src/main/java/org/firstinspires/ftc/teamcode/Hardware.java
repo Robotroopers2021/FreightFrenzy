@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Hardware {
@@ -10,6 +11,8 @@ public class Hardware {
     public DcMotor FR = null;
     public DcMotor BL = null;
     public DcMotor BR = null;
+
+    public Servo FH = null;
 
     HardwareMap hardwareMap = null;
     public ElapsedTime runtime = new ElapsedTime();
@@ -25,6 +28,8 @@ public class Hardware {
         FR = hardwareMap.get(DcMotor.class, "FR");
         BL = hardwareMap.get(DcMotor.class, "BL");
         BR = hardwareMap.get(DcMotor.class, "BR");
+
+        FH = (Servo) hardwareMap.get(DcMotor.class, "FH");
 
         FR.setDirection(DcMotor.Direction.REVERSE);
         FL.setDirection(DcMotor.Direction.FORWARD);
