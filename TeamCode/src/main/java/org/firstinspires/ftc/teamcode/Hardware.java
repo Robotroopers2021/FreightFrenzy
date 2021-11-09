@@ -12,7 +12,7 @@ public class Hardware {
     public DcMotor BL = null;
     public DcMotor BR = null;
 
-    public Servo FH = null;
+    public Servo LH = null;
 
     HardwareMap hardwareMap = null;
     public ElapsedTime runtime = new ElapsedTime();
@@ -29,7 +29,7 @@ public class Hardware {
         BL = hardwareMap.get(DcMotor.class, "BL");
         BR = hardwareMap.get(DcMotor.class, "BR");
 
-        FH = (Servo) hardwareMap.get(DcMotor.class, "FH");
+        LH = (Servo) hardwareMap.get(DcMotor.class, "FH");
 
         FR.setDirection(DcMotor.Direction.REVERSE);
         FL.setDirection(DcMotor.Direction.FORWARD);

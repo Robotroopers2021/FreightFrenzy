@@ -8,15 +8,21 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous (name= "AutonomousTest")
 public class AutonomousTest extends LinearOpMode {
 
-    DcMotor FR;
-    DcMotor FL;
-    DcMotor BR;
-    DcMotor BL;
+    DcMotor FR = null;
+    DcMotor FL = null;
+    DcMotor BR = null;
+    DcMotor BL = null;
 
-    Servo LH;
+    float FLPower;
+    float FRPower;
+    float BLPower;
+    float BRPower;
+
+    Servo LH = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
         FR = hardwareMap.dcMotor.get("FR");
         FL = hardwareMap.dcMotor.get("FL");
         BR = hardwareMap.dcMotor.get("BR");
@@ -27,45 +33,24 @@ public class AutonomousTest extends LinearOpMode {
         FR.setDirection(DcMotor.Direction.FORWARD);
         FL.setDirection(DcMotor.Direction.REVERSE);
 
+        FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        FR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        LH = (Servo) hardwareMap.get(DcMotor.class, "FH");
+
         waitForStart();
 
-        FL.setPower(1);
-        FR.setPower(1);
-        BL.setPower(1);
-        BR.setPower(1);
-
-        sleep(2000);
-
-        FL.setPower(0);
-        FR.setPower(0);
-        BL.setPower(0);
-        BR.setPower(0);
-
-        FL.setPower(-.5);
-        FR.setPower(.5);
-        BL.setPower(0);
-        BR.setPower(0);
-
-        sleep(4000);
-
-        FL.setPower(0);
-        FR.setPower(0);
-        BL.setPower(0);
-        BR.setPower(0);
-
-        FL.setPower(1);
-        FR.setPower(1);
-        BL.setPower(1);
-        BR.setPower(1);
-
-        sleep(2600);
-
-        FL.setPower(0);
-        FR.setPower(0);
-        BL.setPower(0);
-        BR.setPower(0);
 
 
-    }
+
+        }
+
 }
 
