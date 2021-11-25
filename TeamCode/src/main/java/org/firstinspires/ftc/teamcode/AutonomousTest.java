@@ -133,10 +133,10 @@ public class AutonomousTest extends LinearOpMode {
 //
 //            runtime.reset();
 //
-//            //segment 2 - lift arm, drive to shipping hub, outtake freight
-////            while (opModeIsActive() && runtime.seconds() <= 7) {
-////
-//            //lift arm and hold
+            //segment 2 - lift arm, drive to shipping hub, outtake freight
+//            while (opModeIsActive() && runtime.seconds() <= 7) {
+//
+            //lift arm and hold
 //                Arm.setTargetPosition(120);
 //                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                Arm.setPower(0.3);
