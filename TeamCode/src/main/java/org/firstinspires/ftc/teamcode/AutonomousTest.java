@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,7 +15,7 @@ public class AutonomousTest extends LinearOpMode {
     DcMotor BR = null;
     DcMotor BL = null;
     DcMotor Arm = null;
-//    DcMotor Intake = null;
+//  DcMotor Intake = null;
 
     Servo LH = null;
 
@@ -30,7 +29,7 @@ public class AutonomousTest extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
 
     //Drive function with 3 parameters
-    public void drive(double drive, double strafe, double rotate) {
+    public void drive() {
         int FRTarget;
         int BRTarget;
         int FLTarget;
@@ -41,6 +40,9 @@ public class AutonomousTest extends LinearOpMode {
         double BLPower;
         double BRPower;
 
+        double drive = 0;
+        double strafe = 0;
+        double rotate = 0;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
@@ -76,6 +78,10 @@ public class AutonomousTest extends LinearOpMode {
             FR.setPower(FRPower);
             BL.setPower(BLPower);
             BR.setPower(BRPower);
+
+            Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             //wait until both motors are no longer busy running to position
             while (opModeIsActive() && (FL.isBusy() || BL.isBusy() || FR.isBusy() || BR.isBusy())) {
@@ -117,15 +123,7 @@ public class AutonomousTest extends LinearOpMode {
         waitForStart();
         if (opModeIsActive()) {
 
-            drive(1600,0,0);
 
-            drive(0,0,-900);
-
-            Arm.setTargetPosition(60);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Arm.setPower(0.3);
-
-            drive(0,-1600,0);
 
 
             //segment 1

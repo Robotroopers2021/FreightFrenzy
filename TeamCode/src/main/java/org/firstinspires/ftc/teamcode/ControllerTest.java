@@ -1,20 +1,37 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import java.util.Arrays;
 
+@Config
 @TeleOp (name = "ControllerTest")
 public class ControllerTest extends OpMode {
 
+    public static double kp = 0.009;
+    public static double ki = 0.003;
+    public static double kd = 0.00065;
+    public static double targetPosition = 420;
+    public static double min = -0.8;
+    public static double max = 0.8;
+
+
+    PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
+
     //Identifying Motors and Servos
     DcMotor FL, FR, BL, BR, Arm, Intake;
-    Servo LH;
+    Servo Outtake;
 
     double drive;
     double strafe;
@@ -24,6 +41,8 @@ public class ControllerTest extends OpMode {
     double FRPower;
     double BLPower;
     double BRPower;
+
+    double IntakePower;
 
     double ArmPower =0.6;
 
@@ -37,10 +56,10 @@ public class ControllerTest extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
-       // Intake = hardwareMap.dcMotor.get("Intake");
+        Intake = hardwareMap.dcMotor.get("Intake");
 
         //Connect Servo
-        LH = (Servo) hardwareMap.get(Servo.class, "LH");
+        Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
         //Set ZERO POWER BEHAVIOR
         FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -53,12 +72,16 @@ public class ControllerTest extends OpMode {
         BL.setDirection(DcMotor.Direction.REVERSE);
 
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         telemetry.addData("STATUS", "Initialized");
     }
 
     @Override
     public void loop() {
+
+        TelemetryPacket packet = new TelemetryPacket();
 
         drive = -gamepad1.left_stick_y;
         strafe = gamepad1.left_stick_x;
@@ -74,6 +97,19 @@ public class ControllerTest extends OpMode {
         BL.setPower(BLPower);
         BR.setPower(BRPower);
 
+        double output = Controller.update(Arm.getCurrentPosition());
+
+        packet.put("target position", targetPosition);
+        packet.put("Current Position",Arm.getCurrentPosition());
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
+        Arm.setPower(Range.clip(output,min,max));
+
+
+        if(gamepad1.y)
+            Controller.setTargetPosition(targetPosition);
+
+        IntakePower = gamepad1.left_trigger;
+        Intake.setPower(IntakePower);
 //        if (gamepad1.y) {
 //            // move to 0 degrees.
 //            LH.setPosition(0);
@@ -87,45 +123,45 @@ public class ControllerTest extends OpMode {
             // move to 180 degrees.
             //LH.setPosition(1);
      //   }
-        if(gamepad1.dpad_up) {
-            Arm.setPower(-ArmPower);
-            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        else {
-            Arm.setPower(0);
-        }
-        if (gamepad1.dpad_down) {
-            Arm.setPower(ArmPower);
-            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        else {
-            Arm.setPower(0);
-        }
-
-//        Intake.setPower(gamepad1.left_trigger);
-//        Intake.setPower(-gamepad1.right_trigger);
-
-        if (gamepad1.a) {
-            Arm.setTargetPosition(0);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Arm.setPower(0.7);
-        }
-
-            if (gamepad1.x) {
-                Arm.setTargetPosition(-69);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.7);
-            }
-            if (gamepad1.y) {
-                Arm.setTargetPosition(-200);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.7);
-            }
-            if (gamepad1.b) {
-                Arm.setTargetPosition(-300);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.7);
-            }
+//        if(gamepad1.dpad_up) {
+//            Arm.setPower(-ArmPower);
+//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        }
+//        else {
+//            Arm.setPower(0);
+//        }
+//        if (gamepad1.dpad_down) {
+//            Arm.setPower(ArmPower);
+//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        }
+//        else {
+//            Arm.setPower(0);
+//        }
+//
+////        Intake.setPower(gamepad1.left_trigger);
+////        Intake.setPower(-gamepad1.right_trigger);
+//
+//        if (gamepad1.a) {
+//            Arm.setTargetPosition(0);
+//            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            Arm.setPower(0.7);
+//        }
+//
+//            if (gamepad1.x) {
+//                Arm.setTargetPosition(-69);
+//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                Arm.setPower(0.7);
+//            }
+//            if (gamepad1.y) {
+//                Arm.setTargetPosition(-200);
+//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                Arm.setPower(0.7);
+//            }
+//            if (gamepad1.b) {
+//                Arm.setTargetPosition(-300);
+//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                Arm.setPower(0.7);
+//            }
 
 
 
