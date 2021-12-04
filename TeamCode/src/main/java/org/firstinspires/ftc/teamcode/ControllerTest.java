@@ -9,11 +9,18 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
+
+import kotlin.jvm.functions.Function2;
+
 
 @Config
 @TeleOp (name = "ControllerTest")
@@ -23,15 +30,24 @@ public class ControllerTest extends OpMode {
     public static double ki = 0.003;
     public static double kd = 0.00065;
     public static double targetPosition = 420;
-    public static double min = -0.8;
-    public static double max = 0.8;
+    public static double min = -0.75;
+    public static double max = 0.75;
+    //public static double kG;
 
+//    private PIDCoefficients coeffs;
+//    PIDFController Controller = new PIDFController(coeffs, 0, 0, 0, new Function2<Double, Double, Double>() {
+//
+//        public Double invoke(Double position, Double velocity) {
+//            return kG;
+//        }
+//    });
 
     PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
 
     //Identifying Motors and Servos
-    DcMotor FL, FR, BL, BR, Arm, Intake;
+    DcMotor FL, FR, BL, BR, Intake;
     Servo Outtake;
+    DcMotor Arm;
 
     double drive;
     double strafe;
@@ -54,7 +70,7 @@ public class ControllerTest extends OpMode {
         BL = hardwareMap.get(DcMotor.class, "BL");
         BR = hardwareMap.get(DcMotor.class, "BR");
 
-        //Arm = hardwareMap.dcMotor.get("Arm");
+        Arm = hardwareMap.dcMotor.get("Arm");
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
@@ -71,11 +87,12 @@ public class ControllerTest extends OpMode {
         BR.setDirection(DcMotor.Direction.FORWARD);
         BL.setDirection(DcMotor.Direction.REVERSE);
 
-//        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         telemetry.addData("STATUS", "Initialized");
+
     }
 
     @Override
@@ -100,16 +117,22 @@ public class ControllerTest extends OpMode {
         IntakePower = gamepad1.left_trigger;
         Intake.setPower(-IntakePower);
 
-        //double output = Controller.update(Arm.getCurrentPosition());
-
-//        packet.put("target position", targetPosition);
-//        packet.put("Current Position",Arm.getCurrentPosition());
-//        FtcDashboard.getInstance().sendTelemetryPacket(packet);
-        //Arm.setPower(Range.clip(output,min,max));
+        double output = Controller.update(Arm.getCurrentPosition());
 
 
-//        if(gamepad1.y)
-//            Controller.setTargetPosition(targetPosition);
+        packet.put("target position", targetPosition);
+        packet.put("Current Position",Arm.getCurrentPosition());
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
+        Arm.setPower(Range.clip(output,min,max));
+
+
+
+
+        if(gamepad1.y)
+            Controller.setTargetPosition(targetPosition);
+
+//        if (gamepad1.x)
+//            Outtake.setPosition(0.1);
 
 //        if (gamepad1.a)
 //
@@ -176,20 +199,20 @@ public class ControllerTest extends OpMode {
 
 
         //Adding Telemetry
-        //telemetry.addData("Servo Position", LH.getPosition());
+        //telemetry.addData("Servo Position", Outtake.getPosition());
         telemetry.addData("Motor Power", FL.getPower());
         telemetry.addData("Motor Power", FR.getPower());
         telemetry.addData("Motor Power", BL.getPower());
         telemetry.addData("Motor Power", BR.getPower());
-        //telemetry.addData("Motor Power", Arm.getPower());
+        telemetry.addData("Motor Power", Arm.getPower());
         telemetry.addData("FL Power", FLPower);
         telemetry.addData("BR Power", BRPower);
         telemetry.addData("BL Power", BLPower);
         telemetry.addData("FR Power", FRPower);
         telemetry.addData("Arm Power", ArmPower);
         telemetry.addData("Status", "Running");
-//        telemetry.addData("Status", Arm.getPower());
-//        telemetry.addData("Arm", Arm.getCurrentPosition());
+        telemetry.addData("Status", Arm.getPower());
+        telemetry.addData("Arm", Arm.getCurrentPosition());
         telemetry.update();
 
     }
