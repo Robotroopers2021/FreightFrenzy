@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
-@TeleOp(name = "MuleTeleop")
-public class MuleTeleop extends OpMode {
+@TeleOp(name = "Mule2")
+public class Mule2 extends OpMode {
 
     DcMotor FR = null;
     DcMotor FL = null;
@@ -69,26 +69,27 @@ public class MuleTeleop extends OpMode {
         BLPower = (drive - strafe + rotate);
         BRPower = (drive + strafe - rotate);
 
-        FL.setPower(-FLPower);
-        FR.setPower(-FRPower);
-        BL.setPower(-BLPower);
-        BR.setPower(-BRPower);
+        FL.setPower(FLPower);
+        FR.setPower(FRPower);
+        BL.setPower(BLPower);
+        BR.setPower(BRPower);
 
         if(gamepad1.dpad_up) {
-            Arm.setPower(ArmPower);
+            Arm.setPower(-ArmPower);
 
         }
         else {
             Arm.setPower(0);
         }
         if (gamepad1.dpad_down) {
-            Arm.setPower(-ArmPower);
+            Arm.setPower(ArmPower);
         }
         else {
             Arm.setPower(0);
         }
     }
 }
+
 
 
 

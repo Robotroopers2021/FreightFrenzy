@@ -1,21 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
-
-@TeleOp(name = "MuleTeleop")
-public class MuleTeleop extends OpMode {
+@TeleOp(name = "Mule1")
+public class Mule1 extends OpMode {
 
     DcMotor FR = null;
     DcMotor FL = null;
@@ -27,10 +17,10 @@ public class MuleTeleop extends OpMode {
     double strafe;
     double rotate;
 
-    double FLPower;
-    double FRPower;
-    double BLPower;
-    double BRPower;
+    double FLPower =0.5;
+    double FRPower =0.5;
+    double BLPower =0.5;
+    double BRPower =0.5;
 
     double ArmPower =0.5;
 
@@ -60,36 +50,32 @@ public class MuleTeleop extends OpMode {
 
     @Override
     public void loop() {
-        drive = -gamepad1.left_stick_y *0.5;
-        strafe = gamepad1.left_stick_x *0.5;
-        rotate = gamepad1.right_stick_x *0.5;
+        drive = -gamepad1.left_stick_y;
+        strafe = gamepad1.left_stick_x;
+        rotate = gamepad1.right_stick_x;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
         BLPower = (drive - strafe + rotate);
         BRPower = (drive + strafe - rotate);
 
-        FL.setPower(-FLPower);
-        FR.setPower(-FRPower);
-        BL.setPower(-BLPower);
-        BR.setPower(-BRPower);
+        FL.setPower(FLPower);
+        FR.setPower(FRPower);
+        BL.setPower(BLPower);
+        BR.setPower(BRPower);
 
         if(gamepad1.dpad_up) {
-            Arm.setPower(ArmPower);
+            Arm.setPower(-ArmPower);
 
         }
         else {
             Arm.setPower(0);
         }
         if (gamepad1.dpad_down) {
-            Arm.setPower(-ArmPower);
+            Arm.setPower(ArmPower);
         }
         else {
             Arm.setPower(0);
         }
     }
 }
-
-
-
-
