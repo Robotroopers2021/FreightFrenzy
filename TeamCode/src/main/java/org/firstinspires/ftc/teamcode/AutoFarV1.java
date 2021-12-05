@@ -24,12 +24,12 @@ public class AutoFarV1 extends LinearOpMode {
         Pose2d startPose = new Pose2d(15, 56, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(15, 56, Math.toRadians(90)))
-                .lineToConstantHeading(new Vector2d(-11, 38))
-                .lineToConstantHeading(new Vector2d(-59, 43))
-                .lineToConstantHeading(new Vector2d(-59, 53))
-                .lineToConstantHeading(new Vector2d(-59, 43))
-                .lineToSplineHeading(new Pose2d(-8, 43, Math.toRadians(0)))
-                .lineToConstantHeading(new Vector2d(47, 43))
+                .lineToConstantHeading(new Vector2d(-11, 35))
+                .lineToConstantHeading(new Vector2d(-59, 31))
+                .lineToConstantHeading(new Vector2d(-59, 50))
+                .lineToConstantHeading(new Vector2d(-59, 36))
+                .lineToSplineHeading(new Pose2d(-8, 31, Math.toRadians(0)))
+                .lineToConstantHeading(new Vector2d(50, 36))
                 .build();
         waitForStart();
         drive.followTrajectorySequence(traj);

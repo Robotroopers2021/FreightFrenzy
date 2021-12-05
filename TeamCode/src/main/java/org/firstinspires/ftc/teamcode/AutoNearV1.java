@@ -21,7 +21,7 @@ public class AutoNearV1 extends LinearOpMode {
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(90)))
                 .lineToConstantHeading(new Vector2d(-12, 41))
                 .lineToConstantHeading(new Vector2d(-57, 55))
-                .lineToSplineHeading(new Pose2d(-58, 36, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(-61, 33, Math.toRadians(0)))
                 .build();
 
         waitForStart();
