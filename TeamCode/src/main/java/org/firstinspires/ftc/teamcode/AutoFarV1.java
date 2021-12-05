@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
-@Autonomous (name= "AutonomousTest")
-public class AutonomousTest extends LinearOpMode {
+@Autonomous (name= "AutoFarV1")
+public class AutoFarV1 extends LinearOpMode {
 
     SampleMecanumDrive drive;
 
