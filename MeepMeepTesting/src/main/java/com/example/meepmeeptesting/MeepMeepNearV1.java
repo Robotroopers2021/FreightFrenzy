@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 
-public class MeepMeepTesting {
+public class MeepMeepNearV1 {
     public static void main(String[] args) {
         // TODO: If you experience poor performance, enable this flag
         // System.setProperty("sun.java2d.opengl", "true");
@@ -22,13 +22,8 @@ public class MeepMeepTesting {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(48, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(15, 56, Math.toRadians(90)))
-                                .lineToConstantHeading(new Vector2d(-11, 43))
-                                .lineToConstantHeading(new Vector2d(-59, 43))
-                                .lineToConstantHeading(new Vector2d(-59, 53))
-                                .lineToConstantHeading(new Vector2d(-59, 43))
-                                .lineToSplineHeading(new Pose2d(-8, 43, Math.toRadians(0)))
-                                .lineToConstantHeading(new Vector2d(40, 43))
+                        drive.trajectorySequenceBuilder(new Pose2d(-35, 56, Math.toRadians(90)))
+
                                 .build()
                 )
                 .start();

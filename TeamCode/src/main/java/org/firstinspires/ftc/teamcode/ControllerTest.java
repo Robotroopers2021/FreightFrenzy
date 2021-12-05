@@ -16,12 +16,12 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp (name = "ControllerTest")
 public class ControllerTest extends OpMode {
 
-    public static double kp = 0.009;
+    public static double kp = 0.015;
     public static double ki = 0.003;
     public static double kd = 0.00065;
     public static double targetPosition = 420;
-    public static double min = -0.75;
-    public static double max = 0.75;
+    public static double min = -0.5;
+    public static double max = 0.5;
 
     PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
 
@@ -60,10 +60,10 @@ public class ControllerTest extends OpMode {
         //Connect Servo
         //Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
         //Set ZERO POWER BEHAVIOR
-        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //Set Up Motor Direction
         FR.setDirection(DcMotor.Direction.FORWARD);
         FL.setDirection(DcMotor.Direction.REVERSE);
@@ -72,7 +72,7 @@ public class ControllerTest extends OpMode {
 
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("STATUS", "Initialized");
 
@@ -100,6 +100,7 @@ public class ControllerTest extends OpMode {
         IntakePower = gamepad1.left_trigger;
         Intake.setPower(-IntakePower);
 
+
         double output = Controller.update(Arm.getCurrentPosition());
 
 
@@ -111,8 +112,11 @@ public class ControllerTest extends OpMode {
 
 
 
-        if(gamepad1.y)
+        if(gamepad1.right_bumper)
             Controller.setTargetPosition(targetPosition);
+
+        if(gamepad1.left_bumper)
+            Controller.setTargetPosition(10);
 
 //        if (gamepad1.x)
 //            Outtake.setPosition(0.1);
