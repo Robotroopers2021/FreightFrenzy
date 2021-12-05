@@ -17,9 +17,9 @@ import com.qualcomm.robotcore.util.Range;
 public class ControllerTest extends OpMode {
 
     public static double kp = 0.015;
-    public static double ki = 0.003;
-    public static double kd = 0.00065;
-    public static double targetPosition = 420;
+    public static double ki = 0; //0.003
+    public static double kd = 0; //0.00065
+    public static double targetPosition = 415;
     public static double min = -0.5;
     public static double max = 0.5;
 
@@ -27,7 +27,7 @@ public class ControllerTest extends OpMode {
 
 
     //Identifying Motors and Servos
-    DcMotor FL, FR, BL, BR, Intake;
+    DcMotor FL, FR, BL, BR, Intake,DuckL;
     Servo Outtake;
     DcMotor Arm;
 
@@ -42,7 +42,9 @@ public class ControllerTest extends OpMode {
 
     double IntakePower;
 
-    double ArmPower =0.6;
+    double DuckLPower =0.6;
+
+    double ArmPower;
 
     @Override
     public void init() {
@@ -54,6 +56,7 @@ public class ControllerTest extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
+        DuckL = hardwareMap.get(DcMotor.class, "DuckL");
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
@@ -100,6 +103,21 @@ public class ControllerTest extends OpMode {
         IntakePower = gamepad1.left_trigger;
         Intake.setPower(-IntakePower);
 
+        if(gamepad1.left_bumper) {
+            DuckL.setPower(DuckLPower);
+        }
+
+        else {
+            DuckL.setPower(0);
+        }
+
+        if(gamepad1.right_bumper) {
+            DuckL.setPower(-DuckLPower);
+        }
+
+        else {
+            DuckL.setPower(0);
+        }
 
         double output = Controller.update(Arm.getCurrentPosition());
 
@@ -112,11 +130,11 @@ public class ControllerTest extends OpMode {
 
 
 
-        if(gamepad1.right_bumper)
+        if(gamepad1.y)
             Controller.setTargetPosition(targetPosition);
 
-        if(gamepad1.left_bumper)
-            Controller.setTargetPosition(10);
+        if(gamepad1.a)
+            Controller.setTargetPosition(30);
 
 //        if (gamepad1.x)
 //            Outtake.setPosition(0.1);
