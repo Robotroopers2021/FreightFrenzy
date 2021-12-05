@@ -60,9 +60,9 @@ public class MuleTeleop extends OpMode {
 
     @Override
     public void loop() {
-        drive = -gamepad1.left_stick_y *0.5;
-        strafe = gamepad1.left_stick_x *0.5;
-        rotate = gamepad1.right_stick_x *0.5;
+        drive = -gamepad1.left_stick_y *0.75;
+        strafe = gamepad1.left_stick_x *0.75;
+        rotate = -gamepad1.right_stick_x *0.75;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);

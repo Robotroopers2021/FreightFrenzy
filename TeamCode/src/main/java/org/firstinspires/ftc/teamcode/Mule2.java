@@ -75,14 +75,14 @@ public class Mule2 extends OpMode {
         BR.setPower(BRPower);
 
         if(gamepad1.dpad_up) {
-            Arm.setPower(-ArmPower);
+            Arm.setPower(ArmPower);
 
         }
         else {
             Arm.setPower(0);
         }
         if (gamepad1.dpad_down) {
-            Arm.setPower(ArmPower);
+            Arm.setPower(-ArmPower);
         }
         else {
             Arm.setPower(0);

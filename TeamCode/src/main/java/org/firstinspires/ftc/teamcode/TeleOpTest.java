@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -9,12 +8,22 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+
+import kotlin.jvm.functions.Function2;
+
+
 @Config
-@TeleOp (name = "ControllerTest")
-public class ControllerTest extends OpMode {
+@TeleOp (name = "TeleOpTest")
+public class TeleOpTest extends OpMode {
 
     public static double kp = 0.009;
     public static double ki = 0.003;
@@ -22,6 +31,15 @@ public class ControllerTest extends OpMode {
     public static double targetPosition = 420;
     public static double min = -0.75;
     public static double max = 0.75;
+    //public static double kG;
+
+//    private PIDCoefficients coeffs;
+//    PIDFController Controller = new PIDFController(coeffs, 0, 0, 0, new Function2<Double, Double, Double>() {
+//
+//        public Double invoke(Double position, Double velocity) {
+//            return kG;
+//        }
+//    });
 
     PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
 
@@ -53,7 +71,6 @@ public class ControllerTest extends OpMode {
         BR = hardwareMap.get(DcMotor.class, "BR");
 
         Arm = hardwareMap.dcMotor.get("Arm");
-
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
@@ -133,12 +150,12 @@ public class ControllerTest extends OpMode {
 //            // move to 90 degrees.
 //            LH.setPosition(0.2);
 //        } else if (gamepad1.b) {
-            //move to 90 degrees opposite direction
-  //          LH.setPosition(-0.8);
-      //  }else if (gamepad1.a) {
-            // move to 180 degrees.
-            //LH.setPosition(1);
-     //   }
+        //move to 90 degrees opposite direction
+        //          LH.setPosition(-0.8);
+        //  }else if (gamepad1.a) {
+        // move to 180 degrees.
+        //LH.setPosition(1);
+        //   }
 //        if(gamepad1.dpad_up) {
 //            Arm.setPower(-ArmPower);
 //            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -226,10 +243,3 @@ public class ControllerTest extends OpMode {
 //        for (DcMotor dcMotor : Arrays.asList(FL, FR, BL, BR)) {
 //            dcMotor.setPower(gamepad1.left_trigger);
 //        }
-
-
-
-
-
-
-

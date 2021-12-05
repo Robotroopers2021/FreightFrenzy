@@ -17,10 +17,10 @@ public class Mule1 extends OpMode {
     double strafe;
     double rotate;
 
-    double FLPower =0.5;
-    double FRPower =0.5;
-    double BLPower =0.5;
-    double BRPower =0.5;
+    double FLPower;
+    double FRPower;
+    double BLPower;
+    double BRPower;
 
     double ArmPower =0.5;
 
@@ -52,27 +52,27 @@ public class Mule1 extends OpMode {
     public void loop() {
         drive = -gamepad1.left_stick_y;
         strafe = gamepad1.left_stick_x;
-        rotate = gamepad1.right_stick_x;
+        rotate = -gamepad1.right_stick_x;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
         BLPower = (drive - strafe + rotate);
         BRPower = (drive + strafe - rotate);
 
-        FL.setPower(FLPower);
-        FR.setPower(FRPower);
-        BL.setPower(BLPower);
-        BR.setPower(BRPower);
+        FL.setPower(-FLPower);
+        FR.setPower(-FRPower);
+        BL.setPower(-BLPower);
+        BR.setPower(-BRPower);
 
         if(gamepad1.dpad_up) {
-            Arm.setPower(-ArmPower);
+            Arm.setPower(ArmPower);
 
         }
         else {
             Arm.setPower(0);
         }
         if (gamepad1.dpad_down) {
-            Arm.setPower(ArmPower);
+            Arm.setPower(-ArmPower);
         }
         else {
             Arm.setPower(0);
