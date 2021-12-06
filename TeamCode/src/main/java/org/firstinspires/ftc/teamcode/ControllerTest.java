@@ -42,7 +42,7 @@ public class ControllerTest extends OpMode {
 
     double IntakePower;
 
-    double DuckLPower =0.6;
+    double DuckLPower =0.75;
 
     double ArmPower;
 
