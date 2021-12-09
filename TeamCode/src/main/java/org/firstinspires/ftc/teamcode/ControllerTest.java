@@ -9,27 +9,33 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @TeleOp (name = "ControllerTest")
 public class ControllerTest extends OpMode {
 
     public static double kp = 0.015;
-    public static double ki = 0; //0.003
-    public static double kd = 0; //0.00065
-    public static double targetPosition = 415;
+    public static double ki = 0;
+    public static double kd = 0.00065;
+    public static double targetPosition = 296;
     public static double min = -0.5;
     public static double max = 0.5;
+    public  static double kcos =0.5;
+    public static double kv;
 
-    PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
 
+     PIDFController Controller = new PIDFController(new PIDCoefficients(kp,ki,kd));
 
     //Identifying Motors and Servos
     DcMotor FL, FR, BL, BR, Intake,DuckL;
     Servo Outtake;
     DcMotor Arm;
+    DistanceSensor Lock;
 
     double drive;
     double strafe;
@@ -54,14 +60,17 @@ public class ControllerTest extends OpMode {
         BL = hardwareMap.get(DcMotor.class, "BL");
         BR = hardwareMap.get(DcMotor.class, "BR");
 
+
         Arm = hardwareMap.dcMotor.get("Arm");
 
         DuckL = hardwareMap.get(DcMotor.class, "DuckL");
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
+        Lock = hardwareMap.get(DistanceSensor.class,"Lock");
+
         //Connect Servo
-        //Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
+        Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
         //Set ZERO POWER BEHAVIOR
         FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -75,16 +84,51 @@ public class ControllerTest extends OpMode {
 
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        Outtake.setPosition(0.9);
 
         telemetry.addData("STATUS", "Initialized");
+        telemetry.update();
 
     }
 
+    double getoutput(double targetAngle,double targetVelocity) {
+        return Math.cos(targetAngle)*kcos + kv * targetVelocity;
+    }
+    double degreesPerTick = 90/184.0;
+    double output;
     @Override
     public void loop() {
 
+        double currentPosition = Arm.getCurrentPosition()-114;
+
+        output =getoutput(Math.toRadians(targetPosition* degreesPerTick),10)
+                + Controller.update(currentPosition);
+
+
+
+
+        Arm.setPower(output);
+
+        if(gamepad1.dpad_up) {
+            Controller.reset();
+            Controller.setTargetPosition(targetPosition);
+        }
+        if (gamepad1.dpad_down) {
+            Controller.reset();
+            Controller.setTargetPosition(30);
+            Outtake.setPosition(0);
+        }
+
+        double value = Lock.getDistance(DistanceUnit.INCH);
         TelemetryPacket packet = new TelemetryPacket();
+        packet.put("target position", targetPosition);
+        packet.put("output", output);
+        packet.put("Current Position",currentPosition);
+        packet.put("degrees", currentPosition * degreesPerTick);
+        packet.put("feedforward", getoutput(Math.toRadians(targetPosition * degreesPerTick), 0));
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
         drive = -gamepad1.left_stick_y;
         strafe = gamepad1.left_stick_x;
@@ -101,105 +145,31 @@ public class ControllerTest extends OpMode {
         BR.setPower(BRPower);
 
         IntakePower = gamepad1.left_trigger;
-        Intake.setPower(-IntakePower);
+        Intake.setPower(-IntakePower * 0.75);
 
-        if(gamepad1.left_bumper) {
+        if (gamepad1.left_bumper) {
             DuckL.setPower(DuckLPower);
-        }
-
-        else {
+        } else {
             DuckL.setPower(0);
         }
 
-        if(gamepad1.right_bumper) {
+        if (gamepad1.right_bumper) {
             DuckL.setPower(-DuckLPower);
-        }
-
-        else {
+        } else {
             DuckL.setPower(0);
         }
 
-        double output = Controller.update(Arm.getCurrentPosition());
+        if (gamepad1.a) {
+            Outtake.setPosition(0.9);
+        }
 
+        if(gamepad1.b) {
+            Outtake.setPosition(0.6);
+        }
 
-        packet.put("target position", targetPosition);
-        packet.put("Current Position",Arm.getCurrentPosition());
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
-        Arm.setPower(Range.clip(output,min,max));
-
-
-
-
-        if(gamepad1.y)
-            Controller.setTargetPosition(targetPosition);
-
-        if(gamepad1.a)
-            Controller.setTargetPosition(30);
-
-//        if (gamepad1.x)
-//            Outtake.setPosition(0.1);
-
-//        if (gamepad1.a)
-//
-//            Outtake.setPosition(0.5);
-//
-//        if (gamepad1.b)
-//
-//            Outtake.setPosition(-0.5);
-
-
-//        if (gamepad1.y) {
-//            // move to 0 degrees.
-//            LH.setPosition(0);
-//        } else if (gamepad1.x) {
-//            // move to 90 degrees.
-//            LH.setPosition(0.2);
-//        } else if (gamepad1.b) {
-            //move to 90 degrees opposite direction
-  //          LH.setPosition(-0.8);
-      //  }else if (gamepad1.a) {
-            // move to 180 degrees.
-            //LH.setPosition(1);
-     //   }
-//        if(gamepad1.dpad_up) {
-//            Arm.setPower(-ArmPower);
-//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
-//        else {
-//            Arm.setPower(0);
-//        }
-//        if (gamepad1.dpad_down) {
-//            Arm.setPower(ArmPower);
-//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
-//        else {
-//            Arm.setPower(0);
-//        }
-//
-////        Intake.setPower(gamepad1.left_trigger);
-////        Intake.setPower(-gamepad1.right_trigger);
-//
-//        if (gamepad1.a) {
-//            Arm.setTargetPosition(0);
-//            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            Arm.setPower(0.7);
-//        }
-//
-//            if (gamepad1.x) {
-//                Arm.setTargetPosition(-69);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
-//            if (gamepad1.y) {
-//                Arm.setTargetPosition(-200);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
-//            if (gamepad1.b) {
-//                Arm.setTargetPosition(-300);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
+        if (value <2) {
+            Outtake.setPosition(0.75);
+        }
 
 
 
@@ -217,7 +187,9 @@ public class ControllerTest extends OpMode {
         telemetry.addData("Arm Power", ArmPower);
         telemetry.addData("Status", "Running");
         telemetry.addData("Status", Arm.getPower());
-        telemetry.addData("Arm", Arm.getCurrentPosition());
+        telemetry.addData("Arm", currentPosition);
+        telemetry.addData("Outtake",Outtake.getPosition());
+        telemetry.addData("Distance",value);
         telemetry.update();
 
     }

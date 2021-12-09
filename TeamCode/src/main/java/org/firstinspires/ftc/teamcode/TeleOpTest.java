@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -8,46 +9,36 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-
-import kotlin.jvm.functions.Function2;
-
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @TeleOp (name = "TeleOpTest")
 public class TeleOpTest extends OpMode {
 
-    public static double kp = 0.009;
-    public static double ki = 0.003;
-    public static double kd = 0.00065;
-    public static double targetPosition = 420;
-    public static double min = -0.75;
-    public static double max = 0.75;
-    //public static double kG;
-
-//    private PIDCoefficients coeffs;
-//    PIDFController Controller = new PIDFController(coeffs, 0, 0, 0, new Function2<Double, Double, Double>() {
+    public static double kp = 0.015;
+    public static double ki = 0;
+    public static double kd = 0;
+    public static double targetPosition = 410;
+    public static double min = -0.5;
+    public static double max = 0.5;
+//    public  static double kcos;
+//    public static double kv;
+//    public static double targetVelocity =415;
+//    public static double targetAngle;
 //
-//        public Double invoke(Double position, Double velocity) {
-//            return kG;
-//        }
-//    });
+//    double reference = targetAngle;
 
-    PIDFController Controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
-
+    PIDFController Controller = new PIDFController(new PIDCoefficients(kp,ki,kd));
 
     //Identifying Motors and Servos
-    DcMotor FL, FR, BL, BR, Intake;
+    DcMotor FL, FR, BL, BR, Intake,DuckL;
     Servo Outtake;
     DcMotor Arm;
+    DistanceSensor Lock;
 
     double drive;
     double strafe;
@@ -60,7 +51,9 @@ public class TeleOpTest extends OpMode {
 
     double IntakePower;
 
-    double ArmPower =0.6;
+    double DuckLPower =0.75;
+
+    double ArmPower;
 
     @Override
     public void init() {
@@ -70,17 +63,22 @@ public class TeleOpTest extends OpMode {
         BL = hardwareMap.get(DcMotor.class, "BL");
         BR = hardwareMap.get(DcMotor.class, "BR");
 
+
         Arm = hardwareMap.dcMotor.get("Arm");
+
+        DuckL = hardwareMap.get(DcMotor.class, "DuckL");
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
+        Lock = hardwareMap.get(DistanceSensor.class,"Lock");
+
         //Connect Servo
-        //Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
+        Outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
         //Set ZERO POWER BEHAVIOR
-        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //Set Up Motor Direction
         FR.setDirection(DcMotor.Direction.FORWARD);
         FL.setDirection(DcMotor.Direction.REVERSE);
@@ -89,14 +87,39 @@ public class TeleOpTest extends OpMode {
 
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Outtake.setPosition(0.9);
         telemetry.addData("STATUS", "Initialized");
+        telemetry.update();
 
     }
 
+    //    double getoutput() {
+//        return Math.cos(reference)*kcos;
+//
+//
+//    }
+//    double getvelocity() {
+//        return kv * targetVelocity;
+//    }
     @Override
     public void loop() {
+        double output = Controller.update(Arm.getCurrentPosition());
+
+        Arm.setPower(Range.clip(output,min,max));
+
+
+
+
+        if(gamepad1.dpad_up) {
+            Controller.setTargetPosition(targetPosition);
+        }
+        if (gamepad1.dpad_down) {
+            Controller.setTargetPosition(65);
+            Outtake.setPosition(0.9);
+        }
+
+        double value = Lock.getDistance(DistanceUnit.INCH);
 
         TelemetryPacket packet = new TelemetryPacket();
 
@@ -115,86 +138,30 @@ public class TeleOpTest extends OpMode {
         BR.setPower(BRPower);
 
         IntakePower = gamepad1.left_trigger;
-        Intake.setPower(-IntakePower);
+        Intake.setPower(-IntakePower * 0.75);
 
-        double output = Controller.update(Arm.getCurrentPosition());
+        if (gamepad1.left_bumper) {
+            DuckL.setPower(DuckLPower);
+        } else {
+            DuckL.setPower(0);
+        }
 
+        if (gamepad1.right_bumper) {
+            DuckL.setPower(-DuckLPower);
+        } else {
+            DuckL.setPower(0);
+        }
 
-        packet.put("target position", targetPosition);
-        packet.put("Current Position",Arm.getCurrentPosition());
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
-        Arm.setPower(Range.clip(output,min,max));
+        if (gamepad1.a) {
+            Outtake.setPosition(0.6);
+        }
+        if (gamepad1.b) {
+            Outtake.setPosition(0.9);
+        }
 
-
-
-
-        if(gamepad1.y)
-            Controller.setTargetPosition(targetPosition);
-
-//        if (gamepad1.x)
-//            Outtake.setPosition(0.1);
-
-//        if (gamepad1.a)
-//
-//            Outtake.setPosition(0.5);
-//
-//        if (gamepad1.b)
-//
-//            Outtake.setPosition(-0.5);
-
-
-//        if (gamepad1.y) {
-//            // move to 0 degrees.
-//            LH.setPosition(0);
-//        } else if (gamepad1.x) {
-//            // move to 90 degrees.
-//            LH.setPosition(0.2);
-//        } else if (gamepad1.b) {
-        //move to 90 degrees opposite direction
-        //          LH.setPosition(-0.8);
-        //  }else if (gamepad1.a) {
-        // move to 180 degrees.
-        //LH.setPosition(1);
-        //   }
-//        if(gamepad1.dpad_up) {
-//            Arm.setPower(-ArmPower);
-//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
-//        else {
-//            Arm.setPower(0);
-//        }
-//        if (gamepad1.dpad_down) {
-//            Arm.setPower(ArmPower);
-//            Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        }
-//        else {
-//            Arm.setPower(0);
-//        }
-//
-////        Intake.setPower(gamepad1.left_trigger);
-////        Intake.setPower(-gamepad1.right_trigger);
-//
-//        if (gamepad1.a) {
-//            Arm.setTargetPosition(0);
-//            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            Arm.setPower(0.7);
-//        }
-//
-//            if (gamepad1.x) {
-//                Arm.setTargetPosition(-69);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
-//            if (gamepad1.y) {
-//                Arm.setTargetPosition(-200);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
-//            if (gamepad1.b) {
-//                Arm.setTargetPosition(-300);
-//                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                Arm.setPower(0.7);
-//            }
+        if (value <2) {
+            Outtake.setPosition(0.75);
+        }
 
 
 
@@ -213,33 +180,9 @@ public class TeleOpTest extends OpMode {
         telemetry.addData("Status", "Running");
         telemetry.addData("Status", Arm.getPower());
         telemetry.addData("Arm", Arm.getCurrentPosition());
+        telemetry.addData("Distance",value);
+        telemetry.addData("Outtake",Outtake.getPosition());
         telemetry.update();
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        for (DcMotor dcMotor : Arrays.asList(FL, FR, BL, BR)) {
-//            dcMotor.setPower(gamepad1.left_trigger);
-//        }

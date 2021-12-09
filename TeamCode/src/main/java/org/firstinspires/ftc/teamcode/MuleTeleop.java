@@ -9,7 +9,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
@@ -23,6 +25,8 @@ public class MuleTeleop extends OpMode {
     DcMotor BL = null;
     DcMotor Arm = null;
 
+    DistanceSensor Lock;
+
     double drive;
     double strafe;
     double rotate;
@@ -32,7 +36,7 @@ public class MuleTeleop extends OpMode {
     double BLPower;
     double BRPower;
 
-    double ArmPower =0.5;
+    double ArmPower;
 
     @Override
     public void init() {
@@ -44,6 +48,8 @@ public class MuleTeleop extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
+        Lock = hardwareMap.get(DistanceSensor.class,"Lock");
+
         FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -54,12 +60,18 @@ public class MuleTeleop extends OpMode {
         BR.setDirection(DcMotor.Direction.FORWARD);
         BL.setDirection(DcMotor.Direction.REVERSE);
 
-        telemetry.addData("STATUS", "Initialized");
+
+            telemetry.addData("STATUS", "Initialized");
+            telemetry.update();
 
     }
 
     @Override
     public void loop() {
+        double value = Lock.getDistance(DistanceUnit.INCH);
+        telemetry.addData("Distance",value);
+        telemetry.update();
+
         drive = -gamepad1.left_stick_y *0.75;
         strafe = gamepad1.left_stick_x *0.75;
         rotate = -gamepad1.right_stick_x *0.75;
@@ -74,6 +86,7 @@ public class MuleTeleop extends OpMode {
         BL.setPower(-BLPower);
         BR.setPower(-BRPower);
 
+
         if(gamepad1.dpad_up) {
             Arm.setPower(ArmPower);
 
@@ -83,6 +96,12 @@ public class MuleTeleop extends OpMode {
         }
         if (gamepad1.dpad_down) {
             Arm.setPower(-ArmPower);
+        }
+        else {
+            Arm.setPower(0);
+        }
+        if (value < 3) {
+            Arm.setPower(0.3);
         }
         else {
             Arm.setPower(0);
