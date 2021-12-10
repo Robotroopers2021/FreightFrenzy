@@ -49,7 +49,7 @@ public class ControllerTest extends OpMode {
 
     double duckLPower =0.75;
 
-    double armPower;
+    public double currentPosition = 0;
 
     double degreesPerTick =90/184.0;
     double ticksPerDegree = 184.0/90;
@@ -68,13 +68,8 @@ public class ControllerTest extends OpMode {
     private double getFeedForward(double targetAngle) {
         return Math.cos(targetAngle) * kcos;
     }
-    public double currentPosition = 0;
 
     private void armControl() {
-        currentPosition = arm.getCurrentPosition()-114;
-        feedForward = getFeedForward(Math.toRadians((targetAngle)));
-        pidOutput = armController.update(currentPosition);
-        output = feedForward + pidOutput;
         if (gamepad1.dpad_up) {
             moveArmToDegree(depositAngle);
             outtake.setPosition(0.75);
@@ -83,6 +78,11 @@ public class ControllerTest extends OpMode {
             moveArmToDegree(restAngle);
             outtake.setPosition(0.9);
         }
+
+        currentPosition = arm.getCurrentPosition()-114;
+        feedForward = getFeedForward(Math.toRadians(targetAngle));
+        pidOutput = armController.update(currentPosition);
+        output = feedForward + pidOutput;
         arm.setPower(output);
     }
 
@@ -118,7 +118,7 @@ public class ControllerTest extends OpMode {
             outtake.setPosition(0.6);
         }
         if (value <2) {
-            outtake.setPosition(0.74);
+            outtake.setPosition(0.753);
         }
     }
 
@@ -168,14 +168,6 @@ public class ControllerTest extends OpMode {
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("target angle", targetAngle);
-        packet.put("output", output);
-        packet.put("Current Position",currentPosition);
-        packet.put("degrees", currentPosition * degreesPerTick);
-        packet.put("feedforward", getFeedForward(Math.toRadians(targetAngle)));
-        packet.put("target ticks", targetTicks);
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
         outtake.setPosition(0.9);
         armController.reset();
@@ -201,25 +193,15 @@ public class ControllerTest extends OpMode {
 
 
 
-        //Adding Telemetry
-        //telemetry.addData("Servo Position", Outtake.getPosition());
-        telemetry.addData("Motor Power", FL.getPower());
-        telemetry.addData("Motor Power", FR.getPower());
-        telemetry.addData("Motor Power", BL.getPower());
-        telemetry.addData("Motor Power", BR.getPower());
-        telemetry.addData("Motor Power", arm.getPower());
-        telemetry.addData("FL Power", FLPower);
-        telemetry.addData("BR Power", BRPower);
-        telemetry.addData("BL Power", BLPower);
-        telemetry.addData("FR Power", FRPower);
-        telemetry.addData("Arm Power", armPower);
-        telemetry.addData("Status", "Running");
-        telemetry.addData("Status", arm.getPower());
-        telemetry.addData("Arm", currentPosition);
-        telemetry.addData("Outtake", outtake.getPosition());
-        telemetry.addData("Distance",value);
-        telemetry.update();
-
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("target angle", targetAngle);
+        packet.put("pid output", pidOutput);
+        packet.put("output", pidOutput + feedForward);
+        packet.put("Current Position",currentPosition);
+        packet.put("degrees", currentPosition * degreesPerTick);
+        packet.put("feedforward", feedForward);
+        packet.put("target ticks", targetTicks);
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 }
 
