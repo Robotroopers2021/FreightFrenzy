@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
-@Autonomous (name= "AutoFarV1")
-public class AutoFarV1 extends LinearOpMode {
+@Autonomous (name= "AutoFarBlueV1")
+public class AutoFarBlueV1 extends LinearOpMode {
 
     SampleMecanumDrive drive;
 

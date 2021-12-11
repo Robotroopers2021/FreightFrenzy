@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name= "AutoNearV1")
-public class AutoNearV1 extends LinearOpMode {
+@Autonomous(name= "AutoNearBlueV1")
+public class AutoNearBlueV1 extends LinearOpMode {
 
     SampleMecanumDrive drive;
 

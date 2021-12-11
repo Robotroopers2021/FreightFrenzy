@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
@@ -72,7 +71,7 @@ public class ControllerTest extends OpMode {
     private void armControl() {
         if (gamepad1.dpad_up) {
             moveArmToDegree(depositAngle);
-            outtake.setPosition(0.75);
+            outtake.setPosition(0.8);
         }
         if (gamepad1.dpad_down) {
             moveArmToDegree(restAngle);
@@ -88,9 +87,9 @@ public class ControllerTest extends OpMode {
 
 
     private void driveControl() {
-        drive = -gamepad1.left_stick_y;
-        strafe = gamepad1.left_stick_x;
-        rotate = gamepad1.right_stick_x;
+        drive = -gamepad1.left_stick_y *0.75;
+        strafe = gamepad1.left_stick_x *0.75;
+        rotate = gamepad1.right_stick_x *0.6;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
@@ -104,8 +103,9 @@ public class ControllerTest extends OpMode {
     }
 
     private void intakeControl() {
-        intakePower = gamepad1.left_trigger;
+        intakePower = gamepad1.left_trigger + -gamepad1.right_trigger;
         Intake.setPower(-intakePower * 0.85);
+
 
     }
 
@@ -118,7 +118,7 @@ public class ControllerTest extends OpMode {
             outtake.setPosition(0.6);
         }
         if (value <2) {
-            outtake.setPosition(0.753);
+            outtake.setPosition(0.8);
         }
     }
 
@@ -190,9 +190,6 @@ public class ControllerTest extends OpMode {
         outtakeControl();
         duckControl();
 
-
-
-
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("target angle", targetAngle);
         packet.put("pid output", pidOutput);
@@ -204,36 +201,3 @@ public class ControllerTest extends OpMode {
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        for (DcMotor dcMotor : Arrays.asList(FL, FR, BL, BR)) {
-//            dcMotor.setPower(gamepad1.left_trigger);
-//        }
-
-
-
-
-
-
-
