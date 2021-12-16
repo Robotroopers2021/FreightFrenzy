@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo
 
 @Config
 @TeleOp
-class LeviTeleOp : OpMode() {
+class GrishaTeleOp : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -96,13 +96,20 @@ class LeviTeleOp : OpMode() {
     }
 
     private fun driveControl() {
-        drive = -gamepad1.left_stick_y.toDouble() * 0.75
-        strafe = gamepad1.left_stick_x.toDouble() * 0.75
-        rotate = gamepad1.right_stick_x.toDouble() * 0.6
+        val cscalingvariable = 0.85
+        val negleftstick1 = -gamepad1.left_stick_y.toDouble()
+        val leftstick1 = gamepad1.left_stick_x.toDouble()
+        val rightstick1 = gamepad1.right_stick_x.toDouble()
+
+        drive = (negleftstick1 - (cscalingvariable * negleftstick1) + (negleftstick1 * negleftstick1 * negleftstick1)) *0.75
+        strafe = (leftstick1 - (cscalingvariable * leftstick1) + (leftstick1 * leftstick1 * leftstick1)) * 0.75
+        rotate = (rightstick1 - (cscalingvariable * rightstick1) + (rightstick1 * rightstick1 * rightstick1)) * 0.5
+
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
         br.power = drive + strafe - rotate
+
     }
 
     private fun intakeControl() {
@@ -182,7 +189,7 @@ class LeviTeleOp : OpMode() {
         outtakeControl()
         duckControl()
 
-         fun getFeedForward(targetAngle: Double): Double {
+        fun getFeedForward(targetAngle: Double): Double {
             return Math.cos(targetAngle) * kcos
         }
 
