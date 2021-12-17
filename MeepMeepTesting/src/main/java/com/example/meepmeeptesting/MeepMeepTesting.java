@@ -22,10 +22,16 @@ public class MeepMeepTesting {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(48, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(90)))
-                                .lineToConstantHeading(new Vector2d(-12, 41))
-                                .lineToConstantHeading(new Vector2d(-57, 55))
-                                .lineToSplineHeading(new Pose2d(-58, 36, Math.toRadians(0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(-36, -60, Math.toRadians(270)))
+                                .lineToConstantHeading(new Vector2d(-57, -55))
+                                .addTemporalMarker( ( ) -> {
+                                    //DuckL.setPower( -0.75 );
+                                } )
+                                .waitSeconds( 2.2 )
+                                .addTemporalMarker( ( ) -> {
+                                    //DuckL.setPower(0);
+                                } )
+                                .lineToSplineHeading(new Pose2d(-61, -33, Math.toRadians(0)))
                                 .build()
                 )
                 .start();
