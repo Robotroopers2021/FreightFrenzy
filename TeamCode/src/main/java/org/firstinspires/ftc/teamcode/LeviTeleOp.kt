@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import kotlin.math.cos
 
 @Config
 @TeleOp
@@ -126,7 +127,7 @@ class LeviTeleOp : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.82
+            outtakeServo.position = 0.83
         }
     }
 
@@ -183,14 +184,14 @@ class LeviTeleOp : OpMode() {
         duckControl()
 
          fun getFeedForward(targetAngle: Double): Double {
-            return Math.cos(targetAngle) * kcos
+            return cos(targetAngle) * kcos
         }
 
         val kcosup = 0.5
         val kcosdown = 0.5
 
         fun feedforward(target: Double, up: Boolean): Double {
-            return Math.cos(target) * if(up) {
+            return cos(target) * if(up) {
                 kcosup
             } else {
                 kcosdown
