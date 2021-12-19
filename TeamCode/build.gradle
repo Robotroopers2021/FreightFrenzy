@@ -23,3 +23,7 @@ dependencies {
     implementation 'com.acmerobotics.roadrunner:core:0.5.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
+
+dependencies {
+    implementation 'org.openftc:easyopencv:1.5.1'
+}

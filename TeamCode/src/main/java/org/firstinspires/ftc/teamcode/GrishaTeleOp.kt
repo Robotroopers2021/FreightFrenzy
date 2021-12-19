@@ -190,23 +190,6 @@ class GrishaTeleOp : OpMode() {
         outtakeControl()
         duckControl()
 
-        fun getFeedForward(targetAngle: Double): Double {
-            return cos(targetAngle) * kcos
-        }
-
-        val kcosup = 0.5
-        val kcosdown = 0.5
-
-        fun feedforward(target: Double, up: Boolean): Double {
-            return cos(target) * if(up) {
-                kcosup
-            } else {
-                kcosdown
-            }
-        }
-
-
-
     }
 
     companion object {

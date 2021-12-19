@@ -10,11 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
-import kotlin.math.cos
 
 @Config
 @TeleOp
-class LeviTeleOp : OpMode() {
+class CompTeleOp : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -71,7 +70,7 @@ class LeviTeleOp : OpMode() {
                 moveArmToDegree(restAngle)
                 outtakeServo.position = 0.92
             }
-            gamepad1.dpad_down -> {
+            gamepad1.b -> {
                 moveArmToDegree(sharedAngle)
             }
         }
@@ -141,6 +140,9 @@ class LeviTeleOp : OpMode() {
         }
     }
 
+    fun cubicScaling(k: Double, x: Double): Double {
+        return (1 - k) * x + k * x * x * x
+    }
 
     override fun init() {
         //Connect Motor
@@ -182,6 +184,23 @@ class LeviTeleOp : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
+
+        fun getFeedForward(targetAngle: Double): Double {
+            return Math.cos(targetAngle) * kcos
+        }
+
+        val kcosup = 0.5
+        val kcosdown = 0.5
+
+        fun feedforward(target: Double, up: Boolean): Double {
+            return Math.cos(target) * if(up) {
+                kcosup
+            } else {
+                kcosdown
+            }
+        }
+
+
 
     }
 

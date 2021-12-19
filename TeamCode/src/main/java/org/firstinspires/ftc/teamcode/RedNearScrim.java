@@ -24,7 +24,7 @@ public class RedNearScrim extends LinearOpMode {
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(-36, -60, Math.toRadians(180)))
                 .lineToConstantHeading(new Vector2d(-57, -55))
                 .addTemporalMarker( ( ) -> {
-                    DuckL.setPower( -0.75 );
+                    DuckL.setPower( 0.75 );
                 } )
                 .waitSeconds( 2.2 )
                 .addTemporalMarker( ( ) -> {
