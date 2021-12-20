@@ -97,8 +97,7 @@ class fsmIsSoHard : OpMode() {
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
         outtakeServo.position = 0.83
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(Vector2d(-9.0,37
-                        .0) )
+                .lineToConstantHeading(Vector2d(-9.0,37.0) )
                 .build()
         moveToWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
                 .splineTo(Vector2d(15.0,60.0),0.0)
