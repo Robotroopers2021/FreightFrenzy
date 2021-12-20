@@ -30,9 +30,8 @@ class DepositTopBlueAuto : OpMode() {
 
     private lateinit var moveToDepositTrajectorySequence : TrajectorySequence
 
-    private lateinit var moveToWarehouseFrontTrajectorySequence : TrajectorySequence
+    private lateinit var moveIntoWarehouseFrontTrajectorySequence : TrajectorySequence
 
-    private lateinit var moveIntoWarehouseTrajectorySequence : TrajectorySequence
 
     private fun moveArmToDegree(degrees: Double) {
 
@@ -57,37 +56,34 @@ class DepositTopBlueAuto : OpMode() {
 
 
     private enum class InitialDepositStates {
-        MOVE_TO_DEPOSIT,
         MOVE_ARM_UP,
+        MOVE_TO_DEPOSIT,
         MOVE_OUTTAKE,
         MOVE_ARM_DOWN,
-        GO_TO_FRONT_WAREHOUSE,
-        GO_INTO_WAREHOUSE
+        GO_INTO_WAREHOUSE,
     }
 
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
+            .state(InitialDepositStates.MOVE_ARM_UP)
+            .onEnter { arm.moveArmToTopPos() }
+            .transitionTimed(1.0)
             .state(InitialDepositStates.MOVE_TO_DEPOSIT)
             .onEnter { drive.followTrajectorySequenceAsync(moveToDepositTrajectorySequence) }
             .transition { !drive.isBusy }
-            .state(InitialDepositStates.MOVE_ARM_UP)
-            .onEnter { arm.moveArmToTopPos() }
-            .transitionTimed(2.0)
             .state (InitialDepositStates.MOVE_OUTTAKE)
             .onEnter { moveOuttakeToOut() }
-            .transitionTimed( 2.0)
+            .transitionTimed( 1.0)
             .state(InitialDepositStates.MOVE_ARM_DOWN)
             .onEnter{
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
             }
-            .transitionTimed(2.0)
-            .state (InitialDepositStates.GO_TO_FRONT_WAREHOUSE)
-            .onEnter {drive.followTrajectorySequenceAsync(moveToWarehouseFrontTrajectorySequence) }
+            .transitionTimed(1.5)
+            .state (InitialDepositStates.GO_INTO_WAREHOUSE)
+            .onEnter {drive.followTrajectorySequenceAsync(moveIntoWarehouseFrontTrajectorySequence) }
             .transition { !drive.isBusy }
 
-            .state (InitialDepositStates.GO_INTO_WAREHOUSE)
-            .onEnter {drive.followTrajectorySequenceAsync(moveIntoWarehouseTrajectorySequence)}
-            .transition { !drive.isBusy }
+
             .build()
 
 
@@ -99,10 +95,8 @@ class DepositTopBlueAuto : OpMode() {
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
                 .lineToConstantHeading(Vector2d(-9.0,37.0) )
                 .build()
-        moveToWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
+        moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
                 .splineTo(Vector2d(15.0,60.0),0.0)
-                .build()
-        moveIntoWarehouseTrajectorySequence = drive.trajectorySequenceBuilder(moveToWarehouseFrontTrajectorySequence.end())
                 .lineToConstantHeading(Vector2d(41.0,63.0))
                 .build()
 
