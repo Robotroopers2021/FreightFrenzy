@@ -1,8 +1,10 @@
-package org.firstinspires.ftc.teamcode.stateMachine
+package org.firstinspires.ftc.teamcode.stateMachine;
 
-import org.firstinspires.ftc.teamcode.stateMachine.Timedtransition
-
-import org.firstinspires.ftc.teamcode.stateMachine.TransitionCondition
+import robotuprising.lib.system.statemachine.Action
+import robotuprising.lib.system.statemachine.State
+import robotuprising.lib.system.statemachine.StateMachine
+import robotuprising.lib.system.statemachine.transition.TimedTransition
+import robotuprising.lib.system.statemachine.transition.TransitionCondition
 
 class StateMachineBuilder<StateEnum> {
 
@@ -27,7 +29,7 @@ class StateMachineBuilder<StateEnum> {
         return this
     }
 
-    fun transitionTimed(time: Double): StateMachineBuilder<StateEnum> = transition(Timedtransition(time))
+    fun transitionTimed(time: Double): StateMachineBuilder<StateEnum> = transition(TimedTransition(time))
 
     fun onEnter(callback: Action): StateMachineBuilder<StateEnum> {
         if (stateList.isEmpty())

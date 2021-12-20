@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.stateMachine
+package robotuprising.lib.system.statemachine
 
-import org.firstinspires.ftc.teamcode.stateMachine.Timedtransition
+import robotuprising.lib.system.statemachine.transition.TimedTransition
 
-class StateMachine <StateEnum>(private val stateList: List<State<StateEnum>>, private val exitToState: StateEnum?) {
+class StateMachine<StateEnum>(private val stateList: List<State<StateEnum>>, private val exitToState: StateEnum?) {
     var running = false
         private set
 
@@ -11,8 +11,8 @@ class StateMachine <StateEnum>(private val stateList: List<State<StateEnum>>, pr
     fun start() {
         running = true
 
-        if (currentState.transitionCondition is Timedtransition)
-            (currentState.transitionCondition as Timedtransition).startTimer()
+        if (currentState.transitionCondition is TimedTransition)
+            (currentState.transitionCondition as TimedTransition).startTimer()
 
         currentState.enterActions.forEach { me -> me.run() }
     }
@@ -59,8 +59,8 @@ class StateMachine <StateEnum>(private val stateList: List<State<StateEnum>>, pr
 
         currentState.enterActions.forEach { it.run() }
 
-        if (currentState.transitionCondition is Timedtransition)
-            (currentState.transitionCondition as Timedtransition).startTimer()
+        if (currentState.transitionCondition is TimedTransition)
+            (currentState.transitionCondition as TimedTransition).startTimer()
 
         return true
     }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.stateMachine
+package robotuprising.lib.system.statemachine
 
 fun interface Action {
     fun run()
