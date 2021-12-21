@@ -12,14 +12,14 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 @Autonomous(preselectTeleOp = "CompTeleOp")
-class DepositTopRedAuto : OpMode() {
+class CycleAutoBlue : OpMode() {
     private val startX = 15.0
-    private val startY = -56.0
-    private val startAngle = Math.toRadians(270.0)
+    private val startY = 56.0
+    private val startAngle = Math.toRadians(90.0)
     private val depositServoAngle = 0.6
     private val depositArmAngle = 140.0
     private val depositX = -11.0
-    private val depositY = -35.0
+    private val depositY = 35.0
     private val depositBotAngle = 90.0
     private val arm = Arm()
 
@@ -32,6 +32,11 @@ class DepositTopRedAuto : OpMode() {
 
     private lateinit var moveIntoWarehouseFrontTrajectorySequence : TrajectorySequence
 
+    private lateinit var moveBackOutTrajectorySequence : TrajectorySequence
+
+    private lateinit var moveToDepositTwoTrajectorySequence : TrajectorySequence
+
+    private lateinit var moveIntoWarehouseEndTrajectorySequence : TrajectorySequence
 
     private fun moveArmToDegree(degrees: Double) {
 
@@ -61,6 +66,12 @@ class DepositTopRedAuto : OpMode() {
         MOVE_OUTTAKE,
         MOVE_ARM_DOWN,
         GO_INTO_WAREHOUSE,
+        INTAKE_FREIGHT,
+        GO_BACK_OUT,
+        MOVE_TO_DEPOSIT_TWO,
+        MOVE_OUTTAKE_TWO,
+        MOVE_ARM_DOWN_TWO,
+        GO_INTO_WAREHOUSE_END,
     }
 
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
@@ -93,11 +104,11 @@ class DepositTopRedAuto : OpMode() {
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
         outtakeServo.position = 0.83
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(Vector2d(-9.0,-37.0) )
+                .lineToConstantHeading(Vector2d(-9.0,37.0) )
                 .build()
         moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,-60.0),0.0)
-                .lineToConstantHeading(Vector2d(41.0,-63.0))
+                .splineTo(Vector2d(15.0,60.0),0.0)
+                .lineToConstantHeading(Vector2d(41.0,66.0))
                 .build()
 
         drive.poseEstimate = startPose
