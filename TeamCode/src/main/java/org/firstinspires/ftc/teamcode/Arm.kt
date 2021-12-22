@@ -39,6 +39,11 @@ class Arm {
         moveArmToDegree(140.0)
     }
 
+    fun moveArmToTopPosTwo(){
+
+        moveArmToDegree(135.0)
+    }
+
     fun moveArmToBottomPos(){
 
         moveArmToDegree(-55.0)

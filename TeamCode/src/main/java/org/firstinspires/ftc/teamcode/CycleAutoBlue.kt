@@ -26,7 +26,7 @@ class CycleAutoBlue : OpMode() {
     private val cycleBegPoseX = 45.0
     private val cycleBegPoseY = 63.0
     private val cycleBegPoseAngle = Math.toRadians(0.0)
-    private val warehouseFrontX = 15.0
+    private val warehouseFrontX = 6.0
     private val warehouseFrontY = 63.0
     private val warehouseFrontAngle = Math.toRadians(0.0)
     private val arm = Arm()
@@ -81,50 +81,45 @@ class CycleAutoBlue : OpMode() {
         intakeMotor.power = 0.0
     }
 
+    fun getFreightOut(){
+        intakeMotor.power = 1.0
+    }
+
 
 
     lateinit var drive: SampleMecanumDrive
 
 
     private enum class InitialDepositStates {
-        MOVE_ARM_UP,
-        MOVE_TO_DEPOSIT,
+        MOVE_TO_DEPOSIT_ARM__UP,
         MOVE_OUTTAKE,
-        MOVE_ARM_DOWN,
         GO_INTO_WAREHOUSE,
         INTAKE_FREIGHT,
         GO_BACK_OUT,
-        LOCK_INDEXER,
         MOVE_TO_DEPOSIT_TWO,
         MOVE_ARM_UP_TWO,
         MOVE_OUTTAKE_TWO,
-        MOVE_ARM_DOWN_TWO,
         GO_INTO_WAREHOUSE_END,
     }
 
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
-            .state(InitialDepositStates.MOVE_ARM_UP)
-            .onEnter { arm.moveArmToTopPos() }
-            .transitionTimed(1.0)
 
-            .state(InitialDepositStates.MOVE_TO_DEPOSIT)
-            .onEnter { drive.followTrajectorySequenceAsync(moveToDepositTrajectorySequence) }
+            .state(InitialDepositStates.MOVE_TO_DEPOSIT_ARM__UP)
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveToDepositTrajectorySequence)
+                arm.moveArmToTopPos()
+            }
             .transition { !drive.isBusy }
 
             .state (InitialDepositStates.MOVE_OUTTAKE)
             .onEnter { moveOuttakeToOut() }
-            .transitionTimed( 1.0)
-
-            .state(InitialDepositStates.MOVE_ARM_DOWN)
-            .onEnter{
-                arm.moveArmToBottomPos()
-                moveOuttakeToOpen()
-            }
-            .transitionTimed(1.5)
+            .transitionTimed( 0.2)
 
             .state (InitialDepositStates.GO_INTO_WAREHOUSE)
             .onEnter {
                 drive.followTrajectorySequenceAsync(moveIntoWarehouseFrontTrajectorySequence)
+                arm.moveArmToBottomPos()
+                moveOuttakeToOpen()
                 intakeFreight()
             }
             .transition { !drive.isBusy }
@@ -133,44 +128,42 @@ class CycleAutoBlue : OpMode() {
             .onEnter {
                 intakeFreight()
             }
-            .transitionTimed(1.5)
+            .transitionTimed(0.5)
 
             .state (InitialDepositStates.GO_BACK_OUT)
-            .onEnter {drive.followTrajectorySequenceAsync(moveBackOutTrajectorySequence)}
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveBackOutTrajectorySequence)
+                getFreightOut()
+            }
             .transition { !drive.isBusy}
 
-            .state(InitialDepositStates.LOCK_INDEXER)
+            .state (InitialDepositStates.MOVE_TO_DEPOSIT_TWO)
             .onEnter {
+                drive.followTrajectorySequenceAsync(moveToDepositTwoTrajectorySequence)
                 moveOuttakeToLock()
                 stopIntake()
             }
-            .transitionTimed(1.0)
-
-            .state (InitialDepositStates.MOVE_TO_DEPOSIT_TWO)
-            .onEnter {drive.followTrajectorySequenceAsync(moveToDepositTwoTrajectorySequence)}
             .transition {!drive.isBusy}
 
             .state (InitialDepositStates.MOVE_ARM_UP_TWO)
             .onEnter {
-                arm.moveArmToTopPos()
+                arm.moveArmToTopPosTwo()
             }
-            .transitionTimed(1.0)
+            .transitionTimed(0.8)
 
             .state (InitialDepositStates.MOVE_OUTTAKE_TWO)
             .onEnter{
                 moveOuttakeToOut()
             }
-            .transitionTimed(1.0)
+            .transitionTimed(0.2)
 
-            .state (InitialDepositStates.MOVE_ARM_DOWN_TWO)
-            .onEnter{
+
+            .state (InitialDepositStates.GO_INTO_WAREHOUSE_END)
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveIntoWarehouseEndTrajectorySequence)
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
             }
-            .transitionTimed(1.5)
-
-            .state (InitialDepositStates.GO_INTO_WAREHOUSE_END)
-            .onEnter {drive.followTrajectorySequenceAsync(moveIntoWarehouseEndTrajectorySequence)}
             .transition{!drive.isBusy}
 
             .build()
@@ -187,18 +180,18 @@ class CycleAutoBlue : OpMode() {
                 .lineToConstantHeading(Vector2d(-9.0,37.0) )
                 .build()
         moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,60.0),0.0)
-                .lineToConstantHeading(Vector2d(45.0,66.0))
+                .splineTo(Vector2d(15.0,63.0),0.0)
+                .lineToConstantHeading(Vector2d(51.0,63.0))
                 .build()
         moveBackOutTrajectorySequence = drive.trajectorySequenceBuilder(cycleBegPose)
-                .lineToConstantHeading(Vector2d (15.0,60.0))
+                .lineToConstantHeading(Vector2d (6.0,63.0))
                 .build()
         moveToDepositTwoTrajectorySequence = drive.trajectorySequenceBuilder(warehouseFrontPose)
-                .splineTo(Vector2d(-9.0, 37.0,),90.0)
+                .splineToSplineHeading(Pose2d(-9.0, 41.0, Math.toRadians(90.0)), Math.toRadians(60.0))
                 .build()
         moveIntoWarehouseEndTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,60.0),0.0)
-                .lineToConstantHeading(Vector2d(41.0,63.0))
+                .splineTo(Vector2d(15.0,65.0),0.0)
+                .lineToConstantHeading(Vector2d(41.0,65.0))
                 .build()
 
         drive.poseEstimate = startPose
