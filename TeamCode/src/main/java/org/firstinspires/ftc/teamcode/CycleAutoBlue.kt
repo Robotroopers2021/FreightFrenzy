@@ -16,17 +16,12 @@ import org.firstinspires.ftc.teamcode.util.math.Pose
 @Autonomous(preselectTeleOp = "CompTeleOp")
 class CycleAutoBlue : OpMode() {
     private val startX = 15.0
-    private val startY = 56.0
-    private val startAngle = Math.toRadians(90.0)
-    private val depositServoAngle = 0.6
-    private val depositArmAngle = 140.0
-    private val depositX = -11.0
-    private val depositY = 35.0
-    private val depositBotAngle = 90.0
-    private val cycleBegPoseX = 45.0
-    private val cycleBegPoseY = 63.0
-    private val cycleBegPoseAngle = Math.toRadians(0.0)
-    private val warehouseFrontX = 6.0
+    private val startY = 63.0
+    private val startAngle = Math.toRadians(0.0)
+    private val depositX = -1.0
+    private val depositY = 38.0
+    private val depositBotAngle = 55.0
+    private val warehouseFrontX = 44.0
     private val warehouseFrontY = 63.0
     private val warehouseFrontAngle = Math.toRadians(0.0)
     private val arm = Arm()
@@ -35,8 +30,6 @@ class CycleAutoBlue : OpMode() {
     private val startPose = Pose2d(startX,startY,startAngle)
 
     private val depositPose = Pose2d(depositX,depositY,depositBotAngle)
-
-    private val cycleBegPose = Pose2d(cycleBegPoseX,cycleBegPoseY,cycleBegPoseAngle)
 
     private val warehouseFrontPose = Pose2d(warehouseFrontX,warehouseFrontY,warehouseFrontAngle)
 
@@ -177,21 +170,23 @@ class CycleAutoBlue : OpMode() {
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(Vector2d(-9.0,37.0) )
+                .setReversed(true)
+                .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
+                .setReversed(false)
                 .build()
         moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,63.0),0.0)
-                .lineToConstantHeading(Vector2d(51.0,63.0))
-                .build()
-        moveBackOutTrajectorySequence = drive.trajectorySequenceBuilder(cycleBegPose)
-                .lineToConstantHeading(Vector2d (6.0,63.0))
+                .splineToSplineHeading( Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToConstantHeading( Vector2d(44.0, 63.0), Math.toRadians(0.0))
                 .build()
         moveToDepositTwoTrajectorySequence = drive.trajectorySequenceBuilder(warehouseFrontPose)
-                .splineToSplineHeading(Pose2d(-9.0, 41.0, Math.toRadians(90.0)), Math.toRadians(60.0))
+                .setReversed(true)
+                .splineToConstantHeading( Vector2d(15.0, 63.0), Math.toRadians(180.0))
+                .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
+                .setReversed(false)
                 .build()
         moveIntoWarehouseEndTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,65.0),0.0)
-                .lineToConstantHeading(Vector2d(41.0,65.0))
+                .splineTo(Vector2d(15.0,63.0),0.0)
+                .lineToConstantHeading(Vector2d(41.0,63.0))
                 .build()
 
         drive.poseEstimate = startPose
