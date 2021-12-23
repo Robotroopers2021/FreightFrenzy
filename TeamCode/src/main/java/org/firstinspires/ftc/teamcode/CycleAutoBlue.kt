@@ -18,8 +18,8 @@ class CycleAutoBlue : OpMode() {
     private val startX = 15.0
     private val startY = 63.0
     private val startAngle = Math.toRadians(0.0)
-    private val depositX = -1.0
-    private val depositY = 38.0
+    private val depositX = -3.0
+    private val depositY = 36.0
     private val depositBotAngle = 55.0
     private val warehouseFrontX = 44.0
     private val warehouseFrontY = 63.0
@@ -33,6 +33,10 @@ class CycleAutoBlue : OpMode() {
 
     private val warehouseFrontPose = Pose2d(warehouseFrontX,warehouseFrontY,warehouseFrontAngle)
 
+    private val bruhPose = Pose2d(53.0, 65.0, Math.toRadians(0.0))
+
+    private val idkPose = Pose2d(15.0, 63.0, Math.toRadians(0.0))
+
     private lateinit var moveToDepositTrajectorySequence : TrajectorySequence
 
     private lateinit var moveIntoWarehouseFrontTrajectorySequence : TrajectorySequence
@@ -42,6 +46,12 @@ class CycleAutoBlue : OpMode() {
     private lateinit var moveToDepositTwoTrajectorySequence : TrajectorySequence
 
     private lateinit var moveIntoWarehouseEndTrajectorySequence : TrajectorySequence
+
+    private lateinit var moveIntoWarehouseThree : TrajectorySequence
+
+    private lateinit var moveToDepositThreeTrajectorySequence : TrajectorySequence
+
+    private lateinit var moveBackOutThreeTrajectorySequence : TrajectorySequence
 
     private fun moveArmToDegree(degrees: Double) {
 
@@ -93,6 +103,11 @@ class CycleAutoBlue : OpMode() {
         MOVE_ARM_UP_TWO,
         MOVE_OUTTAKE_TWO,
         GO_INTO_WAREHOUSE_END,
+        GO_BACK_OUT_TWO,
+        MOVE_TO_DEPOSIT_THREE,
+        MOVE_ARM_UP_THREE,
+        MOVE_OUTTAKE_THREE,
+        GO_INTO_WAREHOUSE_REAL_END,
     }
 
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
@@ -153,13 +168,49 @@ class CycleAutoBlue : OpMode() {
 
             .state (InitialDepositStates.GO_INTO_WAREHOUSE_END)
             .onEnter {
-                drive.followTrajectorySequenceAsync(moveIntoWarehouseEndTrajectorySequence)
+                drive.followTrajectorySequenceAsync(moveIntoWarehouseFrontTrajectorySequence)
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
+                intakeFreight()
             }
             .transition{!drive.isBusy}
 
+            .state (InitialDepositStates.GO_BACK_OUT_TWO)
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveBackOutTrajectorySequence)
+                getFreightOut()
+            }
+            .transition { !drive.isBusy}
+
+            .state (InitialDepositStates.MOVE_TO_DEPOSIT_THREE)
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveToDepositTwoTrajectorySequence)
+                moveOuttakeToLock()
+                stopIntake()
+            }
+            .transition {!drive.isBusy}
+
+            .state (InitialDepositStates.MOVE_ARM_UP_THREE)
+            .onEnter {
+                arm.moveArmToTopPosTwo()
+            }
+            .transitionTimed(0.8)
+
+            .state (InitialDepositStates.MOVE_OUTTAKE_THREE)
+            .onEnter{
+                moveOuttakeToOut()
+            }
+            .transitionTimed(0.2)
+
+            .state(InitialDepositStates.GO_INTO_WAREHOUSE_REAL_END)
+            .onEnter {
+                drive.followTrajectorySequenceAsync(moveIntoWarehouseEndTrajectorySequence)
+                arm.moveArmToBottomPos()
+            }
+            .transition {!drive.isBusy}
             .build()
+
+
 
 
     override fun init() {
@@ -171,23 +222,41 @@ class CycleAutoBlue : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
-                .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
+                .splineToSplineHeading( Pose2d(-1.0, 37.0, Math.toRadians(55.0)), Math.toRadians(240.0))
                 .setReversed(false)
                 .build()
-        moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineToSplineHeading( Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .splineToConstantHeading( Vector2d(44.0, 63.0), Math.toRadians(0.0))
+        moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(Pose2d(-3.0,36.0, Math.toRadians(55.0)))
+                .splineToSplineHeading( Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToConstantHeading( Vector2d(48.0, 65.0), Math.toRadians(0.0))
                 .build()
-        moveToDepositTwoTrajectorySequence = drive.trajectorySequenceBuilder(warehouseFrontPose)
+        moveBackOutTrajectorySequence = drive.trajectorySequenceBuilder(warehouseFrontPose)
                 .setReversed(true)
                 .splineToConstantHeading( Vector2d(15.0, 63.0), Math.toRadians(180.0))
+                .build()
+        moveToDepositTwoTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
+                .setReversed(true)
                 .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
                 .setReversed(false)
                 .build()
-        moveIntoWarehouseEndTrajectorySequence = drive.trajectorySequenceBuilder(depositPose)
-                .splineTo(Vector2d(15.0,63.0),0.0)
+        moveIntoWarehouseEndTrajectorySequence = drive.trajectorySequenceBuilder(Pose2d(-3.0,36.0, Math.toRadians(55.0)))
+                .splineTo(Vector2d(15.0,65.0),0.0)
                 .lineToConstantHeading(Vector2d(41.0,63.0))
                 .build()
+        moveIntoWarehouseThree = drive.trajectorySequenceBuilder(Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
+                .splineToSplineHeading( Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToConstantHeading( Vector2d(51.0, 65.0), Math.toRadians(0.0))
+                .build()
+
+        moveToDepositThreeTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
+                .setReversed(true)
+                .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
+                .setReversed(false)
+                .build()
+        moveBackOutThreeTrajectorySequence = drive.trajectorySequenceBuilder(bruhPose)
+                .setReversed(true)
+                .splineToConstantHeading( Vector2d(15.0, 63.0), Math.toRadians(180.0))
+                .build()
+
 
         drive.poseEstimate = startPose
 

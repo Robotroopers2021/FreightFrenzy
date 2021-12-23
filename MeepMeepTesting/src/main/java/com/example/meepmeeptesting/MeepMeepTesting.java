@@ -23,26 +23,28 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(11.8, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d( 15, 63, Math.toRadians(0.0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(-3.0,36.0, Math.toRadians(55.0)))
+                                .splineTo(new Vector2d(15.0,63.0),0.0)
+                                .lineToConstantHeading(new Vector2d(41.0,63.0))
 
-                                //Initial Deposit Traj
-                                .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(-1, 38, Math.toRadians(55)), Math.toRadians(240))
-                                .setReversed(false)
-
-                                //Moving Back Into Warehouse Traj
-                                .splineToSplineHeading(new Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToConstantHeading(new Vector2d(44.0, 63.0), Math.toRadians(0.0))
-
-                                //Cycle Deposit Traj
-                                .setReversed(true)
-                                .splineToConstantHeading(new Vector2d(15, 63), Math.toRadians(180))
-                                .splineToSplineHeading(new Pose2d(-1, 38, Math.toRadians(55)), Math.toRadians(240))
-                                .setReversed(false)
-
-                                //Park End Traj
-                                .splineToSplineHeading(new Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToConstantHeading(new Vector2d(39.0, 63.0), Math.toRadians(0.0))
+//                                //Initial Deposit Traj
+//                                .setReversed(true)
+//                                .splineToSplineHeading(new Pose2d(-1, 38, Math.toRadians(55)), Math.toRadians(240))
+//                                .setReversed(false)
+//
+//                                //Moving Back Into Warehouse Traj
+//                                .splineToSplineHeading(new Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+//                                .splineToConstantHeading(new Vector2d(44.0, 63.0), Math.toRadians(0.0))
+//
+//                                //Cycle Deposit Traj
+//                                .setReversed(true)
+//                                .splineToConstantHeading(new Vector2d(15, 63), Math.toRadians(180))
+//                                .splineToSplineHeading(new Pose2d(-1, 38, Math.toRadians(55)), Math.toRadians(240))
+//                                .setReversed(false)
+//
+//                                //Park End Traj
+//                                .splineToSplineHeading(new Pose2d( 15.0, 63.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+//                                .splineToConstantHeading(new Vector2d(39.0, 63.0), Math.toRadians(0.0))
 //                                .setReversed(true)
 //                        .splineToSplineHeading(new Pose2d(-9, 37, Math.toRadians(90)), Math.toRadians(4.1))
 //                                .setReversed(false)
