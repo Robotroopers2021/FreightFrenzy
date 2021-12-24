@@ -23,9 +23,9 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(11.8, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-3.0,36.0, Math.toRadians(55.0)))
-                                .splineTo(new Vector2d(15.0,63.0),0.0)
-                                .lineToConstantHeading(new Vector2d(41.0,63.0))
+                        drive.trajectorySequenceBuilder(new Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
+                                .splineToSplineHeading( new Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                                .splineToSplineHeading( new Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))
 
 //                                //Initial Deposit Traj
 //                                .setReversed(true)

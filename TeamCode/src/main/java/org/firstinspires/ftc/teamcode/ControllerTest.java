@@ -151,6 +151,7 @@ public class ControllerTest extends OpMode {
 
         lock = hardwareMap.get(DistanceSensor.class,"Lock");
 
+
         //Connect Servo
         outtake = (Servo) hardwareMap.get(Servo.class, "Outtake");
         //Set ZERO POWER BEHAVIOR
