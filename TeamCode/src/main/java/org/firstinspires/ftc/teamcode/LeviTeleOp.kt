@@ -52,16 +52,6 @@ class LeviTeleOp : OpMode() {
         return Math.cos(targetAngle) * kcos
     }
 
-    val kcosup = 0.5
-    val kcosdown = 0.5
-
-    fun feedforward(target: Double, up: Boolean): Double {
-        return Math.cos(target) * if(up) {
-            kcosup
-        } else {
-            kcosdown
-        }
-    }
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
