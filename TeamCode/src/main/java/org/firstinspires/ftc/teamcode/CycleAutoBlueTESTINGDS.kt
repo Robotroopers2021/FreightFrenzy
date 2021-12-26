@@ -1,30 +1,24 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.roadrunner.control.PIDCoefficients
-import com.acmerobotics.roadrunner.control.PIDFController
+
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.util.math.Pose
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
 class CycleAutoBlueTESTINGDS : OpMode() {
     private val startX = 15.0
     private val startY = 63.0
     private val startAngle = Math.toRadians(0.0)
-    private val depositX = -3.0
-    private val depositY = 36.0
-    private val depositBotAngle = 55.0
     private val warehouseFrontX = 44.0
     private val warehouseFrontY = 63.0
     private val warehouseFrontAngle = Math.toRadians(0.0)
@@ -32,8 +26,6 @@ class CycleAutoBlueTESTINGDS : OpMode() {
 
 
     private val startPose = Pose2d(startX,startY,startAngle)
-
-    private val depositPose = Pose2d(depositX,depositY,depositBotAngle)
 
     private val warehouseFrontPose = Pose2d(warehouseFrontX,warehouseFrontY,warehouseFrontAngle)
 
@@ -59,45 +51,37 @@ class CycleAutoBlueTESTINGDS : OpMode() {
 
     private var motionTimer = ElapsedTime()
 
-    private fun moveArmToDegree(degrees: Double) {
+    private lateinit var outtakeServo: Servo
 
-    }
+    private lateinit var intakeMotor: DcMotor
 
-    lateinit var outtakeServo: Servo
-
-    lateinit var intakeMotor: DcMotor
-
-    lateinit var distanceSensor : Rev2mDistanceSensor
-
-    var value = distanceSensor.getDistance(DistanceUnit.INCH)
-
-    val maxTime = 1.0
+    private lateinit var distanceSensor : Rev2mDistanceSensor
 
 
 
-    fun moveOuttakeToOut(){
+    private fun moveOuttakeToOut(){
         outtakeServo.position = 0.6
 
     }
 
-    fun moveOuttakeToLock(){
+    private fun moveOuttakeToLock(){
         outtakeServo.position = 0.83
     }
 
-    fun moveOuttakeToOpen(){
+    private fun moveOuttakeToOpen(){
         outtakeServo.position = 0.92
 
     }
 
-    fun intakeFreight(){
+    private fun intakeFreight(){
         intakeMotor.power = -1.0
     }
 
-    fun stopIntake(){
+    private fun stopIntake(){
         intakeMotor.power = 0.0
     }
 
-    fun getFreightOut(){
+    private fun getFreightOut(){
         intakeMotor.power = 1.0
     }
 
