@@ -25,7 +25,7 @@ public class MuleTeleop extends OpMode {
     DcMotor BL = null;
     DcMotor Arm = null;
 
-    DistanceSensor Lock;
+    //DistanceSensor Lock;
 
     double drive;
     double strafe;
@@ -48,7 +48,7 @@ public class MuleTeleop extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
-        Lock = hardwareMap.get(DistanceSensor.class,"Lock");
+        //Lock = hardwareMap.get(DistanceSensor.class,"Lock");
 
         FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -68,9 +68,9 @@ public class MuleTeleop extends OpMode {
 
     @Override
     public void loop() {
-        double value = Lock.getDistance(DistanceUnit.INCH);
-        telemetry.addData("Distance",value);
-        telemetry.update();
+//        double value = Lock.getDistance(DistanceUnit.INCH);
+//        telemetry.addData("Distance",value);
+//        telemetry.update();
 
         drive = -gamepad1.left_stick_y *0.75;
         strafe = gamepad1.left_stick_x *0.75;
@@ -100,12 +100,12 @@ public class MuleTeleop extends OpMode {
         else {
             Arm.setPower(0);
         }
-        if (value < 3) {
-            Arm.setPower(0.3);
-        }
-        else {
-            Arm.setPower(0);
-        }
+//        if (value < 3) {
+//            Arm.setPower(0.3);
+//        }
+//        else {
+//            Arm.setPower(0);
+//        }
     }
 }
 
