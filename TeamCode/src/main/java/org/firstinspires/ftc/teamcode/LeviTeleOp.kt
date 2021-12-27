@@ -25,8 +25,9 @@ class LeviTeleOp : OpMode() {
 
     lateinit var duck: DcMotor
 
-    lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+
+    private val arm = Arm()
 
     lateinit var distanceSensor : Rev2mDistanceSensor
 
@@ -35,30 +36,14 @@ class LeviTeleOp : OpMode() {
     var rotate = 0.0
     var duckPower = 0.75
 
-    var armController = PIDFController(PIDCoefficients(kp, ki, kd))
-
-    var degreesPerTick = 90 / 184.0
-    var ticksPerDegree = 184.0 / 90
-    var targetTicks = 0.0
-    var output = 0.0
-    var pidOutput = 0.0
-    var feedForward = 0.0
-
-    private var intakeSequence = IntakeSequence()
-
-
-
-    private fun moveArmToDegree(degrees: Double) {
-        targetAngle = degrees
-        targetTicks = targetAngle * ticksPerDegree
-        armController.reset()
-        armController.targetPosition = targetTicks
-    }
+    private var intakeSequence = IntakeSequence(
+    //ASK NEIL BETA HOW TO DO THIS : ( : ( : (
+    )
 
     private fun getFeedForward(targetAngle: Double): Double {
         return Math.cos(targetAngle) * kcos
     }
-
+   //ALSO ASK HIM ON THIS :( :( :(
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
@@ -72,24 +57,6 @@ class LeviTeleOp : OpMode() {
                 moveArmToDegree(sharedAngle)
             }
         }
-
-        val currentPosition = (arm.currentPosition - 114).toDouble()
-
-        feedForward = getFeedForward(Math.toRadians(targetAngle))
-        pidOutput = armController.update(currentPosition)
-        output = feedForward + pidOutput
-
-        arm.power = output
-
-
-        val packet = TelemetryPacket()
-        packet.put("target angle", targetAngle)
-        packet.put("output", output)
-        packet.put("Current Position", currentPosition)
-        packet.put("degrees", currentPosition * degreesPerTick)
-        packet.put("feedforward", getFeedForward(Math.toRadians(targetAngle)))
-        packet.put("target ticks", targetTicks)
-        FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
 
     private fun driveControl() {
@@ -104,7 +71,6 @@ class LeviTeleOp : OpMode() {
 
     private fun intakeSequenceControl() {
         if (gamepad1.right_trigger > 0.5) {
-            intakeSequence.start()
         }
     }
 
@@ -156,7 +122,6 @@ class LeviTeleOp : OpMode() {
         fr = hardwareMap.get(DcMotor::class.java, "FR")
         bl = hardwareMap.get(DcMotor::class.java, "BL")
         br = hardwareMap.get(DcMotor::class.java, "BR")
-        arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -173,15 +138,9 @@ class LeviTeleOp : OpMode() {
         fl.direction = DcMotorSimple.Direction.REVERSE
         bl.direction = DcMotorSimple.Direction.REVERSE
 
-        arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
         outtakeServo.position = 0.9
-        armController.reset()
-        targetAngle = restAngle
-        targetTicks = restAngle * ticksPerDegree
-        armController.targetPosition = targetTicks
+
     }
 
 

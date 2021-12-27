@@ -8,15 +8,12 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 
-class IntakeSequence : OpMode() {
-
-    private val arm = Arm()
-
-    private lateinit var distanceSensor : Rev2mDistanceSensor
-
-    private lateinit var intakeMotor: DcMotor
-
-    private lateinit var outtakeServo: Servo
+class IntakeSequence(
+    val intakeMotor: DcMotor,
+    val outtakeServo: Servo,
+    val distanceSensor: Rev2mDistanceSensor,
+    val arm : Arm,
+){
 
     private fun intakeFreight(){
         intakeMotor.power = -1.0
@@ -57,18 +54,4 @@ class IntakeSequence : OpMode() {
 
         .build()
 
-
-
-    override fun init() {
-        intakeMotor = hardwareMap.dcMotor["Intake"]
-        intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
-        outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        intakeSequence.start()
-    }
-
-    override fun loop() {
-        intakeSequence.update()
-        arm.update()
-    }
 }
