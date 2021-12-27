@@ -5,12 +5,13 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
-import kotlin.math.cos
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
 @Config
 @TeleOp
@@ -26,6 +27,8 @@ class LeviTeleOp : OpMode() {
 
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+
+    lateinit var distanceSensor : Rev2mDistanceSensor
 
     var drive = 0.0
     var strafe = 0.0
@@ -61,11 +64,10 @@ class LeviTeleOp : OpMode() {
                 moveArmToDegree(restAngle)
                 outtakeServo.position = 0.92
             }
-            gamepad1.dpad_down -> {
+            gamepad1.b -> {
                 moveArmToDegree(sharedAngle)
             }
         }
-
 
         val currentPosition = (arm.currentPosition - 114).toDouble()
 
@@ -131,6 +133,13 @@ class LeviTeleOp : OpMode() {
         }
     }
 
+    private fun dSensorControl () {
+        val value = distanceSensor.getDistance(DistanceUnit.INCH)
+    }
+
+    fun cubicScaling(k: Double, x: Double): Double {
+        return (1 - k) * x + k * x * x * x
+    }
 
     override fun init() {
         //Connect Motor
@@ -144,6 +153,8 @@ class LeviTeleOp : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -162,9 +173,9 @@ class LeviTeleOp : OpMode() {
         targetAngle = restAngle
         targetTicks = restAngle * ticksPerDegree
         armController.targetPosition = targetTicks
-        telemetry.addData("STATUS", "Initialized")
-        telemetry.update()
     }
+
+
 
     override fun loop() {
         driveControl()
@@ -172,7 +183,11 @@ class LeviTeleOp : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
+        dSensorControl()
 
+        val value = distanceSensor.getDistance(DistanceUnit.INCH)
+        telemetry.addData("Distance",value);
+        telemetry.update()
     }
 
     companion object {
