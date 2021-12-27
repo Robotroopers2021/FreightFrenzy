@@ -27,6 +27,15 @@ class IntakeSequence(
         outtakeServo.position = 0.83
     }
 
+    private fun startIntakeSequence(start : Boolean) {
+        if (start == true)
+            intakeSequence.reset()
+            intakeSequence.start()
+
+    }
+
+
+
     private enum class IntakeSequenceStates {
         INTAKE,
         LOCK_INDEXER,

@@ -37,27 +37,8 @@ class LeviTeleOp : OpMode() {
     var duckPower = 0.75
 
     private var intakeSequence = IntakeSequence(
-    //ASK NEIL BETA HOW TO DO THIS : ( : ( : (
-    )
+        intakeMotor, outtakeServo, distanceSensor, arm, )
 
-    private fun getFeedForward(targetAngle: Double): Double {
-        return Math.cos(targetAngle) * kcos
-    }
-   //ALSO ASK HIM ON THIS :( :( :(
-    private fun armControl() {
-        when {
-            gamepad1.left_bumper -> {
-                moveArmToDegree(depositAngle)
-            }
-            gamepad1.right_bumper -> {
-                moveArmToDegree(restAngle)
-                outtakeServo.position = 0.92
-            }
-            gamepad1.b -> {
-                moveArmToDegree(sharedAngle)
-            }
-        }
-    }
 
     private fun driveControl() {
         drive = -gamepad1.left_stick_y.toDouble() * 0.75
@@ -69,12 +50,25 @@ class LeviTeleOp : OpMode() {
         br.power = drive + strafe - rotate
     }
 
-    private fun intakeSequenceControl() {
-        if (gamepad1.right_trigger > 0.5) {
+    private fun armControl() {
+        when {
+            gamepad1.left_bumper -> {
+                arm.moveArmToTopPos()
+            }
+            gamepad1.right_bumper -> {
+                arm.moveArmToBottomPos()
+                outtakeServo.position = 0.92
+            }
+            gamepad1.b -> {
+                arm.moveArmToSharedPos()
+            }
         }
     }
 
     private fun intakeControl() {
+        if (gamepad1.right_trigger > 0.5) {
+            intakeMotor.power = 1.0
+        }
         if(gamepad1.left_trigger > 0.5) {
             intakeMotor.power = -1.0
         } else {
@@ -126,7 +120,7 @@ class LeviTeleOp : OpMode() {
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
 
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
 
@@ -147,12 +141,11 @@ class LeviTeleOp : OpMode() {
 
     override fun loop() {
         driveControl()
-        armControl()
+        Arm()
         intakeControl()
         outtakeControl()
         duckControl()
         dSensorControl()
-        intakeSequenceControl()
 
     }
 

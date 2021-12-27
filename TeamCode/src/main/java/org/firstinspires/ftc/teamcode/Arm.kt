@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.control.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
-class Arm {
+class Arm (){
 
     companion object {
         @JvmStatic var kp = 0.015
@@ -58,6 +58,13 @@ class Arm {
         moveArmToDegree(-55.0)
     }
 
+    fun moveArmToSharedPos() {
+
+        moveArmToDegree(195.0)
+    }
+
+
+
 
     fun update()
     {
@@ -95,6 +102,7 @@ class Arm {
         arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+
 
         armController.reset()
         LeviTeleOp.targetAngle = LeviTeleOp.restAngle
