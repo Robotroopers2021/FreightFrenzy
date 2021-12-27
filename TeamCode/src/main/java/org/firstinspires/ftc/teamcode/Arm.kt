@@ -34,6 +34,11 @@ class Arm {
         armController.targetPosition = targetTicks
     }
 
+    fun moveArmToMidPos(){
+
+        moveArmToDegree(-20.0)
+    }
+
     fun moveArmToTopPos(){
 
         moveArmToDegree(140.0)

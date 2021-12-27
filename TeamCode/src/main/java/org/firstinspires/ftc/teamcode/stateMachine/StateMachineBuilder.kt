@@ -21,7 +21,7 @@ class StateMachineBuilder<StateEnum> {
         return this
     }
 
-    fun transition(transitionCondition: TransitionCondition): StateMachineBuilder<StateEnum> {
+    fun transition(transitionCondition: () -> Unit): StateMachineBuilder<StateEnum> {
         if (stateList.isEmpty())
             throw Error("No state to transition from")
 

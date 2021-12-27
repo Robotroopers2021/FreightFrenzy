@@ -11,7 +11,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.robotcore.external.StateMachine
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 
 @Config
 @TeleOp
@@ -43,6 +45,10 @@ class LeviTeleOp : OpMode() {
     var output = 0.0
     var pidOutput = 0.0
     var feedForward = 0.0
+
+    private var intakeSequence = intakeSequence()
+
+
 
     private fun moveArmToDegree(degrees: Double) {
         targetAngle = degrees
@@ -101,7 +107,7 @@ class LeviTeleOp : OpMode() {
     private fun intakeControl() {
 
         if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
+            intakeSequence.start()
         }
 
         else if(gamepad1.left_trigger > 0.5) {
@@ -134,7 +140,11 @@ class LeviTeleOp : OpMode() {
     }
 
     private fun dSensorControl () {
-        val value = distanceSensor.getDistance(DistanceUnit.INCH)
+        val value1 = distanceSensor.getDistance(DistanceUnit.INCH)
+
+        telemetry.addData("Distance",value1);
+        telemetry.update()
+
     }
 
     fun cubicScaling(k: Double, x: Double): Double {
@@ -185,9 +195,6 @@ class LeviTeleOp : OpMode() {
         duckControl()
         dSensorControl()
 
-        val value = distanceSensor.getDistance(DistanceUnit.INCH)
-        telemetry.addData("Distance",value);
-        telemetry.update()
     }
 
     companion object {
