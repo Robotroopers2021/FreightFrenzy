@@ -1,26 +1,20 @@
 package org.firstinspires.ftc.teamcode
 
 
-import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 
-class intakeSequence : OpMode() {
+class IntakeSequence : OpMode() {
 
     private val arm = Arm()
 
-    lateinit var distanceSensor : Rev2mDistanceSensor
+    private lateinit var distanceSensor : Rev2mDistanceSensor
 
-    lateinit var intakeMotor: DcMotor
+    private lateinit var intakeMotor: DcMotor
 
     private lateinit var outtakeServo: Servo
 
@@ -31,11 +25,6 @@ class intakeSequence : OpMode() {
     private fun stopIntake(){
         intakeMotor.power = 0.0
     }
-
-    private fun dSensorControl () {
-        val value = distanceSensor.getDistance(DistanceUnit.INCH)
-
-        }
 
     private fun moveOuttakeToLock(){
         outtakeServo.position = 0.83

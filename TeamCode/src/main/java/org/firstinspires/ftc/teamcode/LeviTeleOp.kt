@@ -11,9 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
-import org.firstinspires.ftc.robotcore.external.StateMachine
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 
 @Config
 @TeleOp
@@ -46,7 +44,7 @@ class LeviTeleOp : OpMode() {
     var pidOutput = 0.0
     var feedForward = 0.0
 
-    private var intakeSequence = intakeSequence()
+    private var intakeSequence = IntakeSequence()
 
 
 
@@ -104,13 +102,14 @@ class LeviTeleOp : OpMode() {
         br.power = drive + strafe - rotate
     }
 
-    private fun intakeControl() {
-
-        if(gamepad1.right_trigger > 0.5) {
+    private fun intakeSequenceControl() {
+        if (gamepad1.right_trigger > 0.5) {
             intakeSequence.start()
         }
+    }
 
-        else if(gamepad1.left_trigger > 0.5) {
+    private fun intakeControl() {
+        if(gamepad1.left_trigger > 0.5) {
             intakeMotor.power = -1.0
         } else {
             intakeMotor.power = 0.0
@@ -194,6 +193,7 @@ class LeviTeleOp : OpMode() {
         outtakeControl()
         duckControl()
         dSensorControl()
+        intakeSequenceControl()
 
     }
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.stateMachine;
+package org.firstinspires.ftc.teamcode.stateMachine
 
 import robotuprising.lib.system.statemachine.Action
 import robotuprising.lib.system.statemachine.State
@@ -21,7 +21,7 @@ class StateMachineBuilder<StateEnum> {
         return this
     }
 
-    fun transition(transitionCondition: () -> Unit): StateMachineBuilder<StateEnum> {
+    fun transition(transitionCondition: TransitionCondition): StateMachineBuilder<StateEnum> {
         if (stateList.isEmpty())
             throw Error("No state to transition from")
 
