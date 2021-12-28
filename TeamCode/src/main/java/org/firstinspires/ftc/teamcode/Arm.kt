@@ -6,8 +6,25 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
+import kotlin.math.cos
 
 class Arm (){
+
+    lateinit var arm: DcMotor
+
+    fun init (hardwareMap: HardwareMap) {
+        arm = hardwareMap.dcMotor["Arm"]
+
+        arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+
+        armController.reset()
+        targetAngle = restAngle
+        targetTicks = restAngle * ticksPerDegree
+        armController.targetPosition = targetTicks
+
+    }
 
     companion object {
         @JvmStatic var kp = 0.015
@@ -20,7 +37,6 @@ class Arm (){
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 195.0
     }
-    lateinit var arm: DcMotor
 
     var degreesPerTick = 90 / 184.0
     var ticksPerDegree = 184.0 / 90
@@ -29,7 +45,7 @@ class Arm (){
     var pidOutput = 0.0
     var feedForward = 0.0
 
-    var currentPosition = (arm.currentPosition - 114).toDouble()
+    val currentPosition get() = (arm.currentPosition - 114).toDouble()
 
     private fun moveArmToDegree(degrees: Double) {
         targetAngle = degrees
@@ -68,7 +84,6 @@ class Arm (){
 
     fun update()
     {
-        currentPosition = (arm.currentPosition - 114).toDouble()
 
         feedForward = getFeedForward(Math.toRadians(targetAngle))
         pidOutput = armController.update(currentPosition)
@@ -79,11 +94,11 @@ class Arm (){
 
     fun updateTelemetry() {
         val packet = TelemetryPacket()
-        packet.put("target angle", LeviTeleOp.targetAngle)
+        packet.put("target angle", targetAngle)
         packet.put("output", output)
         packet.put("Current Position", currentPosition)
         packet.put("degrees", currentPosition * degreesPerTick)
-        packet.put("feedforward", getFeedForward(Math.toRadians(LeviTeleOp.targetAngle)))
+        packet.put("feedforward", getFeedForward(Math.toRadians(targetAngle)))
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
@@ -92,24 +107,19 @@ class Arm (){
 
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
+    private val kcosup = 0.275
+    private val kcosdown = 1.0
+
     private fun getFeedForward(targetAngle: Double): Double {
-        return Math.cos(targetAngle) * kcos
+        return if (targetAngle < 0 ) {
+            cos(targetAngle) * kcosdown
+        } else {
+            cos(targetAngle) * kcosup
+        }
     }
 
-    fun init (hardwareMap: HardwareMap) {
-        arm = hardwareMap.dcMotor["Arm"]
-
-        arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
 
-        armController.reset()
-        LeviTeleOp.targetAngle = LeviTeleOp.restAngle
-        targetTicks = LeviTeleOp.restAngle * ticksPerDegree
-        armController.targetPosition = targetTicks
-
-    }
 
 
 }

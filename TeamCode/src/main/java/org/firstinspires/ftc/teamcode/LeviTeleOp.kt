@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.control.PIDCoefficients
-import com.acmerobotics.roadrunner.control.PIDFController
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -16,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 @Config
 @TeleOp
 class LeviTeleOp : OpMode() {
+
+
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -36,8 +34,7 @@ class LeviTeleOp : OpMode() {
     var rotate = 0.0
     var duckPower = 0.75
 
-    private var intakeSequence = IntakeSequence(
-        intakeMotor, outtakeServo, distanceSensor, arm, )
+    private lateinit var intakeSequence : IntakeSequence
 
 
     private fun driveControl() {
@@ -89,12 +86,16 @@ class LeviTeleOp : OpMode() {
     }
 
     private fun duckControl() {
-        if (gamepad1.dpad_left) {
-            duck.power = duckPower
-        } else if (gamepad1.dpad_right) {
-            duck.power = -duckPower
-        } else {
-            duck.power = 0.0
+        when {
+            gamepad1.dpad_left -> {
+                duck.power = duckPower
+            }
+            gamepad1.dpad_right -> {
+                duck.power = -duckPower
+            }
+            else -> {
+                duck.power = 0.0
+            }
         }
     }
 
@@ -106,9 +107,6 @@ class LeviTeleOp : OpMode() {
 
     }
 
-    fun cubicScaling(k: Double, x: Double): Double {
-        return (1 - k) * x + k * x * x * x
-    }
 
     override fun init() {
         //Connect Motor
@@ -120,8 +118,6 @@ class LeviTeleOp : OpMode() {
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-
-
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -132,32 +128,25 @@ class LeviTeleOp : OpMode() {
         fl.direction = DcMotorSimple.Direction.REVERSE
         bl.direction = DcMotorSimple.Direction.REVERSE
 
+        outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
 
         outtakeServo.position = 0.9
 
+        arm.init(hardwareMap)
+
+        intakeSequence = IntakeSequence(
+            intakeMotor, outtakeServo, distanceSensor, arm
+        )
     }
-
-
 
     override fun loop() {
         driveControl()
-        Arm()
         intakeControl()
         outtakeControl()
         duckControl()
         dSensorControl()
-
+        armControl()
+        arm.update()
     }
 
-    companion object {
-        @JvmStatic var kp = 0.015
-        @JvmStatic var ki = 0.0
-        @JvmStatic var kd = 0.00075
-        @JvmStatic var targetAngle = 0.0
-        @JvmStatic var kcos = 0.275
-        @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 140.0
-        @JvmStatic var restAngle = -55.0
-        @JvmStatic var sharedAngle = 195.0
-    }
 }
