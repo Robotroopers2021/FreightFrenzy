@@ -147,6 +147,9 @@ class LeviTeleOp : OpMode() {
         dSensorControl()
         armControl()
         arm.update()
+
+        telemetry.addData("Intake Motor Power",intakeMotor.power)
+        telemetry.update()
     }
 
 }
