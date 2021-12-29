@@ -19,20 +19,20 @@ class LeviTeleOp : OpMode() {
     lateinit var bl: DcMotor
     lateinit var br: DcMotor
 
-    lateinit var intakeMotor: DcMotor
+    private lateinit var intakeMotor: DcMotor
 
-    lateinit var duck: DcMotor
+    private lateinit var duck: DcMotor
 
     lateinit var outtakeServo: Servo
 
     private val arm = Arm()
 
-    lateinit var distanceSensor : Rev2mDistanceSensor
+    private lateinit var distanceSensor : Rev2mDistanceSensor
 
     var drive = 0.0
-    var strafe = 0.0
+    private var strafe = 0.0
     var rotate = 0.0
-    var duckPower = 0.75
+    private var duckPower = 0.75
 
     private lateinit var intakeSequence : IntakeSequence
 
@@ -102,7 +102,7 @@ class LeviTeleOp : OpMode() {
     private fun dSensorControl () {
         val value1 = distanceSensor.getDistance(DistanceUnit.INCH)
 
-        telemetry.addData("Distance",value1);
+        telemetry.addData("Distance",value1)
         telemetry.update()
 
     }
@@ -147,6 +147,7 @@ class LeviTeleOp : OpMode() {
         dSensorControl()
         armControl()
         arm.update()
+        arm.updateTelemetry()
 
         telemetry.addData("Intake Motor Power",intakeMotor.power)
         telemetry.update()

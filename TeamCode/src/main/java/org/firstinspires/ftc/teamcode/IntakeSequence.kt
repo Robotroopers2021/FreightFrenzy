@@ -2,16 +2,15 @@ package org.firstinspires.ftc.teamcode
 
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 
 class IntakeSequence(
-    val intakeMotor: DcMotor,
+    private val intakeMotor: DcMotor,
     val outtakeServo: Servo,
-    val distanceSensor: Rev2mDistanceSensor,
+    private val distanceSensor: Rev2mDistanceSensor,
     val arm : Arm,
 ){
 
@@ -26,14 +25,6 @@ class IntakeSequence(
     private fun moveOuttakeToLock(){
         outtakeServo.position = 0.83
     }
-
-    private fun startIntakeSequence(start : Boolean) {
-        if (start == true)
-            intakeSequence.reset()
-            intakeSequence.start()
-
-    }
-
 
 
     private enum class IntakeSequenceStates {

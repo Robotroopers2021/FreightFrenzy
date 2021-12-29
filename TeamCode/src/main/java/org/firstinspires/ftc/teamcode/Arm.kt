@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.cos
 
-class Arm (){
+class Arm {
 
     lateinit var arm: DcMotor
 
@@ -31,21 +31,18 @@ class Arm (){
         @JvmStatic var ki = 0.0
         @JvmStatic var kd = 0.00060
         @JvmStatic var targetAngle = 0.0
-        @JvmStatic var kcos = 0.275
         @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 140.0
         @JvmStatic var restAngle = -55.0
-        @JvmStatic var sharedAngle = 195.0
     }
 
-    var degreesPerTick = 90 / 184.0
-    var ticksPerDegree = 184.0 / 90
-    var targetTicks = 0.0
+    private var degreesPerTick = 90 / 184.0
+    private var ticksPerDegree = 184.0 / 90
+    private var targetTicks = 0.0
     var output = 0.0
-    var pidOutput = 0.0
-    var feedForward = 0.0
+    private var pidOutput = 0.0
+    private var feedForward = 0.0
 
-    val currentPosition get() = (arm.currentPosition - 114).toDouble()
+    private val currentPosition get() = (arm.currentPosition - 114).toDouble()
 
     private fun moveArmToDegree(degrees: Double) {
         targetAngle = degrees
@@ -105,7 +102,7 @@ class Arm (){
 
 
 
-    var armController = PIDFController(PIDCoefficients(kp, ki, kd))
+    private var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
     private val kcosup = 0.275
     private val kcosdown = 1.0

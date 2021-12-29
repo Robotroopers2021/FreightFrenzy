@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
+import com.sun.tools.javac.comp.Todo;
 
 public class MeepMeepTesting {
     public static void main(String[] args) {
@@ -12,7 +13,7 @@ public class MeepMeepTesting {
 
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
-        MeepMeep mm = new MeepMeep(800)
+        MeepMeep mm = new MeepMeep(600)
                 // Set field image
                 .setBackground(MeepMeep.Background.FIELD_FREIGHT_FRENZY)
                 // Set theme
@@ -21,13 +22,44 @@ public class MeepMeepTesting {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
-                .setBotDimensions(11.8, 18.0)
+                .setBotDimensions(12.5, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-4, -43, Math.toRadians(290)))
-                                .splineToSplineHeading(new Pose2d(43, -67, Math.toRadians(0.0)), Math.toRadians(0))
+                        drive.trajectorySequenceBuilder(new Pose2d(11, -64.5, Math.toRadians(0.0)))
+
+                                //TODO Initial Deposit Trajectory
+
                                 .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(-4, -43, Math.toRadians(290)), Math.toRadians(110))
+                                .splineToSplineHeading( new Pose2d(-10.0, -43.0, Math.toRadians(270.0)), Math.toRadians(90.0))
                                 .setReversed(false)
+
+                                //TODO Move Into Warehouse 1
+
+                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .setReversed(true)
+                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .setReversed(false)
+
+                                //TODO Cycle Deposit 1
+
+                                //TODO Move Into Warehouse 2
+
+                                //TODO Cycle Deposit 2
+
+                                //TODO Move Into Warehouse 3
+
+                                //TODO Cycle Deposit 3
+
+                                //TODO Park In Warehouse
+
+                                //good cycle spline!!!
+
+//                                .splineToSplineHeading(new Pose2d(43, -65, Math.toRadians(0.0)), Math.toRadians(0))
+//                                .setReversed(true)
+//                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+//                                .setReversed(false)
+
+
+
 //                        drive.trajectorySequenceBuilder(new Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
 //                                .splineToSplineHeading( new Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
 //                                .splineToSplineHeading( new Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))

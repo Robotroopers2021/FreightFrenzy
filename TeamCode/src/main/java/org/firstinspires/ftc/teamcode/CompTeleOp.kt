@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import kotlin.math.cos
 
 @Config
 @TeleOp
@@ -48,14 +49,14 @@ class CompTeleOp : OpMode() {
     }
 
     private fun getFeedForward(targetAngle: Double): Double {
-        return Math.cos(targetAngle) * kcos
+        return cos(targetAngle) * kcos
     }
 
     val kcosup = 0.5
     val kcosdown = 0.5
 
     fun feedforward(target: Double, up: Boolean): Double {
-        return Math.cos(target) * if(up) {
+        return cos(target) * if(up) {
             kcosup
         } else {
             kcosdown
@@ -108,7 +109,7 @@ class CompTeleOp : OpMode() {
     private fun intakeControl() {
 
         if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
+            intakeMotor.power = 0.75
         }
 
         else if(gamepad1.left_trigger > 0.5) {
