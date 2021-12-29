@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.teamcode.util.math.Extensions.d
+import org.firstinspires.ftc.teamcode.util.Extensions.d
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.*
