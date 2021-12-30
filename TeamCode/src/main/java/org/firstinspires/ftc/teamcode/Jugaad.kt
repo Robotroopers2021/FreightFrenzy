@@ -12,7 +12,6 @@ class Jugaad(
     val outtakeServo: Servo,
     private val distanceSensor: Rev2mDistanceSensor,
     val arm : Arm,
-    val duck : DcMotor
 
 ){
 
@@ -38,18 +37,6 @@ class Jugaad(
 
     fun moveOuttakeToDeposit(){
         outtakeServo.position = 0.6
-    }
-
-    fun spinDuckBlue(){
-        duck.power = -0.75
-    }
-
-    fun spinDuckRed(){
-        duck.power = 0.75
-    }
-
-    fun stopDuck(){
-        duck.power = 0.0
     }
 
     fun runIntakeSequence(shouldStart : Boolean) {

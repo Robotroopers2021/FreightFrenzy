@@ -33,7 +33,6 @@ class LeviTeleOp : OpMode() {
     var drive = 0.0
     private var strafe = 0.0
     var rotate = 0.0
-    private var duckPower = 0.75
 
     private lateinit var jugaad : Jugaad
 
@@ -97,13 +96,13 @@ class LeviTeleOp : OpMode() {
     private fun duckControl() {
         when {
             gamepad1.dpad_left -> {
-                jugaad.spinDuckBlue()
+                duck.power = -0.75
             }
             gamepad1.dpad_right -> {
-                jugaad.spinDuckRed()
+                duck.power = 0.75
             }
             else -> {
-                jugaad.stopDuck()
+                duck.power = 0.0
             }
         }
     }
