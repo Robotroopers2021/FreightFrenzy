@@ -218,6 +218,6 @@ class CompTeleOp : OpMode() {
         @JvmStatic var kv = 0.0
         @JvmStatic var depositAngle = 97.0
         @JvmStatic var restAngle = -55.0
-        @JvmStatic var sharedAngle = 195.0
+        @JvmStatic var sharedAngle = 172.0
     }
 }

@@ -83,7 +83,7 @@ class Arm {
     fun update()
     {
 
-        feedForward = feedforward(Math.toRadians(targetAngle))
+        feedForward = getFeedForward(Math.toRadians(targetAngle))
         pidOutput = armController.update(currentPosition)
         output = feedForward + pidOutput
 
@@ -96,7 +96,7 @@ class Arm {
         packet.put("output", output)
         packet.put("Current Position", currentPosition)
         packet.put("degrees", currentPosition * degreesPerTick)
-        packet.put("feedforward", feedforward(Math.toRadians(targetAngle)))
+        packet.put("feedforward", getFeedForward(Math.toRadians(targetAngle)))
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
@@ -108,19 +108,5 @@ class Arm {
     private fun getFeedForward(targetAngle: Double): Double {
         return cos(targetAngle) * kcos
     }
-
-    private val kcosup = 0.275
-    private val kcosdown = 0.5
-
-    private fun feedforward(targetAngle : Double) : Double{
-        return if(targetAngle < 0)
-            cos(targetAngle) * kcosdown
-        else
-            cos(targetAngle) * kcosup
-    }
-
-
-
-
 
 }

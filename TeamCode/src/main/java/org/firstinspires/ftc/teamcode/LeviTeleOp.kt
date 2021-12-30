@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -156,8 +158,6 @@ class LeviTeleOp : OpMode() {
         arm.update()
         arm.updateTelemetry()
 
-        telemetry.addData("Intake Motor Power",intakeMotor.power)
-        telemetry.update()
     }
 
 }
