@@ -67,7 +67,7 @@ class LeviTeleOp : OpMode() {
 
     private fun intakeControl() {
 
-        //intakeSequence.runIntakeSequence(gamepad1.a)
+        intakeSequence.runIntakeSequence(gamepad1.a)
 
         when {
             gamepad1.right_trigger > 0.5 -> {

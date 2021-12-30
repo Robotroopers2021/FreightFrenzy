@@ -35,10 +35,7 @@ class IntakeSequence(
             intakeSequence.reset()
             intakeSequence.start()
         }
-        else if (!shouldStart && !intakeSequence.running){
-            intakeSequence.update()
-        }
-        else if (!shouldStart && intakeSequence.running) {
+        else {
             intakeSequence.update()
         }
     }
@@ -47,7 +44,6 @@ class IntakeSequence(
     private enum class IntakeSequenceStates {
         INTAKE,
         LOCK_INDEXER,
-        ARM_MID,
     }
     private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
         .state(IntakeSequenceStates.INTAKE)
@@ -64,10 +60,6 @@ class IntakeSequence(
             moveOuttakeToLock()
         }
         .transitionTimed (0.5)
-        .state(IntakeSequenceStates.ARM_MID)
-        .onEnter {
-            arm.moveArmToMidPos()
-        }
 
         .build()
 

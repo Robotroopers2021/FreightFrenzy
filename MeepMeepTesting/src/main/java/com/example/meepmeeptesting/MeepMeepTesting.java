@@ -24,32 +24,49 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(12.5, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(11, -64.5, Math.toRadians(0.0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(11, -61.25, Math.toRadians(270.)))
 
                                 //TODO Initial Deposit Trajectory
 
                                 .setReversed(true)
-                                .splineToSplineHeading( new Pose2d(-10.0, -43.0, Math.toRadians(270.0)), Math.toRadians(90.0))
+                                .strafeTo(new Vector2d(-10, -43) )
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 1
 
                                 .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
-                                .setReversed(false)
 
                                 //TODO Cycle Deposit 1
 
+                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .setReversed(false)
+
                                 //TODO Move Into Warehouse 2
+
+                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .setReversed(true)
 
                                 //TODO Cycle Deposit 2
 
+                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .setReversed(false)
+
                                 //TODO Move Into Warehouse 3
+
+                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .setReversed(true)
 
                                 //TODO Cycle Deposit 3
 
+                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .setReversed(false)
+
                                 //TODO Park In Warehouse
+
+                                .splineToSplineHeading(new Pose2d(40, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .setReversed(true)
+
 
                                 //good cycle spline!!!
 
