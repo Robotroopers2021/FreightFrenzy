@@ -29,7 +29,7 @@ public class MeepMeepTesting {
                                 //TODO Initial Deposit Trajectory
 
                                 .setReversed(true)
-                                .strafeTo(new Vector2d(-10, -43) )
+                                .strafeTo(new Vector2d(-11, -45) )
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 1
@@ -39,27 +39,27 @@ public class MeepMeepTesting {
 
                                 //TODO Cycle Deposit 1
 
-                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 2
 
-                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(46, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 2
 
-                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 3
 
-                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(49, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 3
 
-                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
                                 .setReversed(false)
 
                                 //TODO Park In Warehouse
