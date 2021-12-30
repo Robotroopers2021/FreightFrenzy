@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -37,7 +35,7 @@ class LeviTeleOp : OpMode() {
     var rotate = 0.0
     private var duckPower = 0.75
 
-    private lateinit var intakeSequence : IntakeSequence
+    private lateinit var jugaad : Jugaad
 
 
     private fun driveControl() {
@@ -67,7 +65,7 @@ class LeviTeleOp : OpMode() {
 
     private fun intakeControl() {
 
-        intakeSequence.runIntakeSequence(gamepad1.a)
+        jugaad.runIntakeSequence(gamepad1.a)
 
         when {
             gamepad1.right_trigger > 0.5 -> {
@@ -143,7 +141,7 @@ class LeviTeleOp : OpMode() {
 
         arm.init(hardwareMap)
 
-        intakeSequence = IntakeSequence(
+        jugaad = Jugaad(
             intakeMotor, outtakeServo, distanceSensor, arm
         )
     }

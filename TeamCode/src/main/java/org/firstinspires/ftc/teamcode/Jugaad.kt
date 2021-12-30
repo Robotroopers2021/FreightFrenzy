@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 
-class IntakeSequence(
+class Jugaad(
     private val intakeMotor: DcMotor,
     val outtakeServo: Servo,
     private val distanceSensor: Rev2mDistanceSensor,
@@ -63,4 +63,15 @@ class IntakeSequence(
 
         .build()
 
+
+    private enum class HighAutoOuttakeSequenceStates {
+        MOVE_TO_DEPOSIT
+    }
+
+    private val HighAutoOuttakeSequence = StateMachineBuilder<HighAutoOuttakeSequenceStates>()
+        .state(HighAutoOuttakeSequenceStates.MOVE_TO_DEPOSIT)
+        .onEnter {
+            drive.followTrajectorySequenceAsync(moveToDepositTrajectorySequence)
+            arm.moveArmToTopPos()
+        }
 }

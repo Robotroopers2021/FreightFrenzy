@@ -29,12 +29,13 @@ public class MeepMeepTesting {
                                 //TODO Initial Deposit Trajectory
 
                                 .setReversed(true)
-                                .strafeTo(new Vector2d(-11, -45) )
+                                .splineToSplineHeading(new Pose2d(0, -42, Math.toRadians(310)), Math.toRadians(130))
+                                .lineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)))
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 1
 
-                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(43, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 1
@@ -44,7 +45,7 @@ public class MeepMeepTesting {
 
                                 //TODO Move Into Warehouse 2
 
-                                .splineToSplineHeading(new Pose2d(46, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(46, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 2
@@ -54,7 +55,7 @@ public class MeepMeepTesting {
 
                                 //TODO Move Into Warehouse 3
 
-                                .splineToSplineHeading(new Pose2d(49, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(49, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 3
@@ -64,7 +65,7 @@ public class MeepMeepTesting {
 
                                 //TODO Park In Warehouse
 
-                                .splineToSplineHeading(new Pose2d(40, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(40, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
                                 .setReversed(true)
 
 
