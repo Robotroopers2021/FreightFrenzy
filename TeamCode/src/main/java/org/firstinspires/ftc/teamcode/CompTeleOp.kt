@@ -108,8 +108,10 @@ class CompTeleOp : OpMode() {
 
     private fun intakeControl() {
 
+
+
         if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 0.75
+            intakeMotor.power = 1.0
         }
 
         else if(gamepad1.left_trigger > 0.5) {
@@ -214,7 +216,7 @@ class CompTeleOp : OpMode() {
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kcos = 0.275
         @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 140.0
+        @JvmStatic var depositAngle = 97.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 195.0
     }

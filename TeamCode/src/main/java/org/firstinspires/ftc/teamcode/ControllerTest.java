@@ -33,7 +33,7 @@ public class ControllerTest extends OpMode {
     DcMotor FL, FR, BL, BR, Intake, duckL;
     Servo outtake;
     DcMotor arm;
-    DistanceSensor lock;
+    //DistanceSensor lock;
 
     double drive;
     double strafe;
@@ -78,11 +78,14 @@ public class ControllerTest extends OpMode {
             outtake.setPosition(0.9);
         }
 
-        currentPosition = arm.getCurrentPosition()-114;
         feedForward = getFeedForward(Math.toRadians(targetAngle));
         pidOutput = armController.update(currentPosition);
         output = feedForward + pidOutput;
         arm.setPower(output);
+    }
+
+    private void currentPos() {
+        currentPosition = arm.getCurrentPosition()-114;
     }
 
 
@@ -110,17 +113,17 @@ public class ControllerTest extends OpMode {
     }
 
     private void outtakeControl() {
-        double value = lock.getDistance(DistanceUnit.INCH);
+        //double value = lock.getDistance(DistanceUnit.INCH);
         if (gamepad1.a) {
             outtake.setPosition(0.9);
         }
         if (gamepad1.b) {
             outtake.setPosition(0.6);
         }
-        if (value <2) {
-            outtake.setPosition(0.8);
+//        if (value <2) {
+//            outtake.setPosition(0.8);
         }
-    }
+    //}
 
     private void duckControl() {
         if(gamepad1.left_bumper) {
@@ -149,7 +152,7 @@ public class ControllerTest extends OpMode {
 
         Intake = hardwareMap.dcMotor.get("Intake");
 
-        lock = hardwareMap.get(DistanceSensor.class,"Lock");
+        //lock = hardwareMap.get(DistanceSensor.class,"Lock");
 
 
         //Connect Servo
@@ -171,10 +174,8 @@ public class ControllerTest extends OpMode {
 
 
         outtake.setPosition(0.9);
-        armController.reset();
         targetAngle = restAngle;
         targetTicks = restAngle * ticksPerDegree;
-        armController.setTargetPosition(targetTicks);
 
 
         telemetry.addData("STATUS", "Initialized");
@@ -184,21 +185,25 @@ public class ControllerTest extends OpMode {
 
     @Override
     public void loop() {
-        double value = lock.getDistance(DistanceUnit.INCH);
+        //double value = lock.getDistance(DistanceUnit.INCH);
         driveControl();
-        armControl();
+        currentPos();
         intakeControl();
         outtakeControl();
         duckControl();
+
+        telemetry.addData("Current Position",currentPosition);
+        telemetry.update();
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("target angle", targetAngle);
         packet.put("pid output", pidOutput);
         packet.put("output", pidOutput + feedForward);
-        packet.put("Current Position",currentPosition);
         packet.put("degrees", currentPosition * degreesPerTick);
         packet.put("feedforward", feedForward);
         packet.put("target ticks", targetTicks);
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
+
+
     }
 }

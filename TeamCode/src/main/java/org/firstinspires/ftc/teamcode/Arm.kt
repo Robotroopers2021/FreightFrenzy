@@ -29,10 +29,11 @@ class Arm {
     companion object {
         @JvmStatic var kp = 0.015
         @JvmStatic var ki = 0.0
-        @JvmStatic var kd = 0.00060
+        @JvmStatic var kd = 0.00075
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kv = 0.0
         @JvmStatic var restAngle = -55.0
+        @JvmStatic var kcos = 0.275
     }
 
     private var degreesPerTick = 90 / 184.0
@@ -53,17 +54,17 @@ class Arm {
 
     fun moveArmToMidPos(){
 
-        moveArmToDegree(-20.0)
+        moveArmToDegree(-93.0)
     }
 
     fun moveArmToTopPos(){
 
-        moveArmToDegree(140.0)
+        moveArmToDegree(97.0)
     }
 
     fun moveArmToTopPosTwo(){
 
-        moveArmToDegree(135.0)
+        moveArmToDegree(92.0)
     }
 
     fun moveArmToBottomPos(){
@@ -73,7 +74,7 @@ class Arm {
 
     fun moveArmToSharedPos() {
 
-        moveArmToDegree(195.0)
+        moveArmToDegree(172.0)
     }
 
 
@@ -82,7 +83,7 @@ class Arm {
     fun update()
     {
 
-        feedForward = getFeedForward(Math.toRadians(targetAngle))
+        feedForward = feedforward(Math.toRadians(targetAngle))
         pidOutput = armController.update(currentPosition)
         output = feedForward + pidOutput
 
@@ -95,7 +96,7 @@ class Arm {
         packet.put("output", output)
         packet.put("Current Position", currentPosition)
         packet.put("degrees", currentPosition * degreesPerTick)
-        packet.put("feedforward", getFeedForward(Math.toRadians(targetAngle)))
+        packet.put("feedforward", feedforward(Math.toRadians(targetAngle)))
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
@@ -104,15 +105,18 @@ class Arm {
 
     private var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
-    private val kcosup = 0.275
-    private val kcosdown = 1.0
-
     private fun getFeedForward(targetAngle: Double): Double {
-        return if (targetAngle < 0 ) {
+        return cos(targetAngle) * kcos
+    }
+
+    private val kcosup = 0.275
+    private val kcosdown = 0.5
+
+    private fun feedforward(targetAngle : Double) : Double{
+        return if(targetAngle < 0)
             cos(targetAngle) * kcosdown
-        } else {
+        else
             cos(targetAngle) * kcosup
-        }
     }
 
 

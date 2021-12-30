@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.util.math.MathUtil
 
 @Config
 @TeleOp
@@ -38,9 +39,9 @@ class LeviTeleOp : OpMode() {
 
 
     private fun driveControl() {
-        drive = -gamepad1.left_stick_y.toDouble() * 0.75
-        strafe = gamepad1.left_stick_x.toDouble() * 0.75
-        rotate = gamepad1.right_stick_x.toDouble() * 0.6
+        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * 0.75
+        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_x.toDouble()) * 0.75
+        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.6
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
@@ -63,13 +64,19 @@ class LeviTeleOp : OpMode() {
     }
 
     private fun intakeControl() {
-        if (gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
-        }
-        if(gamepad1.left_trigger > 0.5) {
-            intakeMotor.power = -1.0
-        } else {
-            intakeMotor.power = 0.0
+
+        //intakeSequence.runIntakeSequence(gamepad1.a)
+
+        when {
+            gamepad1.right_trigger > 0.5 -> {
+                intakeMotor.power = 1.0
+            }
+            gamepad1.left_trigger > 0.5 -> {
+                intakeMotor.power = -1.0
+            }
+            else -> {
+                intakeMotor.power = 0.0
+            }
         }
     }
 

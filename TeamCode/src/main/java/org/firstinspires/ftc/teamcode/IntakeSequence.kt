@@ -26,6 +26,23 @@ class IntakeSequence(
         outtakeServo.position = 0.83
     }
 
+    fun runIntakeSequence(shouldStart : Boolean) {
+        if (shouldStart && intakeSequence.running) {
+            intakeSequence.stop()
+        }
+
+        else if (shouldStart && !intakeSequence.running){
+            intakeSequence.reset()
+            intakeSequence.start()
+        }
+        else if (!shouldStart && !intakeSequence.running){
+            intakeSequence.update()
+        }
+        else if (!shouldStart && intakeSequence.running) {
+            intakeSequence.update()
+        }
+    }
+
 
     private enum class IntakeSequenceStates {
         INTAKE,
