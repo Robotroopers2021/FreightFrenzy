@@ -12,18 +12,44 @@ class Jugaad(
     val outtakeServo: Servo,
     private val distanceSensor: Rev2mDistanceSensor,
     val arm : Arm,
+    val duck : DcMotor
+
 ){
 
-    private fun intakeFreight(){
-        intakeMotor.power = -1.0
+    fun intakeFreight(){
+        intakeMotor.power = -0.75
     }
 
-    private fun stopIntake(){
+    fun stopIntake(){
         intakeMotor.power = 0.0
     }
 
-    private fun moveOuttakeToLock(){
+    fun reverseIntake(){
+        intakeMotor.power = 1.0
+    }
+
+    fun moveOuttakeToOpen(){
+        outtakeServo.position = 0.92
+    }
+
+    fun moveOuttakeToLock(){
         outtakeServo.position = 0.83
+    }
+
+    fun moveOuttakeToDeposit(){
+        outtakeServo.position = 0.6
+    }
+
+    fun spinDuckBlue(){
+        duck.power = -0.75
+    }
+
+    fun spinDuckRed(){
+        duck.power = 0.75
+    }
+
+    fun stopDuck(){
+        duck.power = 0.0
     }
 
     fun runIntakeSequence(shouldStart : Boolean) {
@@ -71,7 +97,5 @@ class Jugaad(
     private val HighAutoOuttakeSequence = StateMachineBuilder<HighAutoOuttakeSequenceStates>()
         .state(HighAutoOuttakeSequenceStates.MOVE_TO_DEPOSIT)
         .onEnter {
-            drive.followTrajectorySequenceAsync(moveToDepositTrajectorySequence)
-            arm.moveArmToTopPos()
         }
 }

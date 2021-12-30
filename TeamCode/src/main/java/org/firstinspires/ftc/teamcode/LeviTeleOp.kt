@@ -68,48 +68,50 @@ class LeviTeleOp : OpMode() {
         jugaad.runIntakeSequence(gamepad1.a)
 
         when {
-            gamepad1.right_trigger > 0.5 -> {
-                intakeMotor.power = 1.0
+            gamepad1.right_trigger > 0.25 -> {
+                jugaad.reverseIntake()
             }
-            gamepad1.left_trigger > 0.5 -> {
-                intakeMotor.power = -1.0
+            gamepad1.left_trigger > 0.25 -> {
+                jugaad.intakeFreight()
             }
             else -> {
-                intakeMotor.power = 0.0
+                jugaad.stopIntake()
             }
         }
     }
 
     private fun outtakeControl() {
         if (gamepad2.a) {
-            outtakeServo.position = 0.92
+            jugaad.moveOuttakeToOpen()
         }
         if (gamepad2.b) {
-            outtakeServo.position = 0.6
+            jugaad.moveOuttakeToDeposit()
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.83
+            jugaad.moveOuttakeToLock()
         }
     }
+
+    //TODO fix this
 
     private fun duckControl() {
         when {
             gamepad1.dpad_left -> {
-                duck.power = duckPower
+                jugaad.spinDuckBlue()
             }
             gamepad1.dpad_right -> {
-                duck.power = -duckPower
+                jugaad.spinDuckRed()
             }
             else -> {
-                duck.power = 0.0
+                jugaad.stopDuck()
             }
         }
     }
 
     private fun dSensorControl () {
-        val value1 = distanceSensor.getDistance(DistanceUnit.INCH)
+        val dsDistance = distanceSensor.getDistance(DistanceUnit.INCH)
 
-        telemetry.addData("Distance",value1)
+        telemetry.addData("Distance",dsDistance)
         telemetry.update()
 
     }
@@ -137,12 +139,12 @@ class LeviTeleOp : OpMode() {
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
 
-        outtakeServo.position = 0.9
+        jugaad.moveOuttakeToOpen()
 
         arm.init(hardwareMap)
 
         jugaad = Jugaad(
-            intakeMotor, outtakeServo, distanceSensor, arm
+            intakeMotor, outtakeServo, distanceSensor, arm, duck
         )
     }
 

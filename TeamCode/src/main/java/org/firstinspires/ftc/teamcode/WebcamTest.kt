@@ -24,7 +24,7 @@ class WebcamTest : OpMode() {
     private val warehouseFrontAngle = Math.toRadians(0.0)
     private val arm = Arm()
     private val jugaad = Jugaad(
-        intakeMotor, outtakeServo, distanceSensor, arm
+        intakeMotor, outtakeServo, distanceSensor, arm, fl, fr, bl, br
     )
 
 
