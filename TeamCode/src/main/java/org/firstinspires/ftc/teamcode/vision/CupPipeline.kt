@@ -1,11 +1,9 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.vision
 
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
-import org.firstinspires.ftc.teamcode.util.Extensions
 import org.firstinspires.ftc.teamcode.util.Extensions.d
-import kotlin.math.max
 
 class CupPipeline : OpenCvPipeline(){
 
