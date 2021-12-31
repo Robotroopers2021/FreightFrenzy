@@ -38,8 +38,15 @@ class AkazaTeleopForSonny : OpMode() {
 
 
     private fun driveControl() {
-        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * 0.75
-        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_x.toDouble()) * 0.75
+        val scale = if(gamepad1.left_stick_button) {
+            1.0
+        } else {
+            0.75
+        }
+
+
+        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * scale
+        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_x.toDouble()) * scale
         rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.6
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
