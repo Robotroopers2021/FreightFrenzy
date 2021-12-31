@@ -30,42 +30,66 @@ public class MeepMeepTesting {
 
                                 .setReversed(true)
                                 .splineToSplineHeading(new Pose2d(0, -42, Math.toRadians(310)), Math.toRadians(130))
+                                .addTemporalMarker(0.2, () -> {
+
+                                        })
+                                .addTemporalMarker( 1.5, () -> {
+
+                                })
                                 .lineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)))
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 1
 
-                                .splineToSplineHeading(new Pose2d(43, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
+                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 1
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(8.2, () -> {
+
+                                })
+                                .addTemporalMarker( 9.5, () -> {
+
+                                })
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 2
 
-                                .splineToSplineHeading(new Pose2d(46, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
+                                .splineToSplineHeading(new Pose2d(46, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 2
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(14.2, () -> {
+
+                                })
+                                .addTemporalMarker( 15.5, () -> {
+
+                                })
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 3
 
-                                .splineToSplineHeading(new Pose2d(49, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
+                                .splineToSplineHeading(new Pose2d(49, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 3
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(21.2, () -> {
+
+                                })
+                                .addTemporalMarker( 22.5, () -> {
+
+                                })
                                 .setReversed(false)
 
                                 //TODO Park In Warehouse
 
-                                .splineToSplineHeading(new Pose2d(40, -63.5, Math.toRadians(0.0)), Math.toRadians(10))
+                                .splineToSplineHeading(new Pose2d(40, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
 
