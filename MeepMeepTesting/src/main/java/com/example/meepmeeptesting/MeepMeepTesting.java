@@ -25,29 +25,29 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(12.5, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(11, -61.25, Math.toRadians(270.)))
+                        drive.trajectorySequenceBuilder(new Pose2d(11, 61.25, Math.toRadians(90.0)))
 
                                 //TODO Initial Deposit Trajectory
 
                                 .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(0, -42, Math.toRadians(310)), Math.toRadians(130))
+                                .splineToSplineHeading(new Pose2d(0, 42, Math.toRadians(50)), Math.toRadians(220))
                                 .addTemporalMarker(0.2, () -> {
 
                                         })
                                 .addTemporalMarker( 1.5, () -> {
 
                                 })
-                                .lineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)))
+                                .lineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)))
                                 .setReversed(false)
 
                                 //TODO Move Into Warehouse 1
 
-                                .splineToSplineHeading(new Pose2d(43, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(43, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 1
 
-                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
                                 .addTemporalMarker(6.5, () -> {
 
                                 })
@@ -61,12 +61,12 @@ public class MeepMeepTesting {
 
                                 //TODO Move Into Warehouse 2
 
-                                .splineToSplineHeading(new Pose2d(46, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(46, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 2
 
-                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
                                 .addTemporalMarker(13.5, () -> {
 
                                 })
@@ -80,12 +80,12 @@ public class MeepMeepTesting {
 
                                 //TODO Move Into Warehouse 3
 
-                                .splineToSplineHeading(new Pose2d(49, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(49, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
                                 //TODO Cycle Deposit 3
 
-                                .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
                                 .addTemporalMarker(19.5, () -> {
 
                                 })
@@ -99,7 +99,7 @@ public class MeepMeepTesting {
 
                                 //TODO Park In Warehouse
 
-                                .splineToSplineHeading(new Pose2d(40, -64.5, Math.toRadians(0.0)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(40, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
                                 .setReversed(true)
 
 
