@@ -136,13 +136,13 @@ class LeviTeleOp : OpMode() {
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
 
-        jugaad.moveOuttakeToOpen()
-
         arm.init(hardwareMap)
 
         jugaad = Jugaad(
             intakeMotor, outtakeServo, distanceSensor, arm,
         )
+
+        jugaad.moveOuttakeToOpen()
     }
 
     override fun loop() {
