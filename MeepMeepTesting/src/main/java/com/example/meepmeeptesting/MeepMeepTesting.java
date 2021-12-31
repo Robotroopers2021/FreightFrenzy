@@ -47,6 +47,9 @@ public class MeepMeepTesting {
                                 //TODO Cycle Deposit 1
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(6.5, () -> {
+
+                                })
                                 .addTemporalMarker(8.2, () -> {
 
                                 })
@@ -63,6 +66,9 @@ public class MeepMeepTesting {
                                 //TODO Cycle Deposit 2
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(13.5, () -> {
+
+                                })
                                 .addTemporalMarker(14.2, () -> {
 
                                 })
@@ -79,6 +85,9 @@ public class MeepMeepTesting {
                                 //TODO Cycle Deposit 3
 
                                 .splineToSplineHeading(new Pose2d(-11, -45, Math.toRadians(270)), Math.toRadians(90))
+                                .addTemporalMarker(19.5, () -> {
+
+                                })
                                 .addTemporalMarker(21.2, () -> {
 
                                 })

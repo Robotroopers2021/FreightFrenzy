@@ -10,12 +10,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.util.math.Pose
 import org.firstinspires.ftc.teamcode.vision.AllianceSide
 import org.firstinspires.ftc.teamcode.vision.Globals
+import org.firstinspires.ftc.teamcode.vision.Webcam
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
 class WebcamTest : OpMode() {
@@ -72,7 +74,9 @@ class WebcamTest : OpMode() {
     private lateinit var intakeMotor: DcMotor
     private lateinit var distanceSensor : Rev2mDistanceSensor
     //Trajectory Sequences
-    private lateinit var initialDepositTrajectory : TrajectorySequence
+    private lateinit var initialDepositTrajectoryTop : TrajectorySequence
+    private lateinit var initialDepositTrajectoryMiddle : TrajectorySequence
+    private lateinit var initialDepositTrajectoryBottom : TrajectorySequence
     private lateinit var moveIntoWarehouseOne : TrajectorySequence
     private lateinit var cycleDepositOne : TrajectorySequence
     private lateinit var moveIntoWarehouseTwo : TrajectorySequence
@@ -94,6 +98,56 @@ class WebcamTest : OpMode() {
     //Initial Deposit State Machine
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
 
+        .state(InitialDepositStates.INITIAL_DEPOSIT)
+        .loop {
+            when(Globals.CUP_LOCATION) {
+                Webcam.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryTop)
+                Webcam.CupStates.MIDDLE -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryMiddle)
+                Webcam.CupStates.LEFT -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryBottom)
+            }
+        }
+        .transition{!drive.isBusy}
+
+        .state(InitialDepositStates.MOVE_INTO_WAREHOUSE_ONE)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(moveIntoWarehouseOne)
+            jugaad.arm.moveArmToBottomPos()
+            jugaad.intakeFreight()
+        }
+        .transition{
+            val value = distanceSensor.getDistance(DistanceUnit.INCH)
+            value < 0.6 || motionTimer.seconds() > 5.0
+        }
+
+        .state(InitialDepositStates.CYCLE_DEPOSIT_ONE)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(cycleDepositOne)
+        }
+        .transition{!drive.isBusy}
+
+        .state(InitialDepositStates.MOVE_INTO_WAREHOUSE_TWO)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(moveIntoWarehouseTwo)
+            jugaad.arm.moveArmToBottomPos()
+            jugaad.intakeFreight()
+        }
+        .transition{
+            val value = distanceSensor.getDistance(DistanceUnit.INCH)
+            value < 0.6 || motionTimer.seconds() > 5.0
+        }
+
+        .state(InitialDepositStates.CYCLE_DEPOSIT_TWO)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(cycleDepositTwo)
+        }
+        .transition{!drive.isBusy}
+
+        .state(InitialDepositStates.PARK_AT_END)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(parkAtEnd)
+            jugaad.arm.moveArmToBottomPos()
+        }
+        .transition{!drive.isBusy}
 
         .build()
 
@@ -111,11 +165,35 @@ class WebcamTest : OpMode() {
 
         drive.poseEstimate = startPose
 
-        initialDepositTrajectory = drive.trajectorySequenceBuilder(startPose)
+        initialDepositTrajectoryTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
             .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(310.0)), Math.toRadians(130.0))
             .addTemporalMarker(0.2) {
                 jugaad.arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(1.5) {
+                jugaad.moveOuttakeToOpen()
+            }
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(270.0)))
+            .build()
+
+        initialDepositTrajectoryMiddle = drive.trajectorySequenceBuilder(startPose)
+            .setReversed(true)
+            .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(310.0)), Math.toRadians(130.0))
+            .addTemporalMarker(0.2) {
+                jugaad.arm.moveArmToMidPos()
+            }
+            .addTemporalMarker(1.5) {
+                jugaad.moveOuttakeToOpen()
+            }
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(270.0)))
+            .build()
+
+        initialDepositTrajectoryBottom = drive.trajectorySequenceBuilder(startPose)
+            .setReversed(true)
+            .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(310.0)), Math.toRadians(130.0))
+            .addTemporalMarker(0.2) {
+                jugaad.arm.moveArmToBottomPos()
             }
             .addTemporalMarker(1.5) {
                 jugaad.moveOuttakeToOpen()
@@ -133,6 +211,16 @@ class WebcamTest : OpMode() {
 
             .setReversed(true)
             .splineToSplineHeading( Pose2d(-11.0, -45.0, Math.toRadians(270.0)), Math.toRadians(90.0))
+            .addTemporalMarker(6.5) {
+                jugaad.reverseIntake()
+            }
+            .addTemporalMarker(8.2) {
+                jugaad.arm.moveArmToTopPos()
+                jugaad.stopIntake()
+            }
+            .addTemporalMarker(9.5,) {
+                jugaad.moveOuttakeToOpen()
+            }
             .build()
 
         moveIntoWarehouseTwo = drive.trajectorySequenceBuilder(depositPose)
@@ -145,6 +233,16 @@ class WebcamTest : OpMode() {
 
             .setReversed(true)
             .splineToSplineHeading(Pose2d(-11.0, -45.0, Math.toRadians(270.0)), Math.toRadians(90.0))
+            .addTemporalMarker(13.5) {
+                jugaad.reverseIntake()
+            }
+            .addTemporalMarker(14.2) {
+                jugaad.arm.moveArmToTopPos()
+                jugaad.stopIntake()
+            }
+            .addTemporalMarker(15.5,) {
+                jugaad.moveOuttakeToOpen()
+            }
             .build()
 
         parkAtEnd = drive.trajectorySequenceBuilder(depositPose)
@@ -157,7 +255,7 @@ class WebcamTest : OpMode() {
     }
 
 
-
+    //Loop & Updates
     override fun loop() {
         initialDepositStateMachine.update()
         drive.update()

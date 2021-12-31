@@ -53,28 +53,31 @@ class Arm {
     }
 
     fun moveArmToMidPos(){
-
-        moveArmToDegree(-93.0)
+        moveArmToDegree(134.0)
     }
 
     fun moveArmToTopPos(){
-
         moveArmToDegree(97.0)
     }
 
     fun moveArmToTopPosTwo(){
-
         moveArmToDegree(92.0)
     }
 
     fun moveArmToBottomPos(){
-
         moveArmToDegree(-55.0)
     }
 
-    fun moveArmToSharedPos() {
-
+    fun moveArmToSharedPosBalanced() {
         moveArmToDegree(172.0)
+    }
+
+    fun moveArmToSharedPosTippedToAlliance() {
+        moveArmToDegree(174.0)
+    }
+
+    fun moveArmToSharedPoseTippedToEnemy() {
+        moveArmToDegree(169.0)
     }
 
 

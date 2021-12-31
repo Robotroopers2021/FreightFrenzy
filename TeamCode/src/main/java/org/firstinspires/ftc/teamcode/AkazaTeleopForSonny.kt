@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.util.math.MathUtil
 
 @Config
 @TeleOp
-class LeviTeleOp : OpMode() {
+class AkazaTeleopForSonny : OpMode() {
 
 
     lateinit var fl: DcMotor
@@ -56,8 +56,14 @@ class LeviTeleOp : OpMode() {
                 arm.moveArmToBottomPos()
                 outtakeServo.position = 0.92
             }
-            gamepad1.b -> {
+            gamepad1.a -> {
                 arm.moveArmToSharedPosBalanced()
+            }
+            gamepad1.b -> {
+                arm.moveArmToSharedPosTippedToAlliance()
+            }
+            gamepad1.x -> {
+                arm.moveArmToSharedPoseTippedToEnemy()
             }
         }
     }
