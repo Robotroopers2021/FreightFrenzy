@@ -5,12 +5,17 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
+import org.firstinspires.ftc.teamcode.advanced.PoseStorage
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.util.math.Point
 import kotlin.math.cos
 
 @Config
@@ -110,14 +115,17 @@ class AkazaTeleopForSonny : OpMode() {
             0.75
         }
 
+        val point = Point()
+        val rotated = point.rotate()
 
-        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * scale
-        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_x.toDouble()) * scale
-        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.6
+        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble() * scale)
+        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_y.toDouble()  * scale)
+        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble() * 0.6)
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
         br.power = drive + strafe - rotate
+
     }
 
     private fun intakeControl() {
@@ -155,10 +163,6 @@ class AkazaTeleopForSonny : OpMode() {
         } else {
             duck.power = 0.0
         }
-    }
-
-    fun cubicScaling(k: Double, x: Double): Double {
-        return (1 - k) * x + k * x * x * x
     }
 
     override fun init() {
@@ -205,14 +209,14 @@ class AkazaTeleopForSonny : OpMode() {
         duckControl()
 
         fun getFeedForward(targetAngle: Double): Double {
-            return Math.cos(targetAngle) * kcos
+            return cos(targetAngle) * kcos
         }
 
         val kcosup = 0.5
         val kcosdown = 0.5
 
         fun feedforward(target: Double, up: Boolean): Double {
-            return Math.cos(target) * if(up) {
+            return cos(target) * if(up) {
                 kcosup
             } else {
                 kcosdown
