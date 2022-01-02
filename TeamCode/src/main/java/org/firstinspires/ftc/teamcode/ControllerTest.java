@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
@@ -90,6 +92,12 @@ public class ControllerTest extends OpMode {
 
 
     private void driveControl() {
+
+        double gamepadXCoordinate = gamepad1.right_stick_x;
+        double gamepadYCoordinate = -gamepad1.right_stick_y;
+        double gamepadHypot = Range.clip(Math.hypot(gamepadXCoordinate, gamepadYCoordinate), 0, 1);
+        
+
         drive = -gamepad1.left_stick_y *0.75;
         strafe = gamepad1.left_stick_x *0.75;
         rotate = gamepad1.right_stick_x *0.6;

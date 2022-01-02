@@ -12,11 +12,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import org.firstinspires.ftc.teamcode.advanced.PoseStorage
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.util.math.Point
 import kotlin.math.cos
+import kotlin.math.hypot
 
 @Config
 @TeleOp
@@ -109,17 +111,21 @@ class AkazaTeleopForSonny : OpMode() {
     }
 
     private fun driveControl() {
-        val scale = if(gamepad1.left_stick_button) {
+        val NOS = if(gamepad1.left_stick_button) {
             1.0
         } else {
             0.75
         }
 
-        val point = Point()
-        val rotated = point.rotate()
+        val smd = SampleMecanumDrive(hardwareMap)
 
-        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble() * scale)
-        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_y.toDouble()  * scale)
+//        val gamepadXCoordinate = gamepad1.right_stick_x
+//        val gamepadYCoordinate = -gamepad1.right_stick_y
+//        val gamepadHypot = Range.clip(hypot(gamepadXCoordinate, gamepadYCoordinate), 0, 1)
+
+
+        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * NOS
+        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_y.toDouble()) * NOS
         rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble() * 0.6)
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
@@ -151,7 +157,7 @@ class AkazaTeleopForSonny : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.83
+            outtakeServo.position = 0.785
         }
     }
 
