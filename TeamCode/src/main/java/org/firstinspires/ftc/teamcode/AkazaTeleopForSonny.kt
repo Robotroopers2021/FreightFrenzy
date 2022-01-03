@@ -5,10 +5,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
-import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.hardware.bosch.BNO055IMU
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -16,10 +13,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.navigation.*
-import org.firstinspires.ftc.teamcode.util.math.MathUtil
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.util.math.Point
 import kotlin.math.*
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator
+
+
+
 
 @Config
 @TeleOp
@@ -55,10 +53,6 @@ class AkazaTeleopForSonny : OpMode() {
     var gamepadXControl: Double = 0.0
     var gamepadYControl: Double = 0.0
 
-    val parameters = BNO055IMU.Parameters()
-
-
-
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
     var degreesPerTick = 90 / 184.0
@@ -79,16 +73,6 @@ class AkazaTeleopForSonny : OpMode() {
         return cos(targetAngle) * kcos
     }
 
-    val kcosup = 0.5
-    val kcosdown = 0.5
-
-    fun feedforward(target: Double, up: Boolean): Double {
-        return cos(target) * if(up) {
-            kcosup
-        } else {
-            kcosdown
-        }
-    }
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
@@ -128,22 +112,16 @@ class AkazaTeleopForSonny : OpMode() {
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
-    fun getAngle(): Double {
+    private fun getAngle(): Double {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
     }
 
     private fun driveControl() {
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
-        parameters.loggingEnabled = true
-        parameters.loggingTag = "IMU"
-        parameters.accelerationIntegrationAlgorithm = JustLoggingAccelerationIntegrator()
         imu.startAccelerationIntegration(Position(), Velocity(), 1000)
         driveTurn = -gamepad1.right_stick_x.toDouble()
         gamepadXCoordinate = gamepad1.left_stick_x.toDouble()
         gamepadYCoordinate = -gamepad1.left_stick_y.toDouble()
-        gamepadHypot = Range.clip(Math.hypot(gamepadXCoordinate, gamepadYCoordinate), 0.0, 1.0)
+        gamepadHypot = Range.clip(hypot(gamepadXCoordinate, gamepadYCoordinate), 0.0, 1.0)
         gamepadDegree = atan2(gamepadYCoordinate, gamepadXCoordinate)
         gravity = imu.gravity
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
@@ -186,12 +164,16 @@ class AkazaTeleopForSonny : OpMode() {
     }
 
     private fun duckControl() {
-        if (gamepad1.dpad_left) {
-            duck.power = duckPower
-        } else if (gamepad1.dpad_right) {
-            duck.power = -duckPower
-        } else {
-            duck.power = 0.0
+        when {
+            gamepad1.dpad_left -> {
+                duck.power = duckPower
+            }
+            gamepad1.dpad_right -> {
+                duck.power = -duckPower
+            }
+            else -> {
+                duck.power = 0.0
+            }
         }
     }
 
@@ -220,6 +202,14 @@ class AkazaTeleopForSonny : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
+        val parameters = BNO055IMU.Parameters()
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
+        parameters.loggingEnabled = true
+        parameters.loggingTag = "IMU"
+        parameters.accelerationIntegrationAlgorithm = JustLoggingAccelerationIntegrator()
+
         imu = hardwareMap.get(BNO055IMU::class.java, "imu")
         imu.initialize(parameters)
 
@@ -240,24 +230,6 @@ class AkazaTeleopForSonny : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
-
-        fun getFeedForward(targetAngle: Double): Double {
-            return cos(targetAngle) * kcos
-        }
-
-        val kcosup = 0.5
-        val kcosdown = 0.5
-
-        fun feedforward(target: Double, up: Boolean): Double {
-            return cos(target) * if(up) {
-                kcosup
-            } else {
-                kcosdown
-            }
-        }
-
-
-
     }
 
     companion object {
