@@ -7,18 +7,19 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.qualcomm.hardware.bosch.BNO055IMU
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
+import org.firstinspires.ftc.robotcore.external.navigation.*
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
-import org.firstinspires.ftc.teamcode.advanced.PoseStorage
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.util.math.Point
-import kotlin.math.cos
-import kotlin.math.hypot
+import kotlin.math.*
 
 @Config
 @TeleOp
@@ -35,10 +36,28 @@ class AkazaTeleopForSonny : OpMode() {
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
 
+    lateinit var imu: BNO055IMU
+    lateinit var angles: Orientation
+    lateinit var gravity: Acceleration
+
     var drive = 0.0
     var strafe = 0.0
     var rotate = 0.0
     var duckPower = 0.75
+
+    var driveTurn: Double =0.0
+    var gamepadXCoordinate: Double =0.0
+    var gamepadYCoordinate: Double = 0.0
+    var gamepadHypot: Double =0.0
+    var gamepadDegree: Double = 0.0
+    var robotDegree: Double = 0.0
+    var movementDegree: Double = 0.0
+    var gamepadXControl: Double = 0.0
+    var gamepadYControl: Double = 0.0
+
+    val parameters = BNO055IMU.Parameters()
+
+
 
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
@@ -109,43 +128,48 @@ class AkazaTeleopForSonny : OpMode() {
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
+    fun getAngle(): Double {
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
+    }
 
     private fun driveControl() {
-        val NOS = if(gamepad1.left_stick_button) {
-            1.0
-        } else {
-            0.75
-        }
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
+        parameters.loggingEnabled = true
+        parameters.loggingTag = "IMU"
+        parameters.accelerationIntegrationAlgorithm = JustLoggingAccelerationIntegrator()
+        imu.startAccelerationIntegration(Position(), Velocity(), 1000)
+        driveTurn = -gamepad1.right_stick_x.toDouble()
+        gamepadXCoordinate = gamepad1.left_stick_x.toDouble()
+        gamepadYCoordinate = -gamepad1.left_stick_y.toDouble()
+        gamepadHypot = Range.clip(Math.hypot(gamepadXCoordinate, gamepadYCoordinate), 0.0, 1.0)
+        gamepadDegree = atan2(gamepadYCoordinate, gamepadXCoordinate)
+        gravity = imu.gravity
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
+        robotDegree = getAngle()
+        movementDegree = gamepadDegree - robotDegree
+        gamepadXControl = cos(Math.toRadians(movementDegree)) * gamepadHypot
+        gamepadYControl = sin(Math.toRadians(movementDegree)) * gamepadHypot
 
-        val smd = SampleMecanumDrive(hardwareMap)
-
-//        val gamepadXCoordinate = gamepad1.right_stick_x
-//        val gamepadYCoordinate = -gamepad1.right_stick_y
-//        val gamepadHypot = Range.clip(hypot(gamepadXCoordinate, gamepadYCoordinate), 0, 1)
-
-
-        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * NOS
-        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_y.toDouble()) * NOS
-        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble() * 0.6)
-        fl.power = drive + strafe + rotate
-        fr.power = drive - strafe - rotate
-        bl.power = drive - strafe + rotate
-        br.power = drive + strafe - rotate
-
+        fr.power = gamepadYControl * abs(gamepadYControl) - gamepadXControl * abs(gamepadXControl) + driveTurn
+        br.power = gamepadYControl * abs(gamepadYControl) + gamepadXControl * abs(gamepadXControl) + driveTurn
+        fl.power = gamepadYControl * abs(gamepadYControl) + gamepadXControl * abs(gamepadXControl) - driveTurn
+        bl.power = gamepadYControl * abs(gamepadYControl) - gamepadXControl * abs(gamepadXControl) - driveTurn
     }
 
     private fun intakeControl() {
 
-
-
-        if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
-        }
-
-        else if(gamepad1.left_trigger > 0.5) {
-            intakeMotor.power = -1.0
-        } else {
-            intakeMotor.power = 0.0
+        when {
+            gamepad1.right_trigger > 0.5 -> {
+                intakeMotor.power = 1.0
+            }
+            gamepad1.left_trigger > 0.5 -> {
+                intakeMotor.power = -1.0
+            }
+            else -> {
+                intakeMotor.power = 0.0
+            }
         }
     }
 
@@ -157,7 +181,7 @@ class AkazaTeleopForSonny : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.785
+            outtakeServo.position = 0.8
         }
     }
 
@@ -195,6 +219,9 @@ class AkazaTeleopForSonny : OpMode() {
         arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+
+        imu = hardwareMap.get(BNO055IMU::class.java, "imu")
+        imu.initialize(parameters)
 
         outtakeServo.position = 0.9
         armController.reset()
@@ -240,7 +267,7 @@ class AkazaTeleopForSonny : OpMode() {
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kcos = 0.275
         @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 97.0
+        @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 172.0
         @JvmStatic var sharedAngleAlliance = 174.0

@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -27,6 +28,8 @@ public class ControllerTest extends OpMode {
     public static double kv;
     public static double depositAngle =140;
     public static double restAngle = -55;
+
+    public BNO055IMU imu;
 
 
      PIDFController armController = new PIDFController(new PIDCoefficients(kp,ki,kd));
@@ -93,9 +96,26 @@ public class ControllerTest extends OpMode {
 
     private void driveControl() {
 
+        double driveTurn = -gamepad1.left_stick_x;
+
         double gamepadXCoordinate = gamepad1.right_stick_x;
         double gamepadYCoordinate = -gamepad1.right_stick_y;
         double gamepadHypot = Range.clip(Math.hypot(gamepadXCoordinate, gamepadYCoordinate), 0, 1);
+
+        double gamepadDegree = Math.atan2(gamepadYCoordinate, gamepadXCoordinate);
+
+        //double robotDegree = getAngle();
+
+        //double movementDegree = gamepadDegree - robotDegree;
+
+//        double gamepadXControl = Math.cos(Math.toRadians(movementDegree)) * gamepadHypot;
+//
+//        double gamepadYControl = Math.sin(Math.toRadians(movementDegree)) * gamepadHypot;
+
+//        FR.setPower(gamepadYControl * Math.abs(gamepadYControl) - gamepadXControl * Math.abs(gamepadXControl) + driveTurn);
+//        BR.setPower(gamepadYControl * Math.abs(gamepadYControl) + gamepadXControl * Math.abs(gamepadXControl) + driveTurn);
+//        FL.setPower(gamepadYControl * Math.abs(gamepadYControl) + gamepadXControl * Math.abs(gamepadXControl) - driveTurn);
+//        BL.setPower(gamepadYControl * Math.abs(gamepadYControl) - gamepadXControl * Math.abs(gamepadXControl) - driveTurn);
         
 
         drive = -gamepad1.left_stick_y *0.75;

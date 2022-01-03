@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.vision.AllianceSide
 import org.firstinspires.ftc.teamcode.vision.Globals
 import org.firstinspires.ftc.teamcode.vision.Webcam
 
-@Autonomous(preselectTeleOp = "CompTeleOp")
+@Autonomous(preselectTeleOp = "AkazaTeleopForSonny")
 class WebcamTest : OpMode() {
     //Start Pose Values
     private val startX = 11.0
@@ -30,7 +30,7 @@ class WebcamTest : OpMode() {
     private val depositY = 45.0
     private val depositAngle = Math.toRadians(90.0)
     // Warehouse One Pose Values
-    private val warehouseOneX = 43.0
+    private val warehouseOneX = 52.0
     private val warehouseOneY = 65.5
     private val warehouseOneAngle = Math.toRadians(0.0)
     //Warehouse Two Pose Values
@@ -113,7 +113,7 @@ class WebcamTest : OpMode() {
         .onEnter{
             drive.followTrajectorySequenceAsync(moveIntoWarehouseOne)
             jugaad.arm.moveArmToBottomPos()
-            jugaad.intakeFreight()
+            jugaad.moveOuttakeToOpen()
             motionTimer.reset()
         }
         .transition{
@@ -131,12 +131,12 @@ class WebcamTest : OpMode() {
         .onEnter{
             drive.followTrajectorySequenceAsync(moveIntoWarehouseTwo)
             jugaad.arm.moveArmToBottomPos()
-            jugaad.intakeFreight()
+            jugaad.moveOuttakeToOpen()
             motionTimer.reset()
         }
         .transition{
             val value = distanceSensor.getDistance(DistanceUnit.INCH)
-            value < 0.6 || motionTimer.seconds() > 9.0
+            value < 0.6 || motionTimer.seconds() > 5.0
         }
 
         .state(InitialDepositStates.CYCLE_DEPOSIT_TWO)
@@ -169,12 +169,12 @@ class WebcamTest : OpMode() {
 
         initialDepositTrajectoryTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 jugaad.arm.moveArmToTopPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToOpen()
+                jugaad.moveOuttakeToDeposit()
             }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
@@ -186,7 +186,7 @@ class WebcamTest : OpMode() {
                 jugaad.arm.moveArmToMidPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToOpen()
+                jugaad.moveOuttakeToDeposit()
             }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(270.0)))
             .build()
@@ -198,7 +198,7 @@ class WebcamTest : OpMode() {
                 jugaad.arm.moveArmToBottomPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToOpen()
+                jugaad.moveOuttakeToDeposit()
             }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
@@ -207,21 +207,30 @@ class WebcamTest : OpMode() {
 
             .setReversed(false)
             .splineToSplineHeading( Pose2d(43.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .addTemporalMarker(1.5) {
+
+                jugaad.intakeFreight()
+            }
+            .addTemporalMarker(4.0) {
+
+                jugaad.stopIntake()
+            }
             .build()
 
         cycleDepositOne = drive.trajectorySequenceBuilder(warehouseOnePose)
 
             .setReversed(true)
             .splineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)), Math.toRadians(270.0))
-            .addTemporalMarker(6.5) {
+            .addTemporalMarker(0.2) {
+
                 jugaad.reverseIntake()
             }
-            .addTemporalMarker(6.2) {
+            .addTemporalMarker(1.0) {
                 jugaad.arm.moveArmToTopPos()
                 jugaad.stopIntake()
             }
-            .addTemporalMarker(9.5,) {
-                jugaad.moveOuttakeToOpen()
+            .addTemporalMarker(1.5,) {
+                jugaad.moveOuttakeToDeposit()
             }
             .build()
 
@@ -235,15 +244,15 @@ class WebcamTest : OpMode() {
 
             .setReversed(true)
             .splineToSplineHeading(Pose2d(-11.0, 45.0, Math.toRadians(90.0)), Math.toRadians(270.0))
-            .addTemporalMarker(13.5) {
+            .addTemporalMarker(0.2) {
                 jugaad.reverseIntake()
             }
-            .addTemporalMarker(13.2) {
+            .addTemporalMarker(1.0) {
                 jugaad.arm.moveArmToTopPos()
                 jugaad.stopIntake()
             }
-            .addTemporalMarker(15.5,) {
-                jugaad.moveOuttakeToOpen()
+            .addTemporalMarker(1.5,) {
+                jugaad.moveOuttakeToDeposit()
             }
             .build()
 

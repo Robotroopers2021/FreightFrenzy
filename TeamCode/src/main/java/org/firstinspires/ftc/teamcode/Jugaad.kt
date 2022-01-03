@@ -32,7 +32,7 @@ class Jugaad(
     }
 
     fun moveOuttakeToLock(){
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
     }
 
     fun moveOuttakeToDeposit(){
