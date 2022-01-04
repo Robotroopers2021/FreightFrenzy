@@ -32,10 +32,11 @@ public class spineTest extends LinearOpMode {
         drive.setPoseEstimate(startPose);
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(new Pose2d(11, 57.25, Math.toRadians(90)))
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(5, 30, Math.toRadians(50.0)), Math.toRadians(220))
-                .lineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90.0)))
+                .splineToSplineHeading(new Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+                .lineToSplineHeading(new Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
                 .setReversed(false)
-                .splineToSplineHeading(new Pose2d(43, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(43.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+
                 .build();
         waitForStart();
         drive.followTrajectorySequence(traj1);

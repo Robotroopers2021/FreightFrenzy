@@ -44,10 +44,10 @@ class AkazaTeleopForSonny : OpMode() {
     var rotate = 0.0
     var duckPower = 0.75
 
-    var driveTurn: Double =0.0
-    var gamepadXCoordinate: Double =0.0
+    var driveTurn: Double = 0.0
+    var gamepadXCoordinate: Double = 0.0
     var gamepadYCoordinate: Double = 0.0
-    var gamepadHypot: Double =0.0
+    var gamepadHypot: Double = 0.0
     var gamepadDegree: Double = 0.0
     var robotDegree: Double = 0.0
     var movementDegree: Double = 0.0
