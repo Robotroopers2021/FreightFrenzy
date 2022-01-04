@@ -21,9 +21,7 @@ class CompTeleOp : OpMode() {
     lateinit var br: DcMotor
 
     lateinit var intakeMotor: DcMotor
-
     lateinit var duck: DcMotor
-
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
 

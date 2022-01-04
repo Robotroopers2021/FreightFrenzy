@@ -10,13 +10,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.navigation.*
 import kotlin.math.*
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator
-
-
+import org.firstinspires.ftc.teamcode.util.AxesSigns
+import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil
+import org.firstinspires.ftc.teamcode.util.math.Point
 
 
 @Config
@@ -117,6 +118,9 @@ class AkazaTeleopForSonny : OpMode() {
     }
 
     private fun driveControl() {
+        val point = Point(gamepadXCoordinate, gamepadYCoordinate)
+        val rotated =
+
         imu.startAccelerationIntegration(Position(), Velocity(), 1000)
         driveTurn = -gamepad1.right_stick_x.toDouble()
         gamepadXCoordinate = gamepad1.left_stick_x.toDouble()
@@ -202,16 +206,13 @@ class AkazaTeleopForSonny : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
-        val parameters = BNO055IMU.Parameters()
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
-        parameters.loggingEnabled = true
-        parameters.loggingTag = "IMU"
-        parameters.accelerationIntegrationAlgorithm = JustLoggingAccelerationIntegrator()
-
         imu = hardwareMap.get(BNO055IMU::class.java, "imu")
+        val parameters = BNO055IMU.Parameters()
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS
         imu.initialize(parameters)
+
+        BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN)
+
 
         outtakeServo.position = 0.9
         armController.reset()

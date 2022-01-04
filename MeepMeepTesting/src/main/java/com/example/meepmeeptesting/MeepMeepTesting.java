@@ -25,10 +25,12 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(12.5, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(11, 57.25, Math.toRadians(90.0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(11, 62.25, Math.toRadians(90)))
                                 .setReversed(true)
-                                .splineToSplineHeading( new Pose2d(0.0, 42.0, Math.toRadians(50.0)), Math.toRadians(220.0))
-            .lineToSplineHeading( new Pose2d(-3.0, 36.0, Math.toRadians(90.0)))
+                                .splineToSplineHeading(new Pose2d(5, 30, Math.toRadians(50.0)), Math.toRadians(220))
+                                .lineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90.0)))
+                                .setReversed(false)
+                                .splineToSplineHeading(new Pose2d(43, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
 
 
 //                                //TODO Initial Deposit Trajectory
