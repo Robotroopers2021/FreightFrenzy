@@ -52,16 +52,6 @@ class CompTeleOp : OpMode() {
         return cos(targetAngle) * kcos
     }
 
-    val kcosup = 0.5
-    val kcosdown = 0.5
-
-    fun feedforward(target: Double, up: Boolean): Double {
-        return cos(target) * if(up) {
-            kcosup
-        } else {
-            kcosdown
-        }
-    }
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
@@ -69,10 +59,16 @@ class CompTeleOp : OpMode() {
             }
             gamepad1.right_bumper -> {
                 moveArmToDegree(restAngle)
-                outtakeServo.position = 0.92
+                outtakeServo.position = 0.90
+            }
+            gamepad1.a -> {
+                moveArmToDegree(sharedAngle)
+            }
+            gamepad1.x -> {
+                moveArmToDegree(sharedAngleAlliance)
             }
             gamepad1.b -> {
-                moveArmToDegree(sharedAngle)
+                moveArmToDegree(sharedAngleEnemy)
             }
         }
 
@@ -108,43 +104,43 @@ class CompTeleOp : OpMode() {
 
     private fun intakeControl() {
 
-
-
-        if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
-        }
-
-        else if(gamepad1.left_trigger > 0.5) {
-            intakeMotor.power = -1.0
-        } else {
-            intakeMotor.power = 0.0
+        when {
+            gamepad1.right_trigger > 0.5 -> {
+                intakeMotor.power = 1.0
+            }
+            gamepad1.left_trigger > 0.5 -> {
+                intakeMotor.power = -1.0
+            }
+            else -> {
+                intakeMotor.power = 0.0
+            }
         }
     }
 
     private fun outtakeControl() {
         if (gamepad2.a) {
-            outtakeServo.position = 0.92
+            outtakeServo.position = 0.90
         }
         if (gamepad2.b) {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.83
+            outtakeServo.position = 0.80
         }
     }
 
     private fun duckControl() {
-        if (gamepad1.dpad_left) {
-            duck.power = duckPower
-        } else if (gamepad1.dpad_right) {
-            duck.power = -duckPower
-        } else {
-            duck.power = 0.0
+        when {
+            gamepad1.dpad_left -> {
+                duck.power = duckPower
+            }
+            gamepad1.dpad_right -> {
+                duck.power = -duckPower
+            }
+            else -> {
+                duck.power = 0.0
+            }
         }
-    }
-
-    fun cubicScaling(k: Double, x: Double): Double {
-        return (1 - k) * x + k * x * x * x
     }
 
     override fun init() {
@@ -172,7 +168,7 @@ class CompTeleOp : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
-        outtakeServo.position = 0.9
+        outtakeServo.position = 0.90
         armController.reset()
         targetAngle = restAngle
         targetTicks = restAngle * ticksPerDegree
@@ -189,24 +185,6 @@ class CompTeleOp : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
-
-        fun getFeedForward(targetAngle: Double): Double {
-            return Math.cos(targetAngle) * kcos
-        }
-
-        val kcosup = 0.5
-        val kcosdown = 0.5
-
-        fun feedforward(target: Double, up: Boolean): Double {
-            return Math.cos(target) * if(up) {
-                kcosup
-            } else {
-                kcosdown
-            }
-        }
-
-
-
     }
 
     companion object {
@@ -216,8 +194,10 @@ class CompTeleOp : OpMode() {
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kcos = 0.275
         @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 97.0
+        @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 172.0
+        @JvmStatic var sharedAngleAlliance = 178.0
+        @JvmStatic var sharedAngleEnemy = 164.0
     }
 }

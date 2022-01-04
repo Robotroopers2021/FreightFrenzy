@@ -60,16 +60,16 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
 
 
     private fun moveOuttakeToOut(){
-        outtakeServo.position = 0.6
+        outtakeServo.position = 0.60
 
     }
 
     private fun moveOuttakeToLock(){
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
     }
 
     private fun moveOuttakeToOpen(){
-        outtakeServo.position = 0.92
+        outtakeServo.position = 0.90
 
     }
 
@@ -126,7 +126,6 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
             drive.followTrajectorySequenceAsync(moveIntoWarehouseFrontTrajectorySequence)
             arm.moveArmToBottomPos()
             moveOuttakeToOpen()
-            intakeFreight()
         }
         .transition {
             val value = distanceSensor.getDistance(DistanceUnit.INCH)
@@ -176,7 +175,6 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
             drive.followTrajectorySequenceAsync(moveIntoWarehouseThree)
             arm.moveArmToBottomPos()
             moveOuttakeToOpen()
-            intakeFreight()
         }
         .transition {
             val value = distanceSensor.getDistance(DistanceUnit.INCH)
@@ -234,7 +232,7 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
@@ -246,6 +244,9 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
         moveIntoWarehouseFrontTrajectorySequence = drive.trajectorySequenceBuilder(Pose2d(-3.0,36.0, Math.toRadians(55.0)))
             .splineToSplineHeading( Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
             .splineToConstantHeading( Vector2d(48.0, 65.0), Math.toRadians(0.0))
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
             .build()
         moveBackOutTrajectorySequence = drive.trajectorySequenceBuilder(warehouseFrontPose)
             .setReversed(true)
@@ -259,10 +260,16 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
         moveIntoWarehouseEndTrajectorySequence = drive.trajectorySequenceBuilder(Pose2d(-3.0,36.0, Math.toRadians(55.0)))
             .splineTo(Vector2d(15.0,65.0),0.0)
             .lineToConstantHeading(Vector2d(41.0,63.0))
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
             .build()
         moveIntoWarehouseThree = drive.trajectorySequenceBuilder(Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
             .splineToSplineHeading(Pose2d(15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
             .splineToSplineHeading(Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
             .build()
         moveToDepositThreeTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
             .setReversed(true)

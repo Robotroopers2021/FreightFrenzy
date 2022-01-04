@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
-import com.acmerobotics.roadrunner.trajectory.Trajectory
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -14,24 +13,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.util.math.Pose
 import org.firstinspires.ftc.teamcode.vision.AllianceSide
 import org.firstinspires.ftc.teamcode.vision.Globals
-import org.firstinspires.ftc.teamcode.vision.Webcam
+import java.util.*
 
-@Autonomous(preselectTeleOp = "AkazaTeleopForSonny")
-class WebcamTest : OpMode() {
+@Autonomous(preselectTeleOp = "CompTeleOp")
+class AkazaAutoBlueFar : OpMode() {
     //Start Pose Values
     private val startX = 11.0
     private val startY = 57.25
     private val startAngle = Math.toRadians(90.0)
     //Deposit Pose Values
-    private val depositX = 11.0
-    private val depositY = 45.0
+    private val depositX = 10.0
+    private val depositY = 40.5
     private val depositAngle = Math.toRadians(90.0)
     // Warehouse One Pose Values
     private val warehouseOneX = 52.0
-    private val warehouseOneY = 65.5
+    private val warehouseOneY = 67.5
     private val warehouseOneAngle = Math.toRadians(0.0)
     //Warehouse Two Pose Values
     private val warehouseTwoX = 46.0
@@ -42,29 +40,13 @@ class WebcamTest : OpMode() {
     private lateinit var jugaad : Jugaad
 
     //Start Pose
-    private val startPose = if(Globals.ALLIANCE_SIDE == AllianceSide.BLUE) {
-        Pose2d(startX, startY, startAngle)
-    } else {
-        Pose2d(startX, -startY, -startAngle)
-    }
+    private val startPose = Pose2d(startX, startY, startAngle)
     //Deposit Pose
-    private val depositPose = if(Globals.ALLIANCE_SIDE == AllianceSide.BLUE) {
-        Pose2d(depositX, depositY, depositAngle)
-    } else {
-        Pose2d(depositX, -depositY, -depositAngle)
-    }
+    private val depositPose = Pose2d(depositX, depositY, depositAngle)
     //Warehouse One Pose
-    private val warehouseOnePose = if (Globals.ALLIANCE_SIDE == AllianceSide.BLUE) {
-        Pose2d(warehouseOneX, warehouseOneY, warehouseOneAngle)
-    } else {
-        Pose2d(warehouseOneX, -warehouseOneY, -warehouseOneAngle)
-    }
+    private val warehouseOnePose = Pose2d(warehouseOneX, warehouseOneY, warehouseOneAngle)
     //Warehouse Two Pose
-    private val warehouseTwoPose = if (Globals.ALLIANCE_SIDE == AllianceSide.BLUE) {
-        Pose2d(warehouseTwoX, warehouseTwoY, warehouseTwoAngle)
-    } else {
-        Pose2d(warehouseTwoX, -warehouseTwoY, -warehouseTwoAngle)
-    }
+    private val warehouseTwoPose = Pose2d(warehouseTwoX, warehouseTwoY, warehouseTwoAngle)
     //Timer
     private var motionTimer = ElapsedTime()
     //Servos, Motors, and Sensors
@@ -118,7 +100,7 @@ class WebcamTest : OpMode() {
         }
         .transition{
             val value = distanceSensor.getDistance(DistanceUnit.INCH)
-            value < 0.6 || motionTimer.seconds() > 5.0
+            value < 6.0 || motionTimer.seconds() > 5.0
         }
 
         .state(InitialDepositStates.CYCLE_DEPOSIT_ONE)
@@ -207,13 +189,11 @@ class WebcamTest : OpMode() {
 
             .setReversed(false)
             .splineToSplineHeading( Pose2d(43.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(48.5, 70.5), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(43.0, 70.5), Math.toRadians(0.0))
             .addTemporalMarker(1.5) {
 
                 jugaad.intakeFreight()
-            }
-            .addTemporalMarker(4.0) {
-
-                jugaad.stopIntake()
             }
             .build()
 
@@ -221,15 +201,15 @@ class WebcamTest : OpMode() {
 
             .setReversed(true)
             .splineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)), Math.toRadians(270.0))
-            .addTemporalMarker(0.2) {
-
+            .addTemporalMarker(0.5) {
+                jugaad.moveOuttakeToLock()
                 jugaad.reverseIntake()
             }
-            .addTemporalMarker(1.0) {
+            .addTemporalMarker(2.25) {
                 jugaad.arm.moveArmToTopPos()
                 jugaad.stopIntake()
             }
-            .addTemporalMarker(1.5,) {
+            .addTemporalMarker(3.0) {
                 jugaad.moveOuttakeToDeposit()
             }
             .build()
@@ -251,7 +231,7 @@ class WebcamTest : OpMode() {
                 jugaad.arm.moveArmToTopPos()
                 jugaad.stopIntake()
             }
-            .addTemporalMarker(1.5,) {
+            .addTemporalMarker(1.5) {
                 jugaad.moveOuttakeToDeposit()
             }
             .build()
