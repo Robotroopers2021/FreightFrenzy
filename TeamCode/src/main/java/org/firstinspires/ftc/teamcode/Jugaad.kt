@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
+import org.firstinspires.ftc.teamcode.vision.Webcam
 
 class Jugaad(
     private val intakeMotor: DcMotor,
     val outtakeServo: Servo,
     private val distanceSensor: Rev2mDistanceSensor,
     val arm : Arm,
-
 ){
 
     fun intakeFreight(){

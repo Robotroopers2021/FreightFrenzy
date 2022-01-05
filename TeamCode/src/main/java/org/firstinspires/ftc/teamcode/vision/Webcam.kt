@@ -5,9 +5,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
-import org.firstinspires.ftc.teamcode.vision.Globals
 import org.firstinspires.ftc.teamcode.telemetryStuff.Dashboard
-import org.firstinspires.ftc.teamcode.vision.Subsystem
 
 class Webcam : Subsystem {
     private lateinit var webcam: OpenCvCamera

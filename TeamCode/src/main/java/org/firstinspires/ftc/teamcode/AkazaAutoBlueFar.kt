@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
@@ -9,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
@@ -30,6 +28,8 @@ class AkazaAutoBlueFar : OpMode() {
     private lateinit var distanceSensor : Rev2mDistanceSensor
 
     private val arm = Arm()
+
+    private val webcam = Webcam()
 
     private lateinit var InitialDepositTrajTop : TrajectorySequence
 
@@ -265,11 +265,19 @@ class AkazaAutoBlueFar : OpMode() {
 
         drive.poseEstimate = startPose
 
-
         initialDepositStateMachine.start()
+        webcam.init()
     }
 
+    override fun init_loop() {
+        super.init_loop()
+        webcam.update()
+    }
 
+    override fun start() {
+        super.start()
+        webcam.reset()
+    }
 
     override fun loop() {
         initialDepositStateMachine.update()
