@@ -65,11 +65,11 @@ class CycleAutoBlueTESTINGDS : OpMode() {
     }
 
     private fun moveOuttakeToLock(){
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
     }
 
     private fun moveOuttakeToOpen(){
-        outtakeServo.position = 0.92
+        outtakeServo.position = 0.90
 
     }
 
@@ -234,7 +234,7 @@ class CycleAutoBlueTESTINGDS : OpMode() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
@@ -262,7 +262,7 @@ class CycleAutoBlueTESTINGDS : OpMode() {
                 .build()
         moveIntoWarehouseThree = drive.trajectorySequenceBuilder(Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
                 .splineToSplineHeading(Pose2d(15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .splineToSplineHeading(Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))
+                .splineToConstantHeading( Vector2d(48.0, 65.0), Math.toRadians(0.0))
                 .build()
         moveToDepositThreeTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
                 .setReversed(true)

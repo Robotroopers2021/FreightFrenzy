@@ -57,7 +57,7 @@ class Arm {
     }
 
     fun moveArmToTopPos(){
-        moveArmToDegree(97.0)
+        moveArmToDegree(94.0)
     }
 
     fun moveArmToTopPosTwo(){
@@ -66,6 +66,10 @@ class Arm {
 
     fun moveArmToBottomPos(){
         moveArmToDegree(-55.0)
+    }
+
+    fun autoBottomPos(){
+        moveArmToDegree(172.0)
     }
 
     fun moveArmToSharedPosBalanced() {

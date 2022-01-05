@@ -130,10 +130,10 @@ class CompTeleOp : OpMode() {
     private fun duckControl() {
         when {
             gamepad1.dpad_left -> {
-                duck.power = duckPower
+                duck.power = -duckPower
             }
             gamepad1.dpad_right -> {
-                duck.power = -duckPower
+                duck.power = duckPower
             }
             else -> {
                 duck.power = 0.0

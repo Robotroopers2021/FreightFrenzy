@@ -13,247 +13,264 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.vision.AllianceSide
 import org.firstinspires.ftc.teamcode.vision.Globals
-import java.util.*
+import org.firstinspires.ftc.teamcode.vision.Webcam
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
 class AkazaAutoBlueFar : OpMode() {
-    //Start Pose Values
-    private val startX = 11.0
-    private val startY = 57.25
-    private val startAngle = Math.toRadians(90.0)
-    //Deposit Pose Values
-    private val depositX = 10.0
-    private val depositY = 40.5
-    private val depositAngle = Math.toRadians(90.0)
-    // Warehouse One Pose Values
-    private val warehouseOneX = 52.0
-    private val warehouseOneY = 67.5
-    private val warehouseOneAngle = Math.toRadians(0.0)
-    //Warehouse Two Pose Values
-    private val warehouseTwoX = 46.0
-    private val warehouseTwoY = 65.5
-    private val warehouseTwoAngle = Math.toRadians(0.0)
-    //Arm.kt and Jugaad.kt instances
-    private val arm = Arm()
-    private lateinit var jugaad : Jugaad
 
-    //Start Pose
-    private val startPose = Pose2d(startX, startY, startAngle)
-    //Deposit Pose
-    private val depositPose = Pose2d(depositX, depositY, depositAngle)
-    //Warehouse One Pose
-    private val warehouseOnePose = Pose2d(warehouseOneX, warehouseOneY, warehouseOneAngle)
-    //Warehouse Two Pose
-    private val warehouseTwoPose = Pose2d(warehouseTwoX, warehouseTwoY, warehouseTwoAngle)
-    //Timer
+    private var startPose = Pose2d(11.0, 57.25, Math.toRadians(90.0))
+
     private var motionTimer = ElapsedTime()
-    //Servos, Motors, and Sensors
+
     private lateinit var outtakeServo: Servo
+
     private lateinit var intakeMotor: DcMotor
+
     private lateinit var distanceSensor : Rev2mDistanceSensor
-    //Trajectory Sequences
-    private lateinit var initialDepositTrajectoryTop : TrajectorySequence
-    private lateinit var initialDepositTrajectoryMiddle : TrajectorySequence
-    private lateinit var initialDepositTrajectoryBottom : TrajectorySequence
-    private lateinit var moveIntoWarehouseOne : TrajectorySequence
-    private lateinit var cycleDepositOne : TrajectorySequence
-    private lateinit var moveIntoWarehouseTwo : TrajectorySequence
-    private lateinit var cycleDepositTwo : TrajectorySequence
-    private lateinit var parkAtEnd : TrajectorySequence
-    //Sample Mecanum Drive
+
+    private val arm = Arm()
+
+    private lateinit var InitialDepositTrajTop : TrajectorySequence
+
+    private lateinit var InitialDepositTrajMiddle : TrajectorySequence
+
+    private lateinit var InitialDepositTrajBottom : TrajectorySequence
+
+    private lateinit var CycleOneWarehouseTraj : TrajectorySequence
+
+    private lateinit var CycleOneDepsoitTraj : TrajectorySequence
+
+    private lateinit var CycleTwoWarehouseTraj : TrajectorySequence
+
+    private lateinit var CycleTwoDepsoitTraj : TrajectorySequence
+
+    private lateinit var ParkAtEnd :TrajectorySequence
+
+
+
+    private fun moveOuttakeToOut(){
+        outtakeServo.position = 0.60
+
+    }
+
+    private fun moveOuttakeToLock(){
+        outtakeServo.position = 0.80
+    }
+
+    private fun moveOuttakeToOpen(){
+        outtakeServo.position = 0.90
+
+    }
+
+    private fun intakeFreight(){
+        intakeMotor.power = -1.0
+    }
+
+    private fun stopIntake(){
+        intakeMotor.power = 0.0
+    }
+
+    private fun getFreightOut(){
+        intakeMotor.power = 1.0
+    }
+
+
+
     lateinit var drive: SampleMecanumDrive
 
-    //Initial Deposit States
+
     private enum class InitialDepositStates {
         INITIAL_DEPOSIT,
-        MOVE_INTO_WAREHOUSE_ONE,
-        CYCLE_DEPOSIT_ONE,
-        MOVE_INTO_WAREHOUSE_TWO,
-        CYCLE_DEPOSIT_TWO,
+        CYCLE_ONE_WAREHOUSE,
+        CYCLE_ONE_DEPOSIT,
+        CYCLE_TWO_WAREHOUSE,
+        CYCLE_TWO_DEPOSIT,
         PARK_AT_END,
 
     }
-    //Initial Deposit State Machine
+
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
-
         .state(InitialDepositStates.INITIAL_DEPOSIT)
-        .onEnter{
-            drive.followTrajectorySequenceAsync(initialDepositTrajectoryTop)
-        }
-//        .loop {
-//            when(Globals.CUP_LOCATION) {
-//                Webcam.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryTop)
-//                Webcam.CupStates.MIDDLE -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryMiddle)
-//                Webcam.CupStates.LEFT -> drive.followTrajectorySequenceAsync(initialDepositTrajectoryBottom)
-//            }
-//        }
+        .loop {
+            when(Globals.CUP_LOCATION) {
+                Webcam.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+                Webcam.CupStates.MIDDLE -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+                Webcam.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
+            }
+       }
         .transition{!drive.isBusy}
 
-        .state(InitialDepositStates.MOVE_INTO_WAREHOUSE_ONE)
+        .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
-            drive.followTrajectorySequenceAsync(moveIntoWarehouseOne)
-            jugaad.arm.moveArmToBottomPos()
-            jugaad.moveOuttakeToOpen()
-            motionTimer.reset()
+            drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+            arm.moveArmToBottomPos()
         }
-        .transition{
-            val value = distanceSensor.getDistance(DistanceUnit.INCH)
-            value < 6.0 || motionTimer.seconds() > 5.0
-        }
+        .transition {!drive.isBusy }
 
-        .state(InitialDepositStates.CYCLE_DEPOSIT_ONE)
+        .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
-            drive.followTrajectorySequenceAsync(cycleDepositOne)
+            drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
         }
         .transition{!drive.isBusy}
 
-        .state(InitialDepositStates.MOVE_INTO_WAREHOUSE_TWO)
+        .state(InitialDepositStates.CYCLE_TWO_WAREHOUSE)
         .onEnter{
-            drive.followTrajectorySequenceAsync(moveIntoWarehouseTwo)
-            jugaad.arm.moveArmToBottomPos()
-            jugaad.moveOuttakeToOpen()
-            motionTimer.reset()
+            drive.followTrajectorySequenceAsync(CycleTwoWarehouseTraj)
+            arm.moveArmToBottomPos()
         }
-        .transition{
-            val value = distanceSensor.getDistance(DistanceUnit.INCH)
-            value < 0.6 || motionTimer.seconds() > 5.0
-        }
+        .transition { !drive.isBusy}
 
-        .state(InitialDepositStates.CYCLE_DEPOSIT_TWO)
+        .state(InitialDepositStates.CYCLE_TWO_DEPOSIT)
         .onEnter{
-            drive.followTrajectorySequenceAsync(cycleDepositTwo)
+            drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
+            stopIntake()
         }
         .transition{!drive.isBusy}
 
         .state(InitialDepositStates.PARK_AT_END)
         .onEnter{
-            drive.followTrajectorySequenceAsync(parkAtEnd)
-            jugaad.arm.moveArmToBottomPos()
+            drive.followTrajectorySequenceAsync(ParkAtEnd)
+            arm.moveArmToBottomPos()
         }
         .transition{!drive.isBusy}
+
 
         .build()
 
 
 
-    //Initialization
+
     override fun init() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+        outtakeServo.position = 0.80
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
 
-        drive.poseEstimate = startPose
-
-        initialDepositTrajectoryTop = drive.trajectorySequenceBuilder(startPose)
+        InitialDepositTrajTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
             .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
-                jugaad.arm.moveArmToTopPos()
+                arm.moveArmToTopPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToDeposit()
+                moveOuttakeToOut()
             }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
-        initialDepositTrajectoryMiddle = drive.trajectorySequenceBuilder(startPose)
+        InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(310.0)), Math.toRadians(130.0))
+            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
-                jugaad.arm.moveArmToMidPos()
+                arm.moveArmToMidPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToDeposit()
-            }
-            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(270.0)))
-            .build()
-
-        initialDepositTrajectoryBottom = drive.trajectorySequenceBuilder(startPose)
-            .setReversed(true)
-            .splineToSplineHeading( Pose2d(0.0, 42.0, Math.toRadians(310.0)), Math.toRadians(130.0))
-            .addTemporalMarker(0.2) {
-                jugaad.arm.moveArmToBottomPos()
-            }
-            .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToDeposit()
+                moveOuttakeToOut()
             }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
-        moveIntoWarehouseOne = drive.trajectorySequenceBuilder(depositPose)
-
-            .setReversed(false)
-            .splineToSplineHeading( Pose2d(43.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(48.5, 70.5), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(43.0, 70.5), Math.toRadians(0.0))
-            .addTemporalMarker(1.5) {
-
-                jugaad.intakeFreight()
-            }
-            .build()
-
-        cycleDepositOne = drive.trajectorySequenceBuilder(warehouseOnePose)
-
+        InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)), Math.toRadians(270.0))
-            .addTemporalMarker(0.5) {
-                jugaad.moveOuttakeToLock()
-                jugaad.reverseIntake()
-            }
-            .addTemporalMarker(2.25) {
-                jugaad.arm.moveArmToTopPos()
-                jugaad.stopIntake()
-            }
-            .addTemporalMarker(3.0) {
-                jugaad.moveOuttakeToDeposit()
-            }
-            .build()
-
-        moveIntoWarehouseTwo = drive.trajectorySequenceBuilder(depositPose)
-
-            .setReversed(false)
-            .splineToSplineHeading(Pose2d(46.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .build()
-
-        cycleDepositTwo = drive.trajectorySequenceBuilder(warehouseTwoPose)
-
-            .setReversed(true)
-            .splineToSplineHeading(Pose2d(-11.0, 45.0, Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
-                jugaad.reverseIntake()
-            }
-            .addTemporalMarker(1.0) {
-                jugaad.arm.moveArmToTopPos()
-                jugaad.stopIntake()
+                arm.autoBottomPos()
             }
             .addTemporalMarker(1.5) {
-                jugaad.moveOuttakeToDeposit()
+                moveOuttakeToOut()
             }
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
-        parkAtEnd = drive.trajectorySequenceBuilder(depositPose)
-
+        CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 70.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(43.5, 65.75), Math.toRadians(0.0))
+            .addTemporalMarker(0.1) {
+                moveOuttakeToOpen()
+            }
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
+            .waitSeconds(1.0)
             .build()
+
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(43.5, 65.75, Math.toRadians(0.0)))
+            .setReversed(true)
+            .addTemporalMarker(0.1) {
+                moveOuttakeToLock()
+                getFreightOut()
+            }
+            .addTemporalMarker(0.8) {
+                stopIntake()
+            }
+            .addTemporalMarker(1.5) {
+                arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(2.75) {
+                moveOuttakeToOut()
+            }
+            .splineToConstantHeading( Vector2d(40.0, 65.75), Math.toRadians(180.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToConstantHeading( Vector2d(-11.0, 42.0 ), Math.toRadians(270.0))
+            .setReversed(false)
+            .splineToConstantHeading( Vector2d(-11.0, 45.0), Math.toRadians(90.0))
+            .build()
+
+        CycleTwoWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
+            .setReversed(false)
+            .addTemporalMarker(0.1) {
+                moveOuttakeToOpen()
+            }
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
+            .splineToSplineHeading(Pose2d(40.0, 67.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(47.0, 67.75), Math.toRadians(0.0))
+            .waitSeconds(1.0)
+            .build()
+
+        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(47.0, 67.75, Math.toRadians(0.0)))
+            .setReversed(true)
+            .addTemporalMarker(0.1) {
+                moveOuttakeToLock()
+                getFreightOut()
+            }
+            .addTemporalMarker(0.8) {
+                stopIntake()
+            }
+            .addTemporalMarker(1.5) {
+                arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(2.75) {
+                moveOuttakeToOut()
+            }
+            .splineToConstantHeading( Vector2d(40.0, 67.75), Math.toRadians(180.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .build()
+
+        ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
+            .setReversed(false)
+            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .addTemporalMarker(0.1) {
+                moveOuttakeToOpen()
+            }
+            .waitSeconds(1.0)
+            .build()
+
+
+        drive.poseEstimate = startPose
+
 
         initialDepositStateMachine.start()
-
-
-        jugaad = Jugaad(
-            intakeMotor, outtakeServo, distanceSensor, arm,
-        )
-
-        jugaad.moveOuttakeToLock()
     }
 
 
-    //Loop & Updates
+
     override fun loop() {
         initialDepositStateMachine.update()
         drive.update()
