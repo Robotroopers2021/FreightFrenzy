@@ -10,15 +10,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.navigation.*
 import kotlin.math.*
-import org.firstinspires.ftc.teamcode.util.AxesSigns
-import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil
-import org.firstinspires.ftc.teamcode.util.math.Point
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 
 @Config
 @TeleOp
@@ -37,22 +35,13 @@ class AkazaTeleopForSonny : OpMode() {
 
     lateinit var imu: BNO055IMU
     lateinit var angles: Orientation
-    lateinit var gravity: Acceleration
+
+    private val direction = false
 
     var drive = 0.0
     var strafe = 0.0
     var rotate = 0.0
     var duckPower = 0.75
-
-    var driveTurn: Double = 0.0
-    var gamepadXCoordinate: Double = 0.0
-    var gamepadYCoordinate: Double = 0.0
-    var gamepadHypot: Double = 0.0
-    var gamepadDegree: Double = 0.0
-    var robotDegree: Double = 0.0
-    var movementDegree: Double = 0.0
-    var gamepadXControl: Double = 0.0
-    var gamepadYControl: Double = 0.0
 
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
@@ -81,7 +70,7 @@ class AkazaTeleopForSonny : OpMode() {
             }
             gamepad1.right_bumper -> {
                 moveArmToDegree(restAngle)
-                outtakeServo.position = 0.92
+                outtakeServo.position = 0.90
             }
             gamepad1.a -> {
                 moveArmToDegree(sharedAngle)
@@ -113,31 +102,27 @@ class AkazaTeleopForSonny : OpMode() {
         packet.put("target ticks", targetTicks)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
-    private fun getAngle(): Double {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
-    }
 
     private fun driveControl() {
-        val point = Point(gamepadXCoordinate, gamepadYCoordinate)
-        val rotated =
+        val x = hypot(gamepad1.left_stick_x.toDouble(), gamepad1.left_stick_y.toDouble())
+        val stickAngle = atan2(
+            (if (direction) -gamepad1.left_stick_y else gamepad1.left_stick_y.toDouble()) as Double,
+            (if (direction) gamepad1.left_stick_x else -gamepad1.left_stick_x.toDouble()) as Double
+        ) // desired robot angle from the angle of stick
 
-        imu.startAccelerationIntegration(Position(), Velocity(), 1000)
-        driveTurn = -gamepad1.right_stick_x.toDouble()
-        gamepadXCoordinate = gamepad1.left_stick_x.toDouble()
-        gamepadYCoordinate = -gamepad1.left_stick_y.toDouble()
-        gamepadHypot = Range.clip(hypot(gamepadXCoordinate, gamepadYCoordinate), 0.0, 1.0)
-        gamepadDegree = atan2(gamepadYCoordinate, gamepadXCoordinate)
-        gravity = imu.gravity
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
-        robotDegree = getAngle()
-        movementDegree = gamepadDegree - robotDegree
-        gamepadXControl = cos(Math.toRadians(movementDegree)) * gamepadHypot
-        gamepadYControl = sin(Math.toRadians(movementDegree)) * gamepadHypot
+        val powerAngle = stickAngle - Math.PI / 4 // conversion for correct power values
 
-        fr.power = gamepadYControl * abs(gamepadYControl) - gamepadXControl * abs(gamepadXControl) + driveTurn
-        br.power = gamepadYControl * abs(gamepadYControl) + gamepadXControl * abs(gamepadXControl) + driveTurn
-        fl.power = gamepadYControl * abs(gamepadYControl) + gamepadXControl * abs(gamepadXControl) - driveTurn
-        bl.power = gamepadYControl * abs(gamepadYControl) - gamepadXControl * abs(gamepadXControl) - driveTurn
+        val rightX = -gamepad1.right_stick_x.toDouble() // right stick x axis controls turning
+
+        val leftFrontPower = Range.clip(x * cos(powerAngle) - rightX, -1.0, 1.0)
+        val leftRearPower = Range.clip(x * sin(powerAngle) - rightX, -1.0, 1.0)
+        val rightFrontPower = Range.clip(x * sin(powerAngle) + rightX, -1.0, 1.0)
+        val rightRearPower = Range.clip(x * cos(powerAngle) + rightX, -1.0, 1.0)
+
+        fl.power = leftFrontPower
+        bl.power = leftRearPower
+        fr.power = rightFrontPower
+        br.power = rightRearPower
     }
 
     private fun intakeControl() {
@@ -157,7 +142,7 @@ class AkazaTeleopForSonny : OpMode() {
 
     private fun outtakeControl() {
         if (gamepad2.a) {
-            outtakeServo.position = 0.92
+            outtakeServo.position = 0.90
         }
         if (gamepad2.b) {
             outtakeServo.position = 0.6
@@ -170,10 +155,10 @@ class AkazaTeleopForSonny : OpMode() {
     private fun duckControl() {
         when {
             gamepad1.dpad_left -> {
-                duck.power = duckPower
+                duck.power = -duckPower
             }
             gamepad1.dpad_right -> {
-                duck.power = -duckPower
+                duck.power = duckPower
             }
             else -> {
                 duck.power = 0.0
@@ -208,18 +193,22 @@ class AkazaTeleopForSonny : OpMode() {
 
         imu = hardwareMap.get(BNO055IMU::class.java, "imu")
         val parameters = BNO055IMU.Parameters()
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
+        parameters.loggingEnabled = true
+        parameters.loggingTag = "IMU"
         imu.initialize(parameters)
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
 
-        BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN)
 
-
-        outtakeServo.position = 0.9
+        outtakeServo.position = 0.90
         armController.reset()
         targetAngle = restAngle
         targetTicks = restAngle * ticksPerDegree
         armController.targetPosition = targetTicks
         telemetry.addData("STATUS", "Initialized")
+        telemetry.speak("Hello Salban")
         telemetry.update()
     }
 
@@ -243,7 +232,7 @@ class AkazaTeleopForSonny : OpMode() {
         @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 172.0
-        @JvmStatic var sharedAngleAlliance = 174.0
-        @JvmStatic var sharedAngleEnemy = 169.0
+        @JvmStatic var sharedAngleAlliance = 178.0
+        @JvmStatic var sharedAngleEnemy = 164.0
     }
 }

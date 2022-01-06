@@ -5,46 +5,32 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
+import org.firstinspires.ftc.teamcode.telemetryStuff.Dashboard
 
-class Webcam : Subsystem {
-    private lateinit var webcam: OpenCvCamera
-    private lateinit var pipeline: CupPipeline
+class WebcamTest : Subsystem{
+    private lateinit var webcam : OpenCvCamera
+    private lateinit var pipeline: Pipeline
+    var cupState = pipeline.cupState
 
 
-    var cupState = CupStates.LEFT
-        private set
-    enum class CupStates {
-        LEFT, MIDDLE, RIGHT
-    }
 
     fun init(hardwareMap: HardwareMap) {
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val webcamName = hardwareMap[WebcamName::class.java, "Webcam"]
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId)
 
-        pipeline = CupPipeline()
+        pipeline = Pipeline()
         webcam.setPipeline(pipeline)
 
         webcam.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
             override fun onOpened() {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT)
             }
 
             override fun onError(errorCode: Int) {
 
             }
         })
-    }
-
-    override fun update() {
-        val area = pipeline.getRectArea()
-        val midpoint = pipeline.getRectMidpointX()
-
-        cupState = when {
-            area < CupPipeline.MIN_AREA -> CupStates.LEFT
-            midpoint > 200 -> CupStates.RIGHT
-            else -> CupStates.MIDDLE
-        }
 
     }
 
@@ -52,8 +38,12 @@ class Webcam : Subsystem {
 
     }
 
+    override fun update() {
+        cupState
+    }
+
     override fun reset() {
-        Globals.CUP_LOCATION = cupState
         webcam.stopStreaming()
     }
+
 }

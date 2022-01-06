@@ -229,6 +229,7 @@ class CycleAutoBlueTESTINGsplineDS : OpMode() {
 
 
     override fun init() {
+
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo

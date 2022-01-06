@@ -5,11 +5,13 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import kotlin.math.cos
 
 @Config
@@ -24,6 +26,7 @@ class CompTeleOp : OpMode() {
     lateinit var duck: DcMotor
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+    lateinit var distanceSensor : Rev2mDistanceSensor
 
     var drive = 0.0
     var strafe = 0.0
@@ -141,6 +144,15 @@ class CompTeleOp : OpMode() {
         }
     }
 
+    private fun distanceSensorControl() {
+        val dsValue = distanceSensor.getDistance(DistanceUnit.INCH)
+        if (dsValue < 9) {
+            gamepad1.rumble(750 )
+        } else {
+            gamepad1.stopRumble()
+        }
+    }
+
     override fun init() {
         //Connect Motor
         fl = hardwareMap.get(DcMotor::class.java, "FL")
@@ -149,6 +161,7 @@ class CompTeleOp : OpMode() {
         br = hardwareMap.get(DcMotor::class.java, "BR")
         arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
@@ -183,6 +196,7 @@ class CompTeleOp : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
+        distanceSensorControl()
     }
 
     companion object {
