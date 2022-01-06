@@ -29,7 +29,7 @@ class AkazaAutoBlueFar : OpMode() {
 
     private val arm = Arm()
 
-    private val webcam = Webcam()
+//    private val webcam = Webcam()
 
     private lateinit var InitialDepositTrajTop : TrajectorySequence
 
@@ -92,13 +92,16 @@ class AkazaAutoBlueFar : OpMode() {
 
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
         .state(InitialDepositStates.INITIAL_DEPOSIT)
-        .loop {
-            when(Globals.CUP_LOCATION) {
-                Webcam.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
-                Webcam.CupStates.MIDDLE -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
-                Webcam.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
-            }
-       }
+        .onEnter {
+            drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+        }
+//        .loop {
+//            when(Globals.CUP_LOCATION) {
+//                Webcam.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+//                Webcam.CupStates.MIDDLE -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+//                Webcam.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
+//            }
+//       }
         .transition{!drive.isBusy}
 
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
@@ -134,7 +137,6 @@ class AkazaAutoBlueFar : OpMode() {
             arm.moveArmToBottomPos()
         }
         .transition{!drive.isBusy}
-
 
         .build()
 
@@ -266,18 +268,18 @@ class AkazaAutoBlueFar : OpMode() {
         drive.poseEstimate = startPose
 
         initialDepositStateMachine.start()
-        webcam.init()
+//        webcam.init(hardwareMap)
     }
 
-    override fun init_loop() {
-        super.init_loop()
-        webcam.update()
-    }
+//    override fun init_loop() {
+//        super.init_loop()
+//        webcam.update()
+//    }
 
-    override fun start() {
-        super.start()
-        webcam.reset()
-    }
+//    override fun start() {
+//        super.start()
+//        webcam.reset()
+//    }
 
     override fun loop() {
         initialDepositStateMachine.update()

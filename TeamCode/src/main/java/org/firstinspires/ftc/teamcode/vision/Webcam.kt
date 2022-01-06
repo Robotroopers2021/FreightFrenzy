@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.vision
 
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
+import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
-import org.firstinspires.ftc.teamcode.telemetryStuff.Dashboard
 
 class Webcam : Subsystem {
     private lateinit var webcam: OpenCvCamera
@@ -17,7 +16,7 @@ class Webcam : Subsystem {
         LEFT, MIDDLE, RIGHT
     }
 
-    fun init() {
+    fun init(hardwareMap: HardwareMap) {
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val webcamName = hardwareMap[WebcamName::class.java, "Webcam"]
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId)
@@ -46,8 +45,6 @@ class Webcam : Subsystem {
             else -> CupStates.MIDDLE
         }
 
-        Dashboard["cup state"] = cupState
-        Dashboard["midpoint"] = midpoint
     }
 
     override fun sendDashboardPacket(debugging: Boolean) {

@@ -26,7 +26,7 @@ public class AutoNearBlueV1 extends LinearOpMode {
                 .lineToConstantHeading(new Vector2d(-10, 43))
                 .lineToConstantHeading(new Vector2d(-57, 55))
                 .addTemporalMarker( ( ) -> {
-                    DuckL.setPower( -0.75 );
+                    DuckL.setPower( 0.75 );
                 } )
                 .waitSeconds( 2.2 )
                 .addTemporalMarker( ( ) -> {
