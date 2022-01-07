@@ -11,7 +11,6 @@ class WebcamTest : Subsystem{
     lateinit var pipeline : Pipeline
 
 
-
     fun init(hardwareMap: HardwareMap) {
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val webcamName = hardwareMap[WebcamName::class.java, "Webcam"]

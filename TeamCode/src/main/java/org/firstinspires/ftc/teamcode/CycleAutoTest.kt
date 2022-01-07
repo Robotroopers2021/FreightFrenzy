@@ -97,53 +97,43 @@ class CycleAutoTest : OpMode() {
         .onEnter {
             when (webcam.pipeline.cupState) {
                 Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajTop
-                )
+                    InitialDepositTrajTop)
                 Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajMiddle
-                )
+                    InitialDepositTrajMiddle)
                 Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajBottom
-                )
+                    InitialDepositTrajBottom)
             }
         }
-
         .transition{!drive.isBusy}
-
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
             arm.moveArmToBottomPos()
         }
         .transition {!drive.isBusy }
-
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
         }
         .transition{!drive.isBusy}
-
         .state(InitialDepositStates.CYCLE_TWO_WAREHOUSE)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleTwoWarehouseTraj)
             arm.moveArmToBottomPos()
         }
         .transition { !drive.isBusy}
-
         .state(InitialDepositStates.CYCLE_TWO_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
             stopIntake()
         }
         .transition{!drive.isBusy}
-
         .state(InitialDepositStates.PARK_AT_END)
         .onEnter{
             drive.followTrajectorySequenceAsync(ParkAtEnd)
             arm.moveArmToBottomPos()
         }
         .transition{!drive.isBusy}
-
         .build()
 
 

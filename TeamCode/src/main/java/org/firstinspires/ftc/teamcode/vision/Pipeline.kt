@@ -13,10 +13,10 @@ class Pipeline : OpenCvPipeline(){
 
     var cupState = CupStates.LEFT
     enum class CupStates {
-        LEFT, CENTER, RIGHT
+        LEFT, CENTER, RIGHT, NOT_WORKING
     }
 
-    var MIN_Cr = 230
+    var MIN_R = 230
 
 
     override fun processFrame (input : Mat) : Mat {
@@ -26,7 +26,7 @@ class Pipeline : OpenCvPipeline(){
             return input
         }
 
-        Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2YCrCb)
+        Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2RGBA)
 
         val matLeft = workingMatrix.submat(120, 150, 10, 50)
         val matCenter = workingMatrix.submat(120, 150, 150, 190)
@@ -36,27 +36,27 @@ class Pipeline : OpenCvPipeline(){
         Imgproc.rectangle(workingMatrix, Rect(150, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(290, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
 
-        val LeftTotal = Core.sumElems(matLeft).`val`[2]
-        val CenterTotal = Core.sumElems(matCenter).`val`[2]
-        val RightTotal = Core.sumElems(matRight).`val`[2]
+        val LeftTotal = Core.sumElems(matLeft).`val`[0]
+        val CenterTotal = Core.sumElems(matCenter).`val`[0]
+        val RightTotal = Core.sumElems(matRight).`val`[0]
 
-        if (LeftTotal < MIN_Cr && RightTotal < MIN_Cr && CenterTotal <MIN_Cr) {
+        if (LeftTotal < MIN_R && RightTotal < MIN_R && CenterTotal < MIN_R) {
             //Left is TSE
             cupState = CupStates.LEFT
         }
 
-        else if ( LeftTotal < MIN_Cr && CenterTotal > RightTotal) {
+        else if ( LeftTotal < MIN_R && CenterTotal > RightTotal) {
             //Center is TSE
             cupState = CupStates.CENTER
         }
 
-        else if ( RightTotal > CenterTotal && LeftTotal < MIN_Cr) {
+        else if ( RightTotal > CenterTotal && LeftTotal < MIN_R) {
             //Right is TSE
             cupState = CupStates.RIGHT
         }
 
         else {
-            cupState = CupStates.RIGHT
+            cupState = CupStates.NOT_WORKING
         }
 
         return workingMatrix
