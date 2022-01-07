@@ -36,9 +36,9 @@ class Pipeline : OpenCvPipeline(){
         Imgproc.rectangle(workingMatrix, Rect(150, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(290, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
 
-        val LeftTotal = Core.sumElems(matLeft).`val`[0]
-        val CenterTotal = Core.sumElems(matCenter).`val`[0]
-        val RightTotal = Core.sumElems(matRight).`val`[0]
+        val LeftTotal = Core.mean(matLeft).`val`[0]
+        val CenterTotal = Core.mean(matCenter).`val`[0]
+        val RightTotal = Core.mean(matRight).`val`[0]
 
         if (LeftTotal < MIN_R && RightTotal < MIN_R && CenterTotal < MIN_R) {
             //Left is TSE
