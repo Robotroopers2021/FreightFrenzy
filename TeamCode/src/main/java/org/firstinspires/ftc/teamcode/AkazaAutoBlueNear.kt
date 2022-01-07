@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
-class AkazaAutoNearBlue : OpMode()  {
+class AkazaAutoBlueNear : OpMode()  {
 
     private var motionTimer = ElapsedTime()
 
