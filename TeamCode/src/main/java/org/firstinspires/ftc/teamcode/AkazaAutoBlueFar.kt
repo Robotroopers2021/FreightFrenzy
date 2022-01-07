@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.vision.Globals
 import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.Webcam
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
@@ -92,15 +91,17 @@ class AkazaAutoBlueFar : OpMode() {
 
     }
 
+
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
         .state(InitialDepositStates.INITIAL_DEPOSIT)
-        .loop {
-            when(webcam.cupState) {
-                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
-                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
-                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
-            }
-       }
+        .onEnter{drive.followTrajectorySequenceAsync(InitialDepositTrajTop)}
+//        .loop {
+//            when(webcam.pipeline.cupState) {
+//                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+//                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+//                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
+//            }
+//       }
         .transition{!drive.isBusy}
 
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
@@ -143,6 +144,7 @@ class AkazaAutoBlueFar : OpMode() {
 
 
     override fun init() {
+//        webcam.init(hardwareMap)
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
@@ -267,18 +269,20 @@ class AkazaAutoBlueFar : OpMode() {
         drive.poseEstimate = startPose
 
         initialDepositStateMachine.start()
-        webcam.init(hardwareMap)
+
     }
 
-    override fun init_loop() {
-        super.init_loop()
-        webcam.update()
-    }
+//    override fun init_loop() {
+//        super.init_loop()
+//        webcam.update()
+//        telemetry.addData("Cup State", webcam.pipeline.cupState)
+//
+//    }
 
-    override fun start() {
-        super.start()
-        webcam.reset()
-    }
+//    override fun start() {
+//        super.start()
+//        webcam.reset()
+//    }
 
     override fun loop() {
         initialDepositStateMachine.update()

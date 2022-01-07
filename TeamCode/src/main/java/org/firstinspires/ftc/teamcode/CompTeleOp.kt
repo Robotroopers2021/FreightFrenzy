@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
 
 @Config
@@ -94,9 +95,9 @@ class CompTeleOp : OpMode() {
     }
 
     private fun driveControl() {
-        drive = -gamepad1.left_stick_y.toDouble() * 0.75
-        strafe = gamepad1.left_stick_x.toDouble() * 0.75
-        rotate = gamepad1.right_stick_x.toDouble() * 0.6
+        drive = MathUtil.cubicScaling(0.85, -gamepad1.left_stick_y.toDouble()) * 0.9
+        strafe = MathUtil.cubicScaling(0.85, gamepad1.left_stick_x.toDouble()) * 0.9
+        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.75
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate

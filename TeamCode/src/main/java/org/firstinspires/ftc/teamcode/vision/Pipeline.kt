@@ -12,10 +12,11 @@ class Pipeline : OpenCvPipeline(){
     private var workingMatrix = Mat()
 
     var cupState = CupStates.LEFT
-        private set
     enum class CupStates {
         LEFT, CENTER, RIGHT
     }
+
+    var MIN_Cr = 230
 
 
     override fun processFrame (input : Mat) : Mat {
@@ -28,8 +29,8 @@ class Pipeline : OpenCvPipeline(){
         Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2YCrCb)
 
         val matLeft = workingMatrix.submat(120, 150, 10, 50)
-        val matCenter = workingMatrix.submat(120, 150, 80, 120)
-        val matRight = workingMatrix.submat(120, 150, 150, 190)
+        val matCenter = workingMatrix.submat(120, 150, 150, 190)
+        val matRight = workingMatrix.submat(120, 150, 290, 320)
 
         Imgproc.rectangle(workingMatrix, Rect(10, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(80, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
@@ -39,18 +40,22 @@ class Pipeline : OpenCvPipeline(){
         val CenterTotal = Core.sumElems(matCenter).`val`[2]
         val RightTotal = Core.sumElems(matRight).`val`[2]
 
-        if (LeftTotal > CenterTotal && LeftTotal > RightTotal) {
+        if (LeftTotal < MIN_Cr && RightTotal < MIN_Cr && CenterTotal <MIN_Cr) {
             //Left is TSE
             cupState = CupStates.LEFT
         }
 
-        if ( CenterTotal > LeftTotal && CenterTotal > RightTotal) {
+        else if ( LeftTotal < MIN_Cr && CenterTotal > RightTotal) {
             //Center is TSE
             cupState = CupStates.CENTER
         }
 
-        if ( RightTotal > CenterTotal && RightTotal > LeftTotal) {
+        else if ( RightTotal > CenterTotal && LeftTotal < MIN_Cr) {
             //Right is TSE
+            cupState = CupStates.RIGHT
+        }
+
+        else {
             cupState = CupStates.RIGHT
         }
 

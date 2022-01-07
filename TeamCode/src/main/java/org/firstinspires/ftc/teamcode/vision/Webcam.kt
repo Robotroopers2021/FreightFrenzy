@@ -8,7 +8,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 
 class Webcam : Subsystem {
     private lateinit var webcam: OpenCvCamera
-    private lateinit var pipeline: CupPipeline
+    lateinit var pipeline: CupPipeline
 
 
     var cupState = CupStates.LEFT
@@ -16,6 +16,8 @@ class Webcam : Subsystem {
     enum class CupStates {
         LEFT, MIDDLE, RIGHT
     }
+
+
 
     fun init(hardwareMap: HardwareMap) {
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)

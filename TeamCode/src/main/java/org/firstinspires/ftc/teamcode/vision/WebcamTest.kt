@@ -8,8 +8,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 
 class WebcamTest : Subsystem{
     private lateinit var webcam : OpenCvCamera
-    private lateinit var pipeline: Pipeline
-    var cupState = pipeline.cupState
+    lateinit var pipeline : Pipeline
 
 
 
@@ -33,12 +32,13 @@ class WebcamTest : Subsystem{
 
     }
 
+
     override fun sendDashboardPacket(debugging: Boolean) {
 
     }
 
     override fun update() {
-        cupState
+        pipeline.cupState
     }
 
     override fun reset() {
