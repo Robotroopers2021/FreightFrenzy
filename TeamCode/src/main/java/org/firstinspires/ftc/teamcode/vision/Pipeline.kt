@@ -33,8 +33,8 @@ class Pipeline : OpenCvPipeline(){
         val matRight = workingMatrix.submat(120, 150, 290, 320)
 
         Imgproc.rectangle(workingMatrix, Rect(10, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
-        Imgproc.rectangle(workingMatrix, Rect(80, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(150, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(290, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
 
         val LeftTotal = Core.sumElems(matLeft).`val`[2]
         val CenterTotal = Core.sumElems(matCenter).`val`[2]
