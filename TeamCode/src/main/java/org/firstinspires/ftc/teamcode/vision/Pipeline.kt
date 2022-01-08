@@ -9,14 +9,23 @@ import org.openftc.easyopencv.OpenCvPipeline
 
 class Pipeline : OpenCvPipeline(){
 
-    private var workingMatrix = Mat()
+    var workingMatrix = Mat()
 
     var cupState = CupStates.LEFT
     enum class CupStates {
         LEFT, CENTER, RIGHT, NOT_WORKING
     }
 
-    var MIN_R = 230
+    var MIN_R = 100
+
+    val matLeft = workingMatrix.submat(120, 150, 10, 50)
+    val matCenter = workingMatrix.submat(120, 150, 150, 190)
+    val matRight = workingMatrix.submat(120, 150, 290, 320)
+
+
+    val leftTotal = Core.mean(matLeft).`val`[2]
+    val centerTotal = Core.mean(matCenter).`val`[2]
+    val rightTotal = Core.mean(matRight).`val`[2]
 
 
     override fun processFrame (input : Mat) : Mat {
@@ -26,19 +35,19 @@ class Pipeline : OpenCvPipeline(){
             return input
         }
 
-        Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2RGBA)
+        val MatLeft = matLeft
+        val MatRight = matRight
+        val MatCenter = matCenter
 
-        val matLeft = workingMatrix.submat(120, 150, 10, 50)
-        val matCenter = workingMatrix.submat(120, 150, 150, 190)
-        val matRight = workingMatrix.submat(120, 150, 290, 320)
+        val LeftTotal = leftTotal
+        val CenterTotal = centerTotal
+        val RightTotal = rightTotal
+
+        Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2YCrCb)
 
         Imgproc.rectangle(workingMatrix, Rect(10, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(150, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
         Imgproc.rectangle(workingMatrix, Rect(290, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
-
-        val LeftTotal = Core.mean(matLeft).`val`[0]
-        val CenterTotal = Core.mean(matCenter).`val`[0]
-        val RightTotal = Core.mean(matRight).`val`[0]
 
         if (LeftTotal < MIN_R && RightTotal < MIN_R && CenterTotal < MIN_R) {
             //Left is TSE

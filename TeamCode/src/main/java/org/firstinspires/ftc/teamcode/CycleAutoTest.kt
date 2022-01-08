@@ -272,6 +272,10 @@ class CycleAutoTest : OpMode() {
         super.init_loop()
         webcam.update()
         telemetry.addData("Cup State", webcam.pipeline.cupState)
+        telemetry.addData("Left Total", webcam.pipeline.leftTotal)
+        telemetry.addData("Center Total", webcam.pipeline.centerTotal)
+        telemetry.addData("Right Total", webcam.pipeline.rightTotal)
+        telemetry.update()
 
     }
 
