@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.StateMachine
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
+import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
@@ -59,7 +60,19 @@ class AkazaAutoBlueNear : OpMode()  {
 
     private val duckSpinnerStateMachine = StateMachineBuilder<DuckSpinnerStates>()
         .state(DuckSpinnerStates.DUCK_SPINNER)
-        .onEnter{drive.followTrajectorySequenceAsync(DuckSpinnerTraj)}
+        .onEnter {
+            when (webcam.pipeline.cupState) {
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
+                    InitialDepositTrajTop
+                )
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
+                    InitialDepositTrajMiddle
+                )
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
+                    InitialDepositTrajBottom
+                )
+            }
+        }
         .transition{!drive.isBusy}
 
         .build()
@@ -100,6 +113,21 @@ class AkazaAutoBlueNear : OpMode()  {
 
         drive.poseEstimate = Pose2d(-36.0, 60.0, Math.toRadians(90.0))
 
+    }
+
+    override fun init_loop() {
+        super.init_loop()
+        webcam.update()
+        telemetry.addData("Cup State", webcam.pipeline.cupState)
+        telemetry.addData("Left Total", webcam.pipeline.LeftTotal)
+        telemetry.addData("Center Total", webcam.pipeline.CenterTotal)
+        telemetry.addData("Right Total", webcam.pipeline.RightTotal)
+        telemetry.update()
+    }
+
+    override fun start() {
+        super.start()
+        webcam.reset()
         duckSpinnerStateMachine.start()
     }
 

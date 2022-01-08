@@ -60,7 +60,7 @@ class CycleAutoTest : OpMode() {
     }
 
     private fun moveOuttakeToOpen(){
-        outtakeServo.position = 0.90
+        outtakeServo.position = 0.92
 
     }
 
@@ -105,7 +105,6 @@ class CycleAutoTest : OpMode() {
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
-            arm.moveArmToBottomPos()
         }
         .transition {!drive.isBusy }
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
@@ -148,7 +147,7 @@ class CycleAutoTest : OpMode() {
 
         InitialDepositTrajTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(3.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToTopPos()
             }
@@ -160,7 +159,7 @@ class CycleAutoTest : OpMode() {
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(10.0, 34.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToMidPos()
             }
@@ -172,7 +171,7 @@ class CycleAutoTest : OpMode() {
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(5.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(7.0, 41.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.autoBottomPos()
             }
@@ -185,9 +184,12 @@ class CycleAutoTest : OpMode() {
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
             .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(43.5, 65.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(48.5, 67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
+            }
+            .addTemporalMarker( 0.75) {
+                arm.moveArmToBottomPos()
             }
             .addTemporalMarker(1.5) {
                 intakeFreight()
@@ -195,13 +197,13 @@ class CycleAutoTest : OpMode() {
             .waitSeconds(1.0)
             .build()
 
-        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(43.5, 65.75, Math.toRadians(0.0)))
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(48.5, 67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
-                moveOuttakeToLock()
                 getFreightOut()
             }
-            .addTemporalMarker(0.8) {
+            .addTemporalMarker(1.1) {
+                moveOuttakeToLock()
                 stopIntake()
             }
             .addTemporalMarker(1.5) {
@@ -225,18 +227,19 @@ class CycleAutoTest : OpMode() {
             .addTemporalMarker(1.5) {
                 intakeFreight()
             }
-            .splineToSplineHeading(Pose2d(40.0, 67.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(47.0, 67.75), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(51.0, 69.75), Math.toRadians(0.0))
             .waitSeconds(1.0)
             .build()
 
-        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(47.0, 67.75, Math.toRadians(0.0)))
+        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(51.0, 67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
                 getFreightOut()
             }
-            .addTemporalMarker(0.8) {
+            .addTemporalMarker(1.1) {
+                moveOuttakeToLock()
                 stopIntake()
             }
             .addTemporalMarker(1.5) {
@@ -261,7 +264,6 @@ class CycleAutoTest : OpMode() {
 
         drive.poseEstimate = startPose
 
-        initialDepositStateMachine.start()
 
 
     }
@@ -280,11 +282,15 @@ class CycleAutoTest : OpMode() {
     override fun start() {
         super.start()
         webcam.reset()
+        initialDepositStateMachine.start()
+
     }
 
     override fun loop() {
         initialDepositStateMachine.update()
         drive.update()
         arm.update()
+        telemetry.addData("Cup State", webcam.pipeline.cupState)
+        telemetry.update()
     }
 }

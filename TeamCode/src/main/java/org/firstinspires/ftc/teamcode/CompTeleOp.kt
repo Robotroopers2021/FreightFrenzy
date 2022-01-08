@@ -72,6 +72,9 @@ class CompTeleOp : OpMode() {
             gamepad1.b -> {
                 moveArmToDegree(sharedAngleEnemy)
             }
+            gamepad1.y -> {
+                moveArmToDegree(middlePos)
+            }
         }
 
 
@@ -212,5 +215,6 @@ class CompTeleOp : OpMode() {
         @JvmStatic var sharedAngle = 172.0
         @JvmStatic var sharedAngleAlliance = 178.0
         @JvmStatic var sharedAngleEnemy = 164.0
+        @JvmStatic var middlePos = 134.0
     }
 }
