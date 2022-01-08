@@ -96,12 +96,9 @@ class CycleAutoTest : OpMode() {
         .state(InitialDepositStates.INITIAL_DEPOSIT)
         .onEnter {
             when (webcam.pipeline.cupState) {
-                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajTop)
-                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajMiddle)
-                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajBottom)
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
             }
         }
         .transition{!drive.isBusy}
@@ -266,15 +263,16 @@ class CycleAutoTest : OpMode() {
 
         initialDepositStateMachine.start()
 
+
     }
 
     override fun init_loop() {
         super.init_loop()
         webcam.update()
         telemetry.addData("Cup State", webcam.pipeline.cupState)
-        telemetry.addData("Left Total", webcam.pipeline.leftTotal)
-        telemetry.addData("Center Total", webcam.pipeline.centerTotal)
-        telemetry.addData("Right Total", webcam.pipeline.rightTotal)
+        telemetry.addData("Left Total", webcam.pipeline.LeftTotal)
+        telemetry.addData("Center Total", webcam.pipeline.CenterTotal)
+        telemetry.addData("Right Total", webcam.pipeline.RightTotal)
         telemetry.update()
 
     }

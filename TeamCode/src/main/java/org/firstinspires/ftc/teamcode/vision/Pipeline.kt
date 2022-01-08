@@ -11,21 +11,16 @@ class Pipeline : OpenCvPipeline(){
 
     var workingMatrix = Mat()
 
-    var cupState = CupStates.LEFT
+    var cupState = CupStates.RIGHT
     enum class CupStates {
-        LEFT, CENTER, RIGHT, NOT_WORKING
+        LEFT, CENTER, RIGHT,
     }
 
-    var MIN_R = 100
+    var MIN_R = 60
 
-    val matLeft = workingMatrix.submat(120, 150, 10, 50)
-    val matCenter = workingMatrix.submat(120, 150, 150, 190)
-    val matRight = workingMatrix.submat(120, 150, 290, 320)
-
-
-    val leftTotal = Core.mean(matLeft).`val`[2]
-    val centerTotal = Core.mean(matCenter).`val`[2]
-    val rightTotal = Core.mean(matRight).`val`[2]
+    var LeftTotal : Double = 0.0
+    var CenterTotal : Double = 0.0
+    var RightTotal : Double = 0.0
 
 
     override fun processFrame (input : Mat) : Mat {
@@ -35,38 +30,20 @@ class Pipeline : OpenCvPipeline(){
             return input
         }
 
-        val MatLeft = matLeft
-        val MatRight = matRight
-        val MatCenter = matCenter
+        val matLeft = workingMatrix.submat(239, 240, 319, 320)
+        val matCenter = workingMatrix.submat(180, 210, 40, 80)
+        val matRight = workingMatrix.submat(180, 210, 230, 270)
 
-        val LeftTotal = leftTotal
-        val CenterTotal = centerTotal
-        val RightTotal = rightTotal
+        LeftTotal =  Core.mean(matLeft).`val`[2]
+        CenterTotal = Core.mean(matCenter).`val`[2]
+        RightTotal = Core.mean(matRight).`val`[2]
 
         Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2YCrCb)
 
-        Imgproc.rectangle(workingMatrix, Rect(10, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
-        Imgproc.rectangle(workingMatrix, Rect(150, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
-        Imgproc.rectangle(workingMatrix, Rect(290, 120, 40, 30), Scalar(0.0, 255.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(319, 239, 1, 1), Scalar(0.0, 255.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(40, 180, 40, 30), Scalar(255.0, 0.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(230, 180, 40, 30), Scalar(255.0, 0.0, 0.0))
 
-        if (LeftTotal < MIN_R && RightTotal < MIN_R && CenterTotal < MIN_R) {
-            //Left is TSE
-            cupState = CupStates.LEFT
-        }
-
-        else if ( LeftTotal < MIN_R && CenterTotal > RightTotal) {
-            //Center is TSE
-            cupState = CupStates.CENTER
-        }
-
-        else if ( RightTotal > CenterTotal && LeftTotal < MIN_R) {
-            //Right is TSE
-            cupState = CupStates.RIGHT
-        }
-
-        else {
-            cupState = CupStates.NOT_WORKING
-        }
 
         return workingMatrix
     }

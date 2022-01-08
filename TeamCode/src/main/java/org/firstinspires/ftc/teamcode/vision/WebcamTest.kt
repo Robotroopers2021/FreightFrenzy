@@ -37,7 +37,24 @@ class WebcamTest : Subsystem{
     }
 
     override fun update() {
-        pipeline.cupState
+        if (pipeline.LeftTotal > pipeline.MIN_R && pipeline.RightTotal > pipeline.MIN_R && pipeline.CenterTotal > pipeline.MIN_R) {
+            //Left is TSE
+            pipeline.cupState = Pipeline.CupStates.LEFT
+        }
+
+        else if ( pipeline.LeftTotal > pipeline.MIN_R && pipeline.CenterTotal < pipeline.RightTotal) {
+            //Center is TSE
+            pipeline.cupState = Pipeline.CupStates.CENTER
+        }
+
+        else if ( pipeline.RightTotal < pipeline.CenterTotal && pipeline.LeftTotal > pipeline.MIN_R) {
+            //Right is TSE
+            pipeline.cupState = Pipeline.CupStates.RIGHT
+        }
+
+        else {
+            pipeline.cupState = Pipeline.CupStates.RIGHT
+        }
     }
 
     override fun reset() {
