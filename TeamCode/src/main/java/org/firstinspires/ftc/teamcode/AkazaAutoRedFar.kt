@@ -94,9 +94,9 @@ class AkazaAutoRedFar : OpMode() {
         .state(InitialDepositStates.INITIAL_DEPOSIT)
         .onEnter {
             when (webcam.pipeline.cupState) {
-                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
                 PipelineRed.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
-                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
+                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
             }
         }
         .transition{!drive.isBusy}
