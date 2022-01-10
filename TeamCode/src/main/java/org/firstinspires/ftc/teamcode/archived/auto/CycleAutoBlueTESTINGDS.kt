@@ -1,23 +1,25 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.auto
+
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
-class CycleAutoBlueTESTING : OpMode() {
+class CycleAutoBlueTESTINGDS : OpMode() {
     private val startX = 15.0
     private val startY = 63.0
     private val startAngle = Math.toRadians(0.0)
-    private val depositX = -3.0
-    private val depositY = 36.0
-    private val depositBotAngle = 55.0
     private val warehouseFrontX = 44.0
     private val warehouseFrontY = 63.0
     private val warehouseFrontAngle = Math.toRadians(0.0)
@@ -25,8 +27,6 @@ class CycleAutoBlueTESTING : OpMode() {
 
 
     private val startPose = Pose2d(startX,startY,startAngle)
-
-    private val depositPose = Pose2d(depositX,depositY,depositBotAngle)
 
     private val warehouseFrontPose = Pose2d(warehouseFrontX,warehouseFrontY,warehouseFrontAngle)
 
@@ -50,38 +50,39 @@ class CycleAutoBlueTESTING : OpMode() {
 
     private lateinit var moveBackOutThreeTrajectorySequence : TrajectorySequence
 
-    private fun moveArmToDegree(degrees: Double) {
+    private var motionTimer = ElapsedTime()
 
-    }
+    private lateinit var outtakeServo: Servo
 
-    lateinit var outtakeServo: Servo
+    private lateinit var intakeMotor: DcMotor
 
-    lateinit var intakeMotor: DcMotor
+    private lateinit var distanceSensor : Rev2mDistanceSensor
 
 
-    fun moveOuttakeToOut(){
+
+    private fun moveOuttakeToOut(){
         outtakeServo.position = 0.6
 
     }
 
-    fun moveOuttakeToLock(){
-        outtakeServo.position = 0.83
+    private fun moveOuttakeToLock(){
+        outtakeServo.position = 0.80
     }
 
-    fun moveOuttakeToOpen(){
-        outtakeServo.position = 0.92
+    private fun moveOuttakeToOpen(){
+        outtakeServo.position = 0.90
 
     }
 
-    fun intakeFreight(){
+    private fun intakeFreight(){
         intakeMotor.power = -1.0
     }
 
-    fun stopIntake(){
+    private fun stopIntake(){
         intakeMotor.power = 0.0
     }
 
-    fun getFreightOut(){
+    private fun getFreightOut(){
         intakeMotor.power = 1.0
     }
 
@@ -100,6 +101,7 @@ class CycleAutoBlueTESTING : OpMode() {
         MOVE_ARM_UP_TWO,
         MOVE_OUTTAKE_TWO,
         GO_INTO_WAREHOUSE_END,
+        INTAKE_FREIGHT_TWO,
         GO_BACK_OUT_TWO,
         MOVE_TO_DEPOSIT_THREE,
         MOVE_ARM_UP_THREE,
@@ -127,13 +129,20 @@ class CycleAutoBlueTESTING : OpMode() {
                 moveOuttakeToOpen()
                 intakeFreight()
             }
-            .transition { !drive.isBusy }
+            .transition {
+                val value = distanceSensor.getDistance(DistanceUnit.INCH)
+                !drive.isBusy || value <= 3.0}
 
             .state (InitialDepositStates.INTAKE_FREIGHT)
             .onEnter {
+                motionTimer.reset()
                 intakeFreight()
             }
-            .transitionTimed(0.5)
+            .transition{
+                val value = distanceSensor.getDistance(DistanceUnit.INCH)
+                value <= 3.0 || motionTimer.seconds() > 1.0
+
+            }
 
             .state (InitialDepositStates.GO_BACK_OUT)
             .onEnter {
@@ -165,23 +174,35 @@ class CycleAutoBlueTESTING : OpMode() {
 
             .state (InitialDepositStates.GO_INTO_WAREHOUSE_END)
             .onEnter {
-                drive.followTrajectorySequenceAsync(moveIntoWarehouseFrontTrajectorySequence)
+                drive.followTrajectorySequenceAsync(moveIntoWarehouseThree)
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
                 intakeFreight()
             }
-            .transition{!drive.isBusy}
+            .transition {
+                val value = distanceSensor.getDistance(DistanceUnit.INCH)
+                !drive.isBusy || value <= 3.0}
+
+            .state (InitialDepositStates.INTAKE_FREIGHT_TWO)
+            .onEnter {
+                motionTimer.reset()
+                intakeFreight()
+            }
+            .transition{
+                val value = distanceSensor.getDistance(DistanceUnit.INCH)
+                value <= 3.0 || motionTimer.seconds() > 1.0
+            }
 
             .state (InitialDepositStates.GO_BACK_OUT_TWO)
             .onEnter {
-                drive.followTrajectorySequenceAsync(moveBackOutTrajectorySequence)
+                drive.followTrajectorySequenceAsync(moveBackOutThreeTrajectorySequence)
                 getFreightOut()
             }
             .transition { !drive.isBusy}
 
             .state (InitialDepositStates.MOVE_TO_DEPOSIT_THREE)
             .onEnter {
-                drive.followTrajectorySequenceAsync(moveToDepositTwoTrajectorySequence)
+                drive.followTrajectorySequenceAsync(moveToDepositThreeTrajectorySequence)
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -214,9 +235,10 @@ class CycleAutoBlueTESTING : OpMode() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.83
+        outtakeServo.position = 0.80
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
         moveToDepositTrajectorySequence = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
                 .splineToSplineHeading( Pose2d(-1.0, 37.0, Math.toRadians(55.0)), Math.toRadians(240.0))
@@ -241,7 +263,7 @@ class CycleAutoBlueTESTING : OpMode() {
                 .build()
         moveIntoWarehouseThree = drive.trajectorySequenceBuilder(Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
                 .splineToSplineHeading(Pose2d(15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .splineToSplineHeading(Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))
+                .splineToConstantHeading( Vector2d(48.0, 65.0), Math.toRadians(0.0))
                 .build()
         moveToDepositThreeTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
                 .setReversed(true)

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.testing
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
@@ -11,7 +11,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
 
@@ -28,6 +31,8 @@ class SlowerIntake : OpMode() {
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor : Rev2mDistanceSensor
+
+    private var motionTimer = ElapsedTime()
 
     var drive = 0.0
     var strafe = 0.0
@@ -72,9 +77,9 @@ class SlowerIntake : OpMode() {
             gamepad1.b -> {
                 moveArmToDegree(sharedAngleEnemy)
             }
-            gamepad1.y -> {
-                moveArmToDegree(middlePos)
-            }
+//            gamepad1.y -> {
+//                moveArmToDegree(middlePos)
+//            }
         }
 
 
@@ -120,6 +125,55 @@ class SlowerIntake : OpMode() {
                 intakeMotor.power = 0.0
             }
         }
+    }
+
+    private fun stopIntake() {
+        intakeMotor.power = 0.0
+    }
+
+    private fun startIntake() {
+        intakeMotor.power = -1.0
+    }
+
+    private fun openIndexer() {
+        outtakeServo.position = 90.0
+    }
+
+    private fun lockIndexer() {
+        outtakeServo.position = 80.0
+    }
+
+    private enum class IntakeSequenceStates {
+        INTAKE_OUTTAKE_RESET,
+        INTAKE,
+        STOP_AND_LOCK
+    }
+
+    private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
+        .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
+        .onEnter {
+            stopIntake()
+            openIndexer()
+        }
+        .transitionTimed(0.5)
+        .state(IntakeSequenceStates.INTAKE)
+        .onEnter {
+            startIntake()
+        }
+        .transition {
+            val value = distanceSensor.getDistance(DistanceUnit.INCH)
+            value <= 6.0
+        }
+        .state(IntakeSequenceStates.STOP_AND_LOCK)
+        .onEnter {
+            stopIntake()
+            lockIndexer()
+        }
+
+        .build()
+
+    private fun intakeSequenceStart() {
+        intakeSequence.smartRun(gamepad1.left_trigger_pressed)
     }
 
     private fun outtakeControl() {
@@ -201,6 +255,7 @@ class SlowerIntake : OpMode() {
         outtakeControl()
         duckControl()
         distanceSensorControl()
+        intakeSequenceStart()
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.auto
 
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -10,12 +10,11 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.Arm
+import org.firstinspires.ftc.teamcode.Jugaad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.vision.AllianceSide
-import org.firstinspires.ftc.teamcode.vision.Globals
-import java.util.*
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
 class GarbaageAuto : OpMode() {

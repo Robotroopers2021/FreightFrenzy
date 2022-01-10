@@ -1,20 +1,26 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.testing
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
+import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
-import kotlin.math.cos
+import com.qualcomm.robotcore.util.Range
+import org.firstinspires.ftc.robotcore.external.navigation.*
+import kotlin.math.*
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
+
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 
 @Config
 @TeleOp
-class GrishaTeleOp : OpMode() {
+class AkazaTeleopForSonny : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -26,6 +32,11 @@ class GrishaTeleOp : OpMode() {
 
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+
+    lateinit var imu: BNO055IMU
+    lateinit var angles: Orientation
+
+    private val direction = false
 
     var drive = 0.0
     var strafe = 0.0
@@ -49,19 +60,9 @@ class GrishaTeleOp : OpMode() {
     }
 
     private fun getFeedForward(targetAngle: Double): Double {
-        return Math.cos(targetAngle) * kcos
+        return cos(targetAngle) * kcos
     }
 
-    val kcosup = 0.5
-    val kcosdown = 0.5
-
-    fun feedforward(target: Double, up: Boolean): Double {
-        return Math.cos(target) * if(up) {
-            kcosup
-        } else {
-            kcosdown
-        }
-    }
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
@@ -69,10 +70,16 @@ class GrishaTeleOp : OpMode() {
             }
             gamepad1.right_bumper -> {
                 moveArmToDegree(restAngle)
-                outtakeServo.position = 0.92
+                outtakeServo.position = 0.90
             }
-            gamepad1.dpad_down -> {
+            gamepad1.a -> {
                 moveArmToDegree(sharedAngle)
+            }
+            gamepad1.x -> {
+                moveArmToDegree(sharedAngleAlliance)
+            }
+            gamepad1.b -> {
+                moveArmToDegree(sharedAngleEnemy)
             }
         }
 
@@ -97,57 +104,67 @@ class GrishaTeleOp : OpMode() {
     }
 
     private fun driveControl() {
-        val cscalingvariable = 0.85
-        val negleftstick1 = -gamepad1.left_stick_y.toDouble()
-        val leftstick1 = gamepad1.left_stick_x.toDouble()
-        val rightstick1 = gamepad1.right_stick_x.toDouble()
+        val x = hypot(gamepad1.left_stick_x.toDouble(), gamepad1.left_stick_y.toDouble())
+        val stickAngle = atan2(
+            (if (direction) -gamepad1.left_stick_y else gamepad1.left_stick_y.toDouble()) as Double,
+            (if (direction) gamepad1.left_stick_x else -gamepad1.left_stick_x.toDouble()) as Double
+        ) // desired robot angle from the angle of stick
 
-        drive = (negleftstick1 - (cscalingvariable * negleftstick1) + (negleftstick1 * negleftstick1 * negleftstick1)) *0.75
-        strafe = (leftstick1 - (cscalingvariable * leftstick1) + (leftstick1 * leftstick1 * leftstick1)) * 0.75
-        rotate = (rightstick1 - (cscalingvariable * rightstick1) + (rightstick1 * rightstick1 * rightstick1)) * 0.5
+        val powerAngle = stickAngle - Math.PI / 4 // conversion for correct power values
 
-        fl.power = drive + strafe + rotate
-        fr.power = drive - strafe - rotate
-        bl.power = drive - strafe + rotate
-        br.power = drive + strafe - rotate
+        val rightX = -gamepad1.right_stick_x.toDouble() // right stick x axis controls turning
 
+        val leftFrontPower = Range.clip(x * cos(powerAngle) - rightX, -1.0, 1.0)
+        val leftRearPower = Range.clip(x * sin(powerAngle) - rightX, -1.0, 1.0)
+        val rightFrontPower = Range.clip(x * sin(powerAngle) + rightX, -1.0, 1.0)
+        val rightRearPower = Range.clip(x * cos(powerAngle) + rightX, -1.0, 1.0)
+
+        fl.power = leftFrontPower
+        bl.power = leftRearPower
+        fr.power = rightFrontPower
+        br.power = rightRearPower
     }
 
     private fun intakeControl() {
 
-        if(gamepad1.right_trigger > 0.5) {
-            intakeMotor.power = 1.0
-        }
-
-        else if(gamepad1.left_trigger > 0.5) {
-            intakeMotor.power = -1.0
-        } else {
-            intakeMotor.power = 0.0
+        when {
+            gamepad1.right_trigger > 0.5 -> {
+                intakeMotor.power = 1.0
+            }
+            gamepad1.left_trigger > 0.5 -> {
+                intakeMotor.power = -1.0
+            }
+            else -> {
+                intakeMotor.power = 0.0
+            }
         }
     }
 
     private fun outtakeControl() {
         if (gamepad2.a) {
-            outtakeServo.position = 0.92
+            outtakeServo.position = 0.90
         }
         if (gamepad2.b) {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.83
+            outtakeServo.position = 0.8
         }
     }
 
     private fun duckControl() {
-        if (gamepad1.dpad_left) {
-            duck.power = duckPower
-        } else if (gamepad1.dpad_right) {
-            duck.power = -duckPower
-        } else {
-            duck.power = 0.0
+        when {
+            gamepad1.dpad_left -> {
+                duck.power = -duckPower
+            }
+            gamepad1.dpad_right -> {
+                duck.power = duckPower
+            }
+            else -> {
+                duck.power = 0.0
+            }
         }
     }
-
 
     override fun init() {
         //Connect Motor
@@ -174,14 +191,28 @@ class GrishaTeleOp : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
-        outtakeServo.position = 0.9
+        imu = hardwareMap.get(BNO055IMU::class.java, "imu")
+        val parameters = BNO055IMU.Parameters()
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
+        parameters.loggingEnabled = true
+        parameters.loggingTag = "IMU"
+        imu.initialize(parameters)
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
+
+
+        outtakeServo.position = 0.90
         armController.reset()
         targetAngle = restAngle
         targetTicks = restAngle * ticksPerDegree
         armController.targetPosition = targetTicks
         telemetry.addData("STATUS", "Initialized")
+        telemetry.speak("Hello Salban")
         telemetry.update()
     }
+
+
 
     override fun loop() {
         driveControl()
@@ -189,7 +220,6 @@ class GrishaTeleOp : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
-
     }
 
     companion object {
@@ -199,8 +229,10 @@ class GrishaTeleOp : OpMode() {
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kcos = 0.275
         @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 140.0
+        @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
-        @JvmStatic var sharedAngle = 195.0
+        @JvmStatic var sharedAngle = 172.0
+        @JvmStatic var sharedAngleAlliance = 178.0
+        @JvmStatic var sharedAngleEnemy = 164.0
     }
 }

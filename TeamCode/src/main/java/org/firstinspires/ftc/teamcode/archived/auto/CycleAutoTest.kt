@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.auto
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
@@ -8,11 +8,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
-import org.firstinspires.ftc.teamcode.vision.Webcam
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous(preselectTeleOp = "CompTeleOp")

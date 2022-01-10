@@ -1,20 +1,18 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.auto
 
-import com.acmerobotics.roadrunner.control.PIDCoefficients
-import com.acmerobotics.roadrunner.control.PIDFController
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.teamcode.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.util.math.Pose
 
 @Autonomous(preselectTeleOp = "CompTeleOp")
-class CycleAutoBlue : OpMode() {
+class CycleAutoBlueTESTING : OpMode() {
     private val startX = 15.0
     private val startY = 63.0
     private val startAngle = Math.toRadians(0.0)
@@ -33,7 +31,7 @@ class CycleAutoBlue : OpMode() {
 
     private val warehouseFrontPose = Pose2d(warehouseFrontX,warehouseFrontY,warehouseFrontAngle)
 
-    private val bruhPose = Pose2d(53.0, 65.0, Math.toRadians(0.0))
+    private val bruhPose = Pose2d(-1.0, 38.0, Math.toRadians(55.0))
 
     private val idkPose = Pose2d(15.0, 63.0, Math.toRadians(0.0))
 
@@ -243,10 +241,9 @@ class CycleAutoBlue : OpMode() {
                 .lineToConstantHeading(Vector2d(41.0,63.0))
                 .build()
         moveIntoWarehouseThree = drive.trajectorySequenceBuilder(Pose2d(-3.0, 36.0, Math.toRadians(55.0)))
-                .splineToSplineHeading( Pose2d( 15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .splineToConstantHeading( Vector2d(51.0, 65.0), Math.toRadians(0.0))
+                .splineToSplineHeading(Pose2d(15.0, 65.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(Pose2d(51.0, 63.0, Math.toRadians(340.0)), Math.toRadians(340.0))
                 .build()
-
         moveToDepositThreeTrajectorySequence = drive.trajectorySequenceBuilder(idkPose)
                 .setReversed(true)
                 .splineToSplineHeading( Pose2d(-1.0, 38.0, Math.toRadians(55.0)), Math.toRadians(240.0))
