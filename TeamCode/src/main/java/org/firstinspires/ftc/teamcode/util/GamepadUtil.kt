@@ -7,4 +7,7 @@ object GamepadUtil {
 
     val Gamepad.right_trigger_pressed
         get() = right_trigger > 0.5
+
+    val Gamepad.dpad_up_pressed
+        get() = dpad_up
 }
