@@ -274,38 +274,26 @@ class DuckSpinner : OpMode() {
     override fun loop() {
         driveControl()
         armControl()
-        //intakeControl()
+        intakeControl()
         outtakeControl()
         duckControl()
-        distanceSensorControl()
+        //distanceSensorControl()
         intakeSequenceStart()
         duckSpinnerSequenceStart()
     }
 
     companion object {
-        @JvmStatic
-        var kp = 0.015
-        @JvmStatic
-        var ki = 0.0
-        @JvmStatic
-        var kd = 0.00075
-        @JvmStatic
-        var targetAngle = 0.0
-        @JvmStatic
-        var kcos = 0.275
-        @JvmStatic
-        var kv = 0.0
-        @JvmStatic
-        var depositAngle = 94.0
-        @JvmStatic
-        var restAngle = -55.0
-        @JvmStatic
-        var sharedAngle = 172.0
-        @JvmStatic
-        var sharedAngleAlliance = 178.0
-        @JvmStatic
-        var sharedAngleEnemy = 164.0
-        @JvmStatic
-        var middlePos = 134.0
+        @JvmStatic var kp = 0.015
+        @JvmStatic var ki = 0.0
+        @JvmStatic var kd = 0.00075
+        @JvmStatic var targetAngle = 0.0
+        @JvmStatic var kcos = 0.275
+        @JvmStatic var kv = 0.0
+        @JvmStatic var depositAngle = 94.0
+        @JvmStatic var restAngle = -55.0
+        @JvmStatic var sharedAngle = 172.0
+        @JvmStatic var sharedAngleAlliance = 178.0
+        @JvmStatic var sharedAngleEnemy = 164.0
+        @JvmStatic var middlePos = 134.0
     }
 }
