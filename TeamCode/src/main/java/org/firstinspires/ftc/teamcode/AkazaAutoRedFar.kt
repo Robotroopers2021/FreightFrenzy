@@ -182,7 +182,7 @@ class AkazaAutoRedFar : OpMode() {
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
             .setReversed(false)
             .splineToSplineHeading(Pose2d(40.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(48.5, -67.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(52.5, -67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
@@ -195,7 +195,7 @@ class AkazaAutoRedFar : OpMode() {
             .waitSeconds(1.0)
             .build()
 
-        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(48.5, -67.75, Math.toRadians(0.0)))
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(52.5, -67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 getFreightOut()
@@ -226,11 +226,11 @@ class AkazaAutoRedFar : OpMode() {
                 intakeFreight()
             }
             .splineToSplineHeading(Pose2d(40.0, -69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(51.0, -69.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(55.0, -69.75), Math.toRadians(0.0))
             .waitSeconds(1.0)
             .build()
 
-        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(51.0, -67.75, Math.toRadians(0.0)))
+        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(55.0, -67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
