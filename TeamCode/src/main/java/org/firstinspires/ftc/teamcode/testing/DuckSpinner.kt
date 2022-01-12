@@ -31,7 +31,7 @@ class DuckSpinner : OpMode() {
     lateinit var duck: DcMotor
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
-    lateinit var distanceSensor : Rev2mDistanceSensor
+    lateinit var distanceSensor: Rev2mDistanceSensor
 
     private var motionTimer = ElapsedTime()
 
@@ -104,8 +104,8 @@ class DuckSpinner : OpMode() {
     }
 
     private fun driveControl() {
-        drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.75
-        strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.75
+        drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.85
+        strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.85
         rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.65
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
@@ -114,16 +114,9 @@ class DuckSpinner : OpMode() {
     }
 
     private fun intakeControl() {
-
         when {
             gamepad1.right_trigger > 0.5 -> {
                 intakeMotor.power = 1.0
-            }
-            gamepad1.left_trigger > 0.5 -> {
-                intakeMotor.power = -0.5
-            }
-            else -> {
-                intakeMotor.power = 0.0
             }
         }
     }
@@ -137,11 +130,11 @@ class DuckSpinner : OpMode() {
     }
 
     private fun openIndexer() {
-        outtakeServo.position = 90.0
+        outtakeServo.position = 0.90
     }
 
     private fun lockIndexer() {
-        outtakeServo.position = 80.0
+        outtakeServo.position = 0.80
     }
 
     private enum class IntakeSequenceStates {
@@ -153,17 +146,16 @@ class DuckSpinner : OpMode() {
     private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
         .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
         .onEnter {
-            stopIntake()
             openIndexer()
         }
-        .transitionTimed(0.5)
+        .transitionTimed(0.25)
         .state(IntakeSequenceStates.INTAKE)
         .onEnter {
             startIntake()
         }
         .transition {
             val value = distanceSensor.getDistance(DistanceUnit.INCH)
-            value <= 6.0
+            value <= 3.0
         }
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
@@ -185,17 +177,17 @@ class DuckSpinner : OpMode() {
 
     private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
         .state(DuckSpinnerStates.RUN_SLOW)
-        .onEnter{
+        .onEnter {
             duck.power = 0.5
         }
         .transitionTimed(1.0)
         .state(DuckSpinnerStates.RUN_FAST)
-        .onEnter{
+        .onEnter {
             duck.power = 0.85
         }
         .transitionTimed(2.0)
         .state(DuckSpinnerStates.STOP)
-        .onEnter{
+        .onEnter {
             duck.power = 0.0
         }
 
@@ -234,7 +226,7 @@ class DuckSpinner : OpMode() {
     private fun distanceSensorControl() {
         val dsValue = distanceSensor.getDistance(DistanceUnit.INCH)
         if (dsValue < 9) {
-            gamepad1.rumble(750 )
+            gamepad1.rumble(750)
         } else {
             gamepad1.stopRumble()
         }
@@ -248,7 +240,10 @@ class DuckSpinner : OpMode() {
         br = hardwareMap.get(DcMotor::class.java, "BR")
         arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
+        distanceSensor = hardwareMap.get(
+            Rev2mDistanceSensor::class.java,
+            "distanceSensor"
+        ) as Rev2mDistanceSensor
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
@@ -276,11 +271,10 @@ class DuckSpinner : OpMode() {
     }
 
 
-
     override fun loop() {
         driveControl()
         armControl()
-        intakeControl()
+        //intakeControl()
         outtakeControl()
         duckControl()
         distanceSensorControl()
@@ -289,17 +283,29 @@ class DuckSpinner : OpMode() {
     }
 
     companion object {
-        @JvmStatic var kp = 0.015
-        @JvmStatic var ki = 0.0
-        @JvmStatic var kd = 0.00075
-        @JvmStatic var targetAngle = 0.0
-        @JvmStatic var kcos = 0.275
-        @JvmStatic var kv = 0.0
-        @JvmStatic var depositAngle = 94.0
-        @JvmStatic var restAngle = -55.0
-        @JvmStatic var sharedAngle = 172.0
-        @JvmStatic var sharedAngleAlliance = 178.0
-        @JvmStatic var sharedAngleEnemy = 164.0
-        @JvmStatic var middlePos = 134.0
+        @JvmStatic
+        var kp = 0.015
+        @JvmStatic
+        var ki = 0.0
+        @JvmStatic
+        var kd = 0.00075
+        @JvmStatic
+        var targetAngle = 0.0
+        @JvmStatic
+        var kcos = 0.275
+        @JvmStatic
+        var kv = 0.0
+        @JvmStatic
+        var depositAngle = 94.0
+        @JvmStatic
+        var restAngle = -55.0
+        @JvmStatic
+        var sharedAngle = 172.0
+        @JvmStatic
+        var sharedAngleAlliance = 178.0
+        @JvmStatic
+        var sharedAngleEnemy = 164.0
+        @JvmStatic
+        var middlePos = 134.0
     }
 }
