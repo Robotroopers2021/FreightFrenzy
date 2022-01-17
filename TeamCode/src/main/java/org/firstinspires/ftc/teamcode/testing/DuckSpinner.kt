@@ -254,9 +254,8 @@ class DuckSpinner : OpMode() {
 
 
 
-    private fun telemtry() {
-        val dsValue = distanceSensor.getDistance(DistanceUnit.INCH)
-        telemetry.addData("dsensor", dsValue)
+    private fun telemetry() {
+        telemetry.addData("dsensor", value)
     }
 
 
@@ -313,7 +312,7 @@ class DuckSpinner : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
-        telemtry()
+        telemetry()
 //        intakeSequenceStart()
         duckSpinnerSequenceStart()
         value = distanceSensor.getDistance(DistanceUnit.INCH)
