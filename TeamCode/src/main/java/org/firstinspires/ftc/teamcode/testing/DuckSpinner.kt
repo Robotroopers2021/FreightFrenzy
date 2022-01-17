@@ -9,6 +9,7 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -19,18 +20,22 @@ import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
+import com.qualcomm.hardware.lynx.LynxModule
+
+
+
 
 @Config
 @TeleOp
 class DuckSpinner : OpMode() {
-    lateinit var fl: DcMotor
-    lateinit var fr: DcMotor
-    lateinit var bl: DcMotor
-    lateinit var br: DcMotor
+    lateinit var fl: DcMotorEx
+    lateinit var fr: DcMotorEx
+    lateinit var bl: DcMotorEx
+    lateinit var br: DcMotorEx
 
-    lateinit var intakeMotor: DcMotor
-    lateinit var duck: DcMotor
-    lateinit var arm: DcMotor
+    lateinit var intakeMotor: DcMotorEx
+    lateinit var duck: DcMotorEx
+    lateinit var arm: DcMotorEx
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
@@ -254,22 +259,30 @@ class DuckSpinner : OpMode() {
         telemetry.addData("dsensor", dsValue)
     }
 
+
+
+
+
+
     override fun init() {
         //Connect Motor
-        fl = hardwareMap.get(DcMotor::class.java, "FL")
-        fr = hardwareMap.get(DcMotor::class.java, "FR")
-        bl = hardwareMap.get(DcMotor::class.java, "BL")
-        br = hardwareMap.get(DcMotor::class.java, "BR")
-        arm = hardwareMap.dcMotor["Arm"]
-        duck = hardwareMap.get(DcMotor::class.java, "DuckL")
-        distanceSensor = hardwareMap.get(
-            Rev2mDistanceSensor::class.java,
-            "distanceSensor"
-        ) as Rev2mDistanceSensor
-        intakeMotor = hardwareMap.dcMotor["Intake"]
+        fl = hardwareMap.get(DcMotorEx::class.java, "FL")
+        fr = hardwareMap.get(DcMotorEx::class.java, "FR")
+        bl = hardwareMap.get(DcMotorEx::class.java, "BL")
+        br = hardwareMap.get(DcMotorEx::class.java, "BR")
+        br = hardwareMap.get(DcMotorEx::class.java, "Arm")
+        duck = hardwareMap.get(DcMotorEx::class.java, "DuckL")
+        intakeMotor = hardwareMap.get(DcMotorEx::class.java, "Intake")
+        arm = hardwareMap.get(DcMotorEx::class.java, "Arm")
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
+        duck = hardwareMap.get(DcMotorEx::class.java, "Intake")
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
+        var allHubs = hardwareMap.getAll(LynxModule::class.java)
+
+        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
