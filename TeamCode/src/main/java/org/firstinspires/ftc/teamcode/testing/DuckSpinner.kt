@@ -192,41 +192,25 @@ class DuckSpinner : OpMode() {
         STOP
     }
 
-//    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
-//        .state(DuckSpinnerStates.RUN_SLOW)
-//        .onEnter {
-//            duck.power = 0.70
-//        }
-//        .transitionTimed(0.8)
-//        .state(DuckSpinnerStates.RUN_FAST)
-//        .onEnter {
-//            duck.power = 1.0
-//        }
-//        .transitionTimed(0.70)
-//        .state(DuckSpinnerStates.STOP)
-//        .onEnter {
-//            duck.power = 0.0
-//        }
-//
-//        .build()
-
-    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+        private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
         .state(DuckSpinnerStates.RUN_SLOW)
         .onEnter {
             duck.power = 0.70
         }
-        .transitionTimed(0.8)
+        .transitionTimed(0.5)
         .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
             duck.power = 1.0
         }
-        .transitionTimed(0.70)
+        .transitionTimed(1.0)
         .state(DuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0
         }
 
         .build()
+
+
 
     private fun duckSpinnerSequenceStart() {
         if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
@@ -235,6 +219,7 @@ class DuckSpinner : OpMode() {
         if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
             duckSpinnerSequence.stop()
             duckSpinnerSequence.reset()
+            motionTimer.reset()
         }
         if (!gamepad1.dpad_up_pressed) {
             duck.power = 0.0
@@ -288,6 +273,8 @@ class DuckSpinner : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
+        duck.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE

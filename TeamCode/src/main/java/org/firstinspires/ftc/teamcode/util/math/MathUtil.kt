@@ -39,6 +39,10 @@ object MathUtil {
         return (1 - k) * x + k * x * x * x
     }
 
+    fun duckScaling(x : Double) : Double {
+        return 0.5 * (x * x) + 0.5
+    }
+
     fun clipIntersection(start: Point, end: Point, robot: Point): Point {
         if (start.y == end.y)
             start.y += 0.01
