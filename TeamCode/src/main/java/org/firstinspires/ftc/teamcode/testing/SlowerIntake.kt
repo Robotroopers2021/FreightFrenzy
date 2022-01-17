@@ -6,8 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -18,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
 
@@ -34,8 +33,7 @@ class SlowerIntake : OpMode() {
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
-    lateinit var blinkin: RevBlinkinLedDriver
-    lateinit var pattern: BlinkinPattern
+
     private var motionTimer = ElapsedTime()
 
     var drive = 0.0
@@ -116,13 +114,6 @@ class SlowerIntake : OpMode() {
         br.power = drive + strafe - rotate
     }
 
-    private fun intakeControl() {
-        when {
-            gamepad1.right_trigger > 0.5 -> {
-                intakeMotor.power = 1.0
-            }
-        }
-    }
 
     private fun stopIntake() {
         intakeMotor.power = 0.0
@@ -168,8 +159,19 @@ class SlowerIntake : OpMode() {
 
         .build()
 
-    private fun intakeSequenceStart() {
-        intakeSequence.smartRun(gamepad1.left_trigger_pressed)
+    private fun intakeControl() {
+        if (gamepad1.right_trigger > 0.5) {
+            intakeMotor.power = 1.0
+        } else if (!gamepad1.right_trigger_pressed && !gamepad1.left_trigger_pressed) {
+            intakeMotor.power = 0.0
+        } else if (gamepad1.left_trigger_pressed && !intakeSequence.running) {
+            intakeSequence.reset()
+            intakeSequence.start()
+        } else if (intakeSequence.running) {
+            intakeSequence.update()
+        } else if (!gamepad1.left_trigger_pressed && intakeSequence.running) {
+            intakeSequence.stop()
+        }
     }
 
     private enum class DuckSpinnerStates {
@@ -197,7 +199,16 @@ class SlowerIntake : OpMode() {
         .build()
 
     private fun duckSpinnerSequenceStart() {
-        duckSpinnerSequence.smartRun(gamepad1.dpad_up_pressed)
+        if (gamepad1.dpad_left) {
+            duck.power = -duckPower
+        }else if (gamepad1.dpad_right) {
+            duck.power = duckPower
+        } else if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
+            duckSpinnerSequence.reset()
+            duckSpinnerSequence.start()
+        } else if (gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
+            duckSpinnerSequence.update()
+        }
     }
 
     private fun outtakeControl() {
@@ -212,19 +223,15 @@ class SlowerIntake : OpMode() {
         }
     }
 
-    private fun duckControl() {
-        when {
-            gamepad1.dpad_left -> {
-                duck.power = -duckPower
-            }
-            gamepad1.dpad_right -> {
-                duck.power = duckPower
-            }
-            else -> {
-                duck.power = 0.0
-            }
-        }
-    }
+//    private fun duckControl() {
+//        if (gamepad1.dpad_left) {
+//            duck.power = -duckPower
+//        }else if (gamepad1.dpad_right) {
+//            duck.power = duckPower
+//        }else if (!gamepad1.dpad_left && !gamepad1.dpad_right) {
+//            duck.power = 0.0
+//        }
+//    }
 
     private fun distanceSensorControl() {
         val dsValue = distanceSensor.getDistance(DistanceUnit.INCH)
@@ -235,14 +242,7 @@ class SlowerIntake : OpMode() {
         }
     }
 
-    private fun BlinkBlink() {
-        val value = distanceSensor.getDistance(DistanceUnit.INCH)
-        if (value <= 3.0) {
-            blinkin.setPattern(pattern.next())
-        } else {
-            blinkin.setPattern((pattern.previous()))
-        }
-    }
+
 
     override fun init() {
         //Connect Motor
@@ -260,10 +260,6 @@ class SlowerIntake : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-
-        blinkin = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
-        pattern = BlinkinPattern.RAINBOW_RAINBOW_PALETTE
-        blinkin.setPattern(pattern)
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -292,11 +288,9 @@ class SlowerIntake : OpMode() {
         armControl()
         intakeControl()
         outtakeControl()
-        duckControl()
+//        duckControl()
         //distanceSensorControl()
-        intakeSequenceStart()
         duckSpinnerSequenceStart()
-        BlinkBlink()
     }
 
     companion object {

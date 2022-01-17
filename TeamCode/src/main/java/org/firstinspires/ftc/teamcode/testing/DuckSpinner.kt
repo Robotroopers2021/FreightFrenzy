@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
 
@@ -33,7 +34,11 @@ class DuckSpinner : OpMode() {
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
-    private var motionTimer = ElapsedTime()
+    var value = 0.0
+
+    var prevTime : Long = 0
+
+        private var motionTimer = ElapsedTime()
 
     var drive = 0.0
     var strafe = 0.0
@@ -113,11 +118,35 @@ class DuckSpinner : OpMode() {
         br.power = drive + strafe - rotate
     }
 
+//    private fun intakeControl() {
+//        if (gamepad1.right_trigger > 0.5) {
+//            intakeMotor.power = 1.0
+//        } else if (!gamepad1.right_trigger_pressed && !intakeSequence.running) {
+//            intakeMotor.power = 0.0
+//        } else if (!gamepad1.left_trigger_pressed && intakeSequence.running)
+//            intakeSequence.stop()
+//    }
+
     private fun intakeControl() {
-        when {
-            gamepad1.right_trigger > 0.5 -> {
-                intakeMotor.power = 1.0
-            }
+        if (gamepad1.right_trigger > 0.5) {
+            intakeMotor.power = 1.0
+        }
+
+        if (!gamepad1.right_trigger_pressed && !gamepad1.left_trigger_pressed) {
+            intakeMotor.power = 0.0
+        }
+
+        if (gamepad1.left_trigger_pressed && !intakeSequence.running && value > 3) {
+            intakeSequence.start()
+        }
+
+        if (!gamepad1.left_trigger_pressed && intakeSequence.running) {
+            intakeSequence.stop()
+            intakeSequence.reset()
+        }
+
+        if (intakeSequence.running && gamepad1.left_trigger_pressed) {
+            intakeSequence.update()
         }
     }
 
@@ -126,7 +155,7 @@ class DuckSpinner : OpMode() {
     }
 
     private fun startIntake() {
-        intakeMotor.power = -1.0
+        intakeMotor.power = -0.75
     }
 
     private fun openIndexer() {
@@ -154,7 +183,6 @@ class DuckSpinner : OpMode() {
             startIntake()
         }
         .transition {
-            val value = distanceSensor.getDistance(DistanceUnit.INCH)
             value <= 3.0
         }
         .state(IntakeSequenceStates.STOP_AND_LOCK)
@@ -165,9 +193,9 @@ class DuckSpinner : OpMode() {
 
         .build()
 
-    private fun intakeSequenceStart() {
-        intakeSequence.smartRun(gamepad1.left_trigger_pressed)
-    }
+//    private fun intakeSequenceStart() {
+//        intakeSequence.smartRun(gamepad1.left_trigger_pressed)
+//    }
 
     private enum class DuckSpinnerStates {
         RUN_SLOW,
@@ -210,26 +238,20 @@ class DuckSpinner : OpMode() {
     }
 
     private fun duckControl() {
-        when {
-            gamepad1.dpad_left -> {
+        if (gamepad1.dpad_left) {
                 duck.power = -duckPower
-            }
-            gamepad1.dpad_right -> {
+        }else if (gamepad1.dpad_right) {
                 duck.power = duckPower
-            }
-            else -> {
+        }else if (!gamepad1.dpad_left && !gamepad1.dpad_right) {
                 duck.power = 0.0
             }
         }
-    }
 
-    private fun distanceSensorControl() {
+
+
+    private fun telemtry() {
         val dsValue = distanceSensor.getDistance(DistanceUnit.INCH)
-        if (dsValue < 9) {
-            gamepad1.rumble(750)
-        } else {
-            gamepad1.stopRumble()
-        }
+        telemetry.addData("dsensor", dsValue)
     }
 
     override fun init() {
@@ -268,6 +290,7 @@ class DuckSpinner : OpMode() {
         armController.targetPosition = targetTicks
         telemetry.addData("STATUS", "Initialized")
         telemetry.update()
+
     }
 
 
@@ -277,9 +300,12 @@ class DuckSpinner : OpMode() {
         intakeControl()
         outtakeControl()
         duckControl()
-        //distanceSensorControl()
-        intakeSequenceStart()
+        telemtry()
+//        intakeSequenceStart()
         duckSpinnerSequenceStart()
+        value = distanceSensor.getDistance(DistanceUnit.INCH)
+        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
+        prevTime = System.currentTimeMillis()
     }
 
     companion object {

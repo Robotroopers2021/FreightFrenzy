@@ -31,8 +31,8 @@ class Pipeline : OpenCvPipeline(){
         }
 
         val matLeft = workingMatrix.submat(239, 240, 319, 320)
-        val matCenter = workingMatrix.submat(180, 230, 140, 200)
-        val matRight = workingMatrix.submat(180, 230, 230, 290)
+        val matCenter = workingMatrix.submat(180, 230, 45, 105)
+        val matRight = workingMatrix.submat(180, 230, 210, 270)
 
         LeftTotal =  Core.mean(matLeft).`val`[2]
         CenterTotal = Core.mean(matCenter).`val`[2]
@@ -41,8 +41,8 @@ class Pipeline : OpenCvPipeline(){
         Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2YCrCb)
 
         Imgproc.rectangle(workingMatrix, Rect(319, 239, 1, 1), Scalar(0.0, 255.0, 0.0))
-        Imgproc.rectangle(workingMatrix, Rect(140, 180, 60, 50), Scalar(255.0, 0.0, 0.0))
-        Imgproc.rectangle(workingMatrix, Rect(230, 180, 60, 50), Scalar(255.0, 0.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(45, 180, 60, 50), Scalar(255.0, 0.0, 0.0))
+        Imgproc.rectangle(workingMatrix, Rect(210, 180, 60, 50), Scalar(255.0, 0.0, 0.0))
 
 
         return workingMatrix
