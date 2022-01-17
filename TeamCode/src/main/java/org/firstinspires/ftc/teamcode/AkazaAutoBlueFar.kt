@@ -159,7 +159,7 @@ class AkazaAutoBlueFar : OpMode() {
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(10.0, 34.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(8.5, 34.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToMidPos()
             }
@@ -171,7 +171,7 @@ class AkazaAutoBlueFar : OpMode() {
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(7.0, 41.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(7.0, 44.4, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.autoBottomPos()
             }
@@ -194,7 +194,7 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(1.5) {
                 intakeFreight()
             }
-            .waitSeconds(1.0)
+            .waitSeconds(0.5)
             .build()
 
         CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(48.5, 67.75, Math.toRadians(0.0)))

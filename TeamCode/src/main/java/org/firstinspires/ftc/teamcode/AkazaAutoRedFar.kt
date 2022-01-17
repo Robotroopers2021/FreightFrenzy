@@ -157,7 +157,7 @@ class AkazaAutoRedFar : OpMode() {
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(10.0, -34.0, Math.toRadians(310.0)), Math.toRadians(140.0))
+            .splineToSplineHeading( Pose2d(8.5, -34.0, Math.toRadians(310.0)), Math.toRadians(140.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToMidPos()
             }
@@ -169,7 +169,7 @@ class AkazaAutoRedFar : OpMode() {
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(7.0, -41.0, Math.toRadians(310.0)), Math.toRadians(140.0))
+            .splineToSplineHeading( Pose2d(7.0, -44.4, Math.toRadians(310.0)), Math.toRadians(140.0))
             .addTemporalMarker(0.2) {
                 arm.autoBottomPos()
             }
