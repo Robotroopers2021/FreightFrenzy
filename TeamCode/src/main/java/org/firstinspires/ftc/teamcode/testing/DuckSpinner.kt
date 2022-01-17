@@ -9,7 +9,6 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -20,30 +19,26 @@ import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import kotlin.math.cos
-import com.qualcomm.hardware.lynx.LynxModule
-
-
-
 
 @Config
 @TeleOp
 class DuckSpinner : OpMode() {
-    lateinit var fl: DcMotorEx
-    lateinit var fr: DcMotorEx
-    lateinit var bl: DcMotorEx
-    lateinit var br: DcMotorEx
+    lateinit var fl: DcMotor
+    lateinit var fr: DcMotor
+    lateinit var bl: DcMotor
+    lateinit var br: DcMotor
 
-    lateinit var intakeMotor: DcMotorEx
-    lateinit var duck: DcMotorEx
-    lateinit var arm: DcMotorEx
+    lateinit var intakeMotor: DcMotor
+    lateinit var duck: DcMotor
+    lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
+
+    private var motionTimer = ElapsedTime()
 
     var value = 0.0
 
     var prevTime : Long = 0
-
-        private var motionTimer = ElapsedTime()
 
     var drive = 0.0
     var strafe = 0.0
@@ -88,9 +83,9 @@ class DuckSpinner : OpMode() {
             gamepad1.b -> {
                 moveArmToDegree(sharedAngleEnemy)
             }
-//            gamepad1.y -> {
-//                moveArmToDegree(middlePos)
-//            }
+            gamepad1.y -> {
+                moveArmToDegree(middlePos)
+            }
         }
 
 
@@ -123,14 +118,49 @@ class DuckSpinner : OpMode() {
         br.power = drive + strafe - rotate
     }
 
-//    private fun intakeControl() {
-//        if (gamepad1.right_trigger > 0.5) {
-//            intakeMotor.power = 1.0
-//        } else if (!gamepad1.right_trigger_pressed && !intakeSequence.running) {
-//            intakeMotor.power = 0.0
-//        } else if (!gamepad1.left_trigger_pressed && intakeSequence.running)
-//            intakeSequence.stop()
-//    }
+
+    private fun stopIntake() {
+        intakeMotor.power = 0.0
+    }
+
+    private fun startIntake() {
+        intakeMotor.power = -1.0
+    }
+
+    private fun openIndexer() {
+        outtakeServo.position = 0.90
+    }
+
+    private fun lockIndexer() {
+        outtakeServo.position = 0.80
+    }
+
+    private enum class IntakeSequenceStates {
+        INTAKE_OUTTAKE_RESET,
+        INTAKE,
+        STOP_AND_LOCK
+    }
+
+    private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
+        .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
+        .onEnter {
+            openIndexer()
+        }
+        .transitionTimed(0.15)
+        .state(IntakeSequenceStates.INTAKE)
+        .onEnter {
+            startIntake()
+        }
+        .transition {
+            value <= 3.0
+        }
+        .state(IntakeSequenceStates.STOP_AND_LOCK)
+        .onEnter {
+            stopIntake()
+            lockIndexer()
+        }
+
+        .build()
 
     private fun intakeControl() {
         if (gamepad1.right_trigger > 0.5) {
@@ -155,52 +185,6 @@ class DuckSpinner : OpMode() {
         }
     }
 
-    private fun stopIntake() {
-        intakeMotor.power = 0.0
-    }
-
-    private fun startIntake() {
-        intakeMotor.power = -0.75
-    }
-
-    private fun openIndexer() {
-        outtakeServo.position = 0.90
-    }
-
-    private fun lockIndexer() {
-        outtakeServo.position = 0.80
-    }
-
-    private enum class IntakeSequenceStates {
-        INTAKE_OUTTAKE_RESET,
-        INTAKE,
-        STOP_AND_LOCK
-    }
-
-    private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
-        .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
-        .onEnter {
-            openIndexer()
-        }
-        .transitionTimed(0.25)
-        .state(IntakeSequenceStates.INTAKE)
-        .onEnter {
-            startIntake()
-        }
-        .transition {
-            value <= 3.0
-        }
-        .state(IntakeSequenceStates.STOP_AND_LOCK)
-        .onEnter {
-            stopIntake()
-            lockIndexer()
-        }
-
-        .build()
-
-//    private fun intakeSequenceStart() {
-//        intakeSequence.smartRun(gamepad1.left_trigger_pressed)
-//    }
 
     private enum class DuckSpinnerStates {
         RUN_SLOW,
@@ -208,17 +192,35 @@ class DuckSpinner : OpMode() {
         STOP
     }
 
+//    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+//        .state(DuckSpinnerStates.RUN_SLOW)
+//        .onEnter {
+//            duck.power = 0.70
+//        }
+//        .transitionTimed(0.8)
+//        .state(DuckSpinnerStates.RUN_FAST)
+//        .onEnter {
+//            duck.power = 1.0
+//        }
+//        .transitionTimed(0.70)
+//        .state(DuckSpinnerStates.STOP)
+//        .onEnter {
+//            duck.power = 0.0
+//        }
+//
+//        .build()
+
     private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
         .state(DuckSpinnerStates.RUN_SLOW)
         .onEnter {
-            duck.power = 0.5
+            duck.power = 0.70
         }
-        .transitionTimed(1.0)
+        .transitionTimed(0.8)
         .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
-            duck.power = 0.85
+            duck.power = 1.0
         }
-        .transitionTimed(2.0)
+        .transitionTimed(0.70)
         .state(DuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0
@@ -227,7 +229,20 @@ class DuckSpinner : OpMode() {
         .build()
 
     private fun duckSpinnerSequenceStart() {
-        duckSpinnerSequence.smartRun(gamepad1.dpad_up_pressed)
+        if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
+            duckSpinnerSequence.start()
+        }
+        if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
+            duckSpinnerSequence.stop()
+            duckSpinnerSequence.reset()
+        }
+        if (!gamepad1.dpad_up_pressed) {
+            duck.power = 0.0
+        }
+        if (duckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
+            duckSpinnerSequence.update()
+        }
+
     }
 
     private fun outtakeControl() {
@@ -242,17 +257,14 @@ class DuckSpinner : OpMode() {
         }
     }
 
-    private fun duckControl() {
-        if (gamepad1.dpad_left) {
-                duck.power = -duckPower
-        }else if (gamepad1.dpad_right) {
-                duck.power = duckPower
-        }else if (!gamepad1.dpad_left && !gamepad1.dpad_right) {
-                duck.power = 0.0
-            }
+
+    private fun distanceSensorControl() {
+        if (value <= 3) {
+            gamepad1.rumble(750)
+        } else {
+            gamepad1.stopRumble()
         }
-
-
+    }
 
     private fun telemetry() {
         telemetry.addData("dsensor", value)
@@ -260,28 +272,22 @@ class DuckSpinner : OpMode() {
 
 
 
-
-
-
     override fun init() {
         //Connect Motor
-        fl = hardwareMap.get(DcMotorEx::class.java, "FL")
-        fr = hardwareMap.get(DcMotorEx::class.java, "FR")
-        bl = hardwareMap.get(DcMotorEx::class.java, "BL")
-        br = hardwareMap.get(DcMotorEx::class.java, "BR")
-        br = hardwareMap.get(DcMotorEx::class.java, "Arm")
-        duck = hardwareMap.get(DcMotorEx::class.java, "DuckL")
-        intakeMotor = hardwareMap.get(DcMotorEx::class.java, "Intake")
-        arm = hardwareMap.get(DcMotorEx::class.java, "Arm")
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
-        duck = hardwareMap.get(DcMotorEx::class.java, "Intake")
+        fl = hardwareMap.get(DcMotor::class.java, "FL")
+        fr = hardwareMap.get(DcMotor::class.java, "FR")
+        bl = hardwareMap.get(DcMotor::class.java, "BL")
+        br = hardwareMap.get(DcMotor::class.java, "BR")
+        arm = hardwareMap.dcMotor["Arm"]
+        duck = hardwareMap.get(DcMotor::class.java, "DuckL")
+        distanceSensor = hardwareMap.get(
+            Rev2mDistanceSensor::class.java,
+            "distanceSensor"
+        ) as Rev2mDistanceSensor
+        intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-
-        var allHubs = hardwareMap.getAll(LynxModule::class.java)
-
-        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -302,7 +308,6 @@ class DuckSpinner : OpMode() {
         armController.targetPosition = targetTicks
         telemetry.addData("STATUS", "Initialized")
         telemetry.update()
-
     }
 
 
@@ -311,10 +316,9 @@ class DuckSpinner : OpMode() {
         armControl()
         intakeControl()
         outtakeControl()
-        duckControl()
-        telemetry()
-//        intakeSequenceStart()
+        //distanceSensorControl()
         duckSpinnerSequenceStart()
+        telemetry()
         value = distanceSensor.getDistance(DistanceUnit.INCH)
         telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
         prevTime = System.currentTimeMillis()
