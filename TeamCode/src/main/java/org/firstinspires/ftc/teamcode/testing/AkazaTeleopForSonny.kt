@@ -5,18 +5,23 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
-import com.qualcomm.hardware.bosch.BNO055IMU
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.util.Range
-import org.firstinspires.ftc.robotcore.external.navigation.*
-import kotlin.math.*
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
-
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
+import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
+import org.firstinspires.ftc.teamcode.util.math.MathUtil
+import kotlin.math.cos
 
 @Config
 @TeleOp
@@ -27,16 +32,19 @@ class AkazaTeleopForSonny : OpMode() {
     lateinit var br: DcMotor
 
     lateinit var intakeMotor: DcMotor
-
     lateinit var duck: DcMotor
-
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+    lateinit var distanceSensor: Rev2mDistanceSensor
 
-    lateinit var imu: BNO055IMU
-    lateinit var angles: Orientation
+    private var motionTimer = ElapsedTime()
 
-    private val direction = false
+    lateinit var blinkinLedDriver: RevBlinkinLedDriver
+    lateinit var pattern: BlinkinPattern
+
+    var value = 0.0
+
+    var prevTime : Long = 0
 
     var drive = 0.0
     var strafe = 0.0
@@ -81,6 +89,9 @@ class AkazaTeleopForSonny : OpMode() {
             gamepad1.b -> {
                 moveArmToDegree(sharedAngleEnemy)
             }
+            gamepad1.y -> {
+                moveArmToDegree(middlePos)
+            }
         }
 
 
@@ -104,40 +115,140 @@ class AkazaTeleopForSonny : OpMode() {
     }
 
     private fun driveControl() {
-        val x = hypot(gamepad1.left_stick_x.toDouble(), gamepad1.left_stick_y.toDouble())
-        val stickAngle = atan2(
-            (if (direction) -gamepad1.left_stick_y else gamepad1.left_stick_y.toDouble()) as Double,
-            (if (direction) gamepad1.left_stick_x else -gamepad1.left_stick_x.toDouble()) as Double
-        ) // desired robot angle from the angle of stick
-
-        val powerAngle = stickAngle - Math.PI / 4 // conversion for correct power values
-
-        val rightX = -gamepad1.right_stick_x.toDouble() // right stick x axis controls turning
-
-        val leftFrontPower = Range.clip(x * cos(powerAngle) - rightX, -1.0, 1.0)
-        val leftRearPower = Range.clip(x * sin(powerAngle) - rightX, -1.0, 1.0)
-        val rightFrontPower = Range.clip(x * sin(powerAngle) + rightX, -1.0, 1.0)
-        val rightRearPower = Range.clip(x * cos(powerAngle) + rightX, -1.0, 1.0)
-
-        fl.power = leftFrontPower
-        bl.power = leftRearPower
-        fr.power = rightFrontPower
-        br.power = rightRearPower
+        drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.85
+        strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.85
+        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.65
+        fl.power = drive + strafe + rotate
+        fr.power = drive - strafe - rotate
+        bl.power = drive - strafe + rotate
+        br.power = drive + strafe - rotate
     }
 
-    private fun intakeControl() {
 
-        when {
-            gamepad1.right_trigger > 0.5 -> {
-                intakeMotor.power = 1.0
-            }
-            gamepad1.left_trigger > 0.5 -> {
-                intakeMotor.power = -1.0
-            }
-            else -> {
-                intakeMotor.power = 0.0
-            }
+    private fun stopIntake() {
+        intakeMotor.power = 0.0
+    }
+
+    private fun startIntake() {
+        intakeMotor.power = -1.0
+    }
+
+    private fun openIndexer() {
+        outtakeServo.position = 0.90
+    }
+
+    private fun lockIndexer() {
+        outtakeServo.position = 0.80
+    }
+
+    private enum class IntakeSequenceStates {
+        INTAKE_OUTTAKE_RESET,
+        INTAKE,
+        STOP_AND_LOCK
+    }
+
+    private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
+        .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
+        .onEnter {
+            openIndexer()
         }
+        .transitionTimed(0.15)
+        .state(IntakeSequenceStates.INTAKE)
+        .onEnter {
+            startIntake()
+        }
+        .transition {
+            value <= 3.0
+        }
+        .state(IntakeSequenceStates.STOP_AND_LOCK)
+        .onEnter {
+            stopIntake()
+            lockIndexer()
+        }
+
+        .build()
+
+    private fun intakeControl() {
+        if (gamepad1.right_trigger > 0.5) {
+            intakeMotor.power = 1.0
+        }
+
+        if (!gamepad1.right_trigger_pressed && !gamepad1.left_trigger_pressed) {
+            intakeMotor.power = 0.0
+        }
+
+        if (gamepad1.left_trigger_pressed && !intakeSequence.running && value > 3) {
+            intakeSequence.start()
+        }
+
+        if (!gamepad1.left_trigger_pressed && intakeSequence.running) {
+            intakeSequence.stop()
+            intakeSequence.reset()
+        }
+
+        if (intakeSequence.running && gamepad1.left_trigger_pressed) {
+            intakeSequence.update()
+        }
+    }
+
+
+    private enum class DuckSpinnerStates {
+        RUN_SLOW,
+        RUN_FAST,
+        STOP
+    }
+
+//    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+//        .state(DuckSpinnerStates.RUN_SLOW)
+//        .onEnter {
+//            duck.power = 0.70
+//        }
+//        .transitionTimed(0.8)
+//        .state(DuckSpinnerStates.RUN_FAST)
+//        .onEnter {
+//            duck.power = 1.0
+//        }
+//        .transitionTimed(0.70)
+//        .state(DuckSpinnerStates.STOP)
+//        .onEnter {
+//            duck.power = 0.0
+//        }
+//
+//        .build()
+
+    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+        .state(DuckSpinnerStates.RUN_SLOW)
+        .onEnter {
+            duck.power = 0.70
+        }
+        .transitionTimed(0.8)
+        .state(DuckSpinnerStates.RUN_FAST)
+        .onEnter {
+            duck.power = 1.0
+        }
+        .transitionTimed(0.70)
+        .state(DuckSpinnerStates.STOP)
+        .onEnter {
+            duck.power = 0.0
+        }
+
+        .build()
+
+    private fun duckSpinnerSequenceStart() {
+        if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
+            duckSpinnerSequence.start()
+        }
+        if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
+            duckSpinnerSequence.stop()
+            duckSpinnerSequence.reset()
+        }
+        if (!gamepad1.dpad_up_pressed) {
+            duck.power = 0.0
+        }
+        if (duckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
+            duckSpinnerSequence.update()
+        }
+
     }
 
     private fun outtakeControl() {
@@ -148,22 +259,29 @@ class AkazaTeleopForSonny : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.8
+            outtakeServo.position = 0.80
         }
     }
 
-    private fun duckControl() {
-        when {
-            gamepad1.dpad_left -> {
-                duck.power = -duckPower
-            }
-            gamepad1.dpad_right -> {
-                duck.power = duckPower
-            }
-            else -> {
-                duck.power = 0.0
-            }
+
+    private fun distanceSensorControl() {
+        if (value <= 3) {
+            gamepad1.rumble(750)
+        } else {
+            gamepad1.stopRumble()
         }
+    }
+
+    private fun telemetry() {
+        telemetry.addData("dsensor", value)
+    }
+
+    private fun BlinkBlink() {
+    if (value <= 3) {
+        blinkinLedDriver.setPattern(pattern.next())
+    } else {
+        blinkinLedDriver.setPattern(pattern.previous())
+    }
     }
 
     override fun init() {
@@ -174,10 +292,18 @@ class AkazaTeleopForSonny : OpMode() {
         br = hardwareMap.get(DcMotor::class.java, "BR")
         arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
+        distanceSensor = hardwareMap.get(
+            Rev2mDistanceSensor::class.java,
+            "distanceSensor"
+        ) as Rev2mDistanceSensor
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
+        blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
+        pattern = BlinkinPattern.RAINBOW_RAINBOW_PALETTE
+        blinkinLedDriver.setPattern(pattern)
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -191,27 +317,14 @@ class AkazaTeleopForSonny : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
-        imu = hardwareMap.get(BNO055IMU::class.java, "imu")
-        val parameters = BNO055IMU.Parameters()
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"
-        parameters.loggingEnabled = true
-        parameters.loggingTag = "IMU"
-        imu.initialize(parameters)
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
-
-
         outtakeServo.position = 0.90
         armController.reset()
         targetAngle = restAngle
         targetTicks = restAngle * ticksPerDegree
         armController.targetPosition = targetTicks
         telemetry.addData("STATUS", "Initialized")
-        telemetry.speak("Hello Salban")
         telemetry.update()
     }
-
 
 
     override fun loop() {
@@ -219,7 +332,13 @@ class AkazaTeleopForSonny : OpMode() {
         armControl()
         intakeControl()
         outtakeControl()
-        duckControl()
+        //distanceSensorControl()
+        duckSpinnerSequenceStart()
+        BlinkBlink()
+        telemetry()
+        value = distanceSensor.getDistance(DistanceUnit.INCH)
+        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
+        prevTime = System.currentTimeMillis()
     }
 
     companion object {
@@ -234,5 +353,6 @@ class AkazaTeleopForSonny : OpMode() {
         @JvmStatic var sharedAngle = 172.0
         @JvmStatic var sharedAngleAlliance = 178.0
         @JvmStatic var sharedAngleEnemy = 164.0
+        @JvmStatic var middlePos = 134.0
     }
 }
