@@ -202,7 +202,8 @@ class DuckSpinner : OpMode() {
         .onEnter {
             duck.power = 1.0
         }
-        .transitionTimed(1.0)
+        .transitionTimed(1.0
+        )
         .state(DuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0

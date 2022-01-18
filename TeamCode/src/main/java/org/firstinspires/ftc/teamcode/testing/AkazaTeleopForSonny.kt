@@ -277,11 +277,11 @@ class AkazaTeleopForSonny : OpMode() {
     }
 
     private fun BlinkBlink() {
-    if (value <= 3) {
-        blinkinLedDriver.setPattern(pattern.next())
-    } else {
-        blinkinLedDriver.setPattern(pattern.previous())
-    }
+        if (value <= 3) {
+            blinkinLedDriver.setPattern(pattern.next())
+        } else {
+            blinkinLedDriver.setPattern(pattern.previous())
+        }
     }
 
     override fun init() {
