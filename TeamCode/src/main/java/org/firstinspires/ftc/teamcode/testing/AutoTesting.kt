@@ -23,6 +23,8 @@ class AutoTesting : OpMode() {
 
     private var motionTimer = ElapsedTime()
 
+    private var value = 0.0
+
     private lateinit var outtakeServo: Servo
 
     private lateinit var intakeMotor: DcMotor
@@ -33,8 +35,6 @@ class AutoTesting : OpMode() {
 
     private val webcam = WebcamTest()
 
-    private var value = 0.0
-
     private lateinit var InitialDepositTrajTop : TrajectorySequence
 
     private lateinit var InitialDepositTrajMiddle : TrajectorySequence
@@ -43,19 +43,11 @@ class AutoTesting : OpMode() {
 
     private lateinit var CycleOneWarehouseTraj : TrajectorySequence
 
-    private lateinit var CycleOneWarehouseTrajMiddle : TrajectorySequence
-
-    private lateinit var CycleOneWarehouseTrajBottom : TrajectorySequence
-
     private lateinit var CycleOneDepsoitTraj : TrajectorySequence
 
     private lateinit var CycleTwoWarehouseTraj : TrajectorySequence
 
     private lateinit var CycleTwoDepsoitTraj : TrajectorySequence
-
-    private lateinit var CycleThreeWarehouseTraj : TrajectorySequence
-
-    private lateinit var CycleThreeDepsoitTraj : TrajectorySequence
 
     private lateinit var ParkAtEnd :TrajectorySequence
 
@@ -98,8 +90,6 @@ class AutoTesting : OpMode() {
         CYCLE_ONE_DEPOSIT,
         CYCLE_TWO_WAREHOUSE,
         CYCLE_TWO_DEPOSIT,
-        CYCLE_THREE_WAREHOUSE,
-        CYCLE_THREE_DEPOSIT,
         PARK_AT_END,
 
     }
@@ -115,22 +105,17 @@ class AutoTesting : OpMode() {
             }
         }
         .onExit (motionTimer::reset)
-
         .transition{!drive.isBusy}
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
-            when (webcam.pipeline.cupState) {
-                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
-                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTrajMiddle)
-                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTrajBottom)
-            }
+            drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
         }
         .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
         }
-        .onExit(motionTimer::reset)
+        .onExit (motionTimer::reset)
         .transition{!drive.isBusy}
         .state(InitialDepositStates.CYCLE_TWO_WAREHOUSE)
         .onEnter{
@@ -143,20 +128,8 @@ class AutoTesting : OpMode() {
             drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
             stopIntake()
         }
-        .onExit(motionTimer::reset)
         .transition{!drive.isBusy}
-        .state(InitialDepositStates.CYCLE_THREE_WAREHOUSE)
-        .onEnter{
-            drive.followTrajectorySequenceAsync(CycleTwoWarehouseTraj)
-            arm.moveArmToBottomPos()
-        }
-        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
-        .state(InitialDepositStates.CYCLE_THREE_DEPOSIT)
-        .onEnter{
-            drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
-            stopIntake()
-        }
-        .transition{!drive.isBusy}
+        .onExit (motionTimer::reset)
         .state(InitialDepositStates.PARK_AT_END)
         .onEnter{
             drive.followTrajectorySequenceAsync(ParkAtEnd)
@@ -187,7 +160,7 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
-//            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
@@ -199,6 +172,10 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
@@ -210,6 +187,10 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
@@ -225,42 +206,10 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(1.5) {
                 intakeFreight()
             }
-//            .waitSeconds(0.5)
+            .waitSeconds(0.5)
             .build()
 
-        CycleOneWarehouseTrajMiddle = drive.trajectorySequenceBuilder(InitialDepositTrajMiddle.end())
-            .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
-            .addTemporalMarker(0.1) {
-                moveOuttakeToOpen()
-            }
-            .addTemporalMarker( 0.75) {
-                arm.moveArmToBottomPos()
-            }
-            .addTemporalMarker(1.5) {
-                intakeFreight()
-            }
-//            .waitSeconds(0.5)
-            .build()
-
-        CycleOneWarehouseTrajBottom = drive.trajectorySequenceBuilder(InitialDepositTrajBottom.end())
-            .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(46.0, 67.75), Math.toRadians(0.0))
-            .addTemporalMarker(0.1) {
-                moveOuttakeToOpen()
-            }
-            .addTemporalMarker( 0.75) {
-                arm.moveArmToBottomPos()
-            }
-            .addTemporalMarker(1.5) {
-                intakeFreight()
-            }
-//            .waitSeconds(0.5)
-            .build()
-
-        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(CycleOneWarehouseTraj.end()/*Pose2d(49.5, 67.75, Math.toRadians(0.0))*/)
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, 67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 getFreightOut()
@@ -275,7 +224,7 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
-            .splineToConstantHeading( Vector2d(40.0, 65.75), Math.toRadians(180.0))
+            .splineToConstantHeading( Vector2d(40.0, 67.75), Math.toRadians(180.0))
             .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .splineToConstantHeading( Vector2d(-11.0, 41.0 ), Math.toRadians(270.0))
             .setReversed(false)
@@ -290,12 +239,12 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(1.5) {
                 intakeFreight()
             }
-            .splineToSplineHeading(Pose2d(40.0, 71.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(46.0, 71.75), Math.toRadians(0.0))
-//            .waitSeconds(1.0)
+            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(52.0, 69.75), Math.toRadians(0.0))
+            .waitSeconds(1.0)
             .build()
 
-        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(CycleTwoWarehouseTraj.end()/*Pose2d(52.0, 67.75, Math.toRadians(0.0))*/)
+        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(52.0, 69.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
@@ -311,46 +260,13 @@ class AutoTesting : OpMode() {
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
-            .splineToConstantHeading( Vector2d(40.0, 71.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, 44.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
-            .build()
-
-        CycleThreeWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
-            .setReversed(false)
-            .addTemporalMarker(0.1) {
-                moveOuttakeToOpen()
-            }
-            .addTemporalMarker(1.5) {
-                intakeFreight()
-            }
-            .splineToSplineHeading(Pose2d(40.0, 71.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(48.0, 71.75), Math.toRadians(0.0))
-//            .waitSeconds(1.0)
-            .build()
-
-        CycleThreeDepsoitTraj = drive.trajectorySequenceBuilder(CycleThreeWarehouseTraj.end()/*Pose2d(52.0, 67.75, Math.toRadians(0.0))*/)
-            .setReversed(true)
-            .addTemporalMarker(0.1) {
-                moveOuttakeToLock()
-                getFreightOut()
-            }
-            .addTemporalMarker(1.1) {
-                moveOuttakeToLock()
-                stopIntake()
-            }
-            .addTemporalMarker(1.5) {
-                arm.moveArmToTopPos()
-            }
-            .addTemporalMarker(2.75) {
-                moveOuttakeToOut()
-            }
-            .splineToConstantHeading( Vector2d(40.0, 71.75), Math.toRadians(180.0))
+            .splineToConstantHeading( Vector2d(40.0, 69.75), Math.toRadians(180.0))
             .splineToSplineHeading( Pose2d(-11.0, 44.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .build()
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 71.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
