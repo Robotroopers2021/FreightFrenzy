@@ -14,18 +14,20 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.internal.system.Deadline
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
+import java.util.concurrent.TimeUnit
 import kotlin.math.cos
 
 @Config
 @TeleOp
-class AkazaTeleopForSonny : OpMode() {
+open class AkazaTeleopForSonny : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -37,10 +39,15 @@ class AkazaTeleopForSonny : OpMode() {
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
-    private var motionTimer = ElapsedTime()
-
     lateinit var blinkinLedDriver: RevBlinkinLedDriver
     lateinit var pattern: BlinkinPattern
+
+    private var motionTimer = ElapsedTime()
+
+    private val LED_PERIOD = 85
+
+    lateinit var displayKind: DisplayKind
+    lateinit var ledCycleDeadline: Deadline
 
     var value = 0.0
 
@@ -59,6 +66,10 @@ class AkazaTeleopForSonny : OpMode() {
     var output = 0.0
     var pidOutput = 0.0
     var feedForward = 0.0
+
+    enum class DisplayKind {
+        AUTO
+    }
 
     private fun moveArmToDegree(degrees: Double) {
         targetAngle = degrees
@@ -117,7 +128,7 @@ class AkazaTeleopForSonny : OpMode() {
     private fun driveControl() {
         drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.85
         strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.85
-        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.65
+        rotate = gamepad1.right_stick_x.toDouble() * 0.65
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
@@ -144,6 +155,7 @@ class AkazaTeleopForSonny : OpMode() {
     private enum class IntakeSequenceStates {
         INTAKE_OUTTAKE_RESET,
         INTAKE,
+        WAIT,
         STOP_AND_LOCK
     }
 
@@ -160,6 +172,9 @@ class AkazaTeleopForSonny : OpMode() {
         .transition {
             value <= 3.0
         }
+        .state(IntakeSequenceStates.WAIT)
+        .onEnter{}
+        .transitionTimed(0.1)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()
@@ -198,41 +213,26 @@ class AkazaTeleopForSonny : OpMode() {
         STOP
     }
 
-//    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
-//        .state(DuckSpinnerStates.RUN_SLOW)
-//        .onEnter {
-//            duck.power = 0.70
-//        }
-//        .transitionTimed(0.8)
-//        .state(DuckSpinnerStates.RUN_FAST)
-//        .onEnter {
-//            duck.power = 1.0
-//        }
-//        .transitionTimed(0.70)
-//        .state(DuckSpinnerStates.STOP)
-//        .onEnter {
-//            duck.power = 0.0
-//        }
-//
-//        .build()
-
     private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
         .state(DuckSpinnerStates.RUN_SLOW)
         .onEnter {
             duck.power = 0.70
         }
-        .transitionTimed(0.8)
+        .transitionTimed(0.5)
         .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
             duck.power = 1.0
         }
-        .transitionTimed(0.70)
+        .transitionTimed(1.0
+        )
         .state(DuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0
         }
 
         .build()
+
+
 
     private fun duckSpinnerSequenceStart() {
         if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
@@ -241,6 +241,7 @@ class AkazaTeleopForSonny : OpMode() {
         if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
             duckSpinnerSequence.stop()
             duckSpinnerSequence.reset()
+            motionTimer.reset()
         }
         if (!gamepad1.dpad_up_pressed) {
             duck.power = 0.0
@@ -263,7 +264,6 @@ class AkazaTeleopForSonny : OpMode() {
         }
     }
 
-
     private fun distanceSensorControl() {
         if (value <= 3) {
             gamepad1.rumble(750)
@@ -274,14 +274,28 @@ class AkazaTeleopForSonny : OpMode() {
 
     private fun telemetry() {
         telemetry.addData("dsensor", value)
+        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
+        prevTime = System.currentTimeMillis()
     }
-
+    private fun doAutoDisplay() {
+        if (ledCycleDeadline.hasExpired()) {
+            pattern = pattern.next()
+            ledCycleDeadline.reset()
+        }
+    }
     private fun BlinkBlink() {
+        if (displayKind == DisplayKind.AUTO) {
+            doAutoDisplay()
+        }
         if (value <= 3) {
             blinkinLedDriver.setPattern(pattern.next())
         } else {
             blinkinLedDriver.setPattern(pattern.previous())
         }
+    }
+
+    private fun getValue() {
+        value = distanceSensor.getDistance(DistanceUnit.INCH)
     }
 
     override fun init() {
@@ -292,18 +306,21 @@ class AkazaTeleopForSonny : OpMode() {
         br = hardwareMap.get(DcMotor::class.java, "BR")
         arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
-        distanceSensor = hardwareMap.get(
-            Rev2mDistanceSensor::class.java,
-            "distanceSensor"
-        ) as Rev2mDistanceSensor
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
 
+        displayKind = DisplayKind.AUTO
+
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
         pattern = BlinkinPattern.RAINBOW_RAINBOW_PALETTE
         blinkinLedDriver.setPattern(pattern)
+
+        ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)
+
+        duck.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -335,10 +352,8 @@ class AkazaTeleopForSonny : OpMode() {
         //distanceSensorControl()
         duckSpinnerSequenceStart()
         BlinkBlink()
+        getValue()
         telemetry()
-        value = distanceSensor.getDistance(DistanceUnit.INCH)
-        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
-        prevTime = System.currentTimeMillis()
     }
 
     companion object {
