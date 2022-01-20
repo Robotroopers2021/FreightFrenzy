@@ -111,7 +111,7 @@ class DuckSpinner : OpMode() {
     private fun driveControl() {
         drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.85
         strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.85
-        rotate = MathUtil.cubicScaling(0.85, gamepad1.right_stick_x.toDouble()) * 0.65
+        rotate = gamepad1.right_stick_x.toDouble() * 0.65
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
@@ -138,6 +138,7 @@ class DuckSpinner : OpMode() {
     private enum class IntakeSequenceStates {
         INTAKE_OUTTAKE_RESET,
         INTAKE,
+        WAIT,
         STOP_AND_LOCK
     }
 
@@ -154,6 +155,9 @@ class DuckSpinner : OpMode() {
         .transition {
             value <= 3.0
         }
+        .state(IntakeSequenceStates.WAIT)
+        .onEnter{}
+        .transitionTimed(0.1)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()

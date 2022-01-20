@@ -240,7 +240,7 @@ class AutoTesting : OpMode() {
                 intakeFreight()
             }
             .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(52.0, 69.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(52.0, 67.75), Math.toRadians(350.0))
             .waitSeconds(1.0)
             .build()
 
@@ -261,7 +261,7 @@ class AutoTesting : OpMode() {
                 moveOuttakeToOut()
             }
             .splineToConstantHeading( Vector2d(40.0, 69.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, 44.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .build()
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))

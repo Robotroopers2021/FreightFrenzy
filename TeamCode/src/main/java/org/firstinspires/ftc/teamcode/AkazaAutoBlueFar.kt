@@ -178,7 +178,9 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
-            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
+            .lineToSplineHeading( Pose2d(-11.0, 48.0, Math.toRadians(90.0)))
+            .setReversed(true)
+            .splineToConstantHeading( Vector2d(-11.0, 45.0,), Math.toRadians(90.0))
             .build()
 
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
