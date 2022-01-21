@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.internal.system.Deadline
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
@@ -43,8 +42,9 @@ open class AkazaTeleopForSonny : OpMode() {
     lateinit var pattern: BlinkinPattern
 
     private var motionTimer = ElapsedTime()
+    private var ledTimer = ElapsedTime()
 
-    private val LED_PERIOD = 85
+    private val LED_PERIOD = 85.0
 
     lateinit var displayKind: DisplayKind
     lateinit var ledCycleDeadline: Deadline
@@ -56,7 +56,6 @@ open class AkazaTeleopForSonny : OpMode() {
     var drive = 0.0
     var strafe = 0.0
     var rotate = 0.0
-    var duckPower = 0.75
 
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
@@ -174,7 +173,7 @@ open class AkazaTeleopForSonny : OpMode() {
         }
         .state(IntakeSequenceStates.WAIT)
         .onEnter{}
-        .transitionTimed(0.1)
+        .transitionTimed(0.20)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()
@@ -279,7 +278,8 @@ open class AkazaTeleopForSonny : OpMode() {
     }
     private fun doAutoDisplay() {
         if (ledCycleDeadline.hasExpired()) {
-            pattern = pattern.next()
+            pattern = BlinkinPattern.FIRE_LARGE
+            blinkinLedDriver.setPattern(pattern)
             ledCycleDeadline.reset()
         }
     }
@@ -287,10 +287,12 @@ open class AkazaTeleopForSonny : OpMode() {
         if (displayKind == DisplayKind.AUTO) {
             doAutoDisplay()
         }
-        if (value <= 3) {
-            blinkinLedDriver.setPattern(pattern.next())
-        } else {
-            blinkinLedDriver.setPattern(pattern.previous())
+        if ((outtakeServo.position > 0.78 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
+            pattern = BlinkinPattern.GREEN
+            blinkinLedDriver.setPattern(pattern)
+        } else if((outtakeServo.position < 0.78 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
+            pattern = BlinkinPattern.BLUE
+            blinkinLedDriver.setPattern(pattern)
         }
     }
 
@@ -315,7 +317,7 @@ open class AkazaTeleopForSonny : OpMode() {
         displayKind = DisplayKind.AUTO
 
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
-        pattern = BlinkinPattern.RAINBOW_RAINBOW_PALETTE
+        pattern = BlinkinPattern.BLUE
         blinkinLedDriver.setPattern(pattern)
 
         ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)
