@@ -26,7 +26,7 @@ import kotlin.math.cos
 
 @Config
 @TeleOp
-open class AkazaTeleopForSonny : OpMode() {
+open class AkazaRedOp : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -44,7 +44,7 @@ open class AkazaTeleopForSonny : OpMode() {
     private var motionTimer = ElapsedTime()
     private var ledTimer = ElapsedTime()
 
-    private val LED_PERIOD = 85.0
+    private val LED_PERIOD = 90.0
 
     lateinit var displayKind: DisplayKind
     lateinit var ledCycleDeadline: Deadline
@@ -205,26 +205,25 @@ open class AkazaTeleopForSonny : OpMode() {
         }
     }
 
-
-    private enum class DuckSpinnerStates {
+    private enum class RedDuckSpinnerStates {
         RUN_SLOW,
         RUN_FAST,
         STOP
     }
 
-    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
-        .state(DuckSpinnerStates.RUN_SLOW)
+    private val redDuckSpinnerSequence = StateMachineBuilder<RedDuckSpinnerStates>()
+        .state(RedDuckSpinnerStates.RUN_SLOW)
         .onEnter {
-            duck.power = 0.70
+            duck.power = -0.70
         }
         .transitionTimed(0.5)
-        .state(DuckSpinnerStates.RUN_FAST)
+        .state(RedDuckSpinnerStates.RUN_FAST)
         .onEnter {
-            duck.power = 1.0
+            duck.power = -1.0
         }
         .transitionTimed(1.0
         )
-        .state(DuckSpinnerStates.STOP)
+        .state(RedDuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0
         }
@@ -233,20 +232,20 @@ open class AkazaTeleopForSonny : OpMode() {
 
 
 
-    private fun duckSpinnerSequenceStart() {
-        if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
-            duckSpinnerSequence.start()
+    private fun redDuckSpinnerSequenceStart() {
+        if (gamepad1.dpad_up_pressed && !redDuckSpinnerSequence.running) {
+            redDuckSpinnerSequence.start()
         }
-        if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
-            duckSpinnerSequence.stop()
-            duckSpinnerSequence.reset()
+        if (!gamepad1.dpad_up_pressed && redDuckSpinnerSequence.running) {
+            redDuckSpinnerSequence.stop()
+            redDuckSpinnerSequence.reset()
             motionTimer.reset()
         }
         if (!gamepad1.dpad_up_pressed) {
             duck.power = 0.0
         }
-        if (duckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
-            duckSpinnerSequence.update()
+        if (redDuckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
+            redDuckSpinnerSequence.update()
         }
 
     }
@@ -352,7 +351,7 @@ open class AkazaTeleopForSonny : OpMode() {
         intakeControl()
         outtakeControl()
         //distanceSensorControl()
-        duckSpinnerSequenceStart()
+        redDuckSpinnerSequenceStart()
         BlinkBlink()
         getValue()
         telemetry()

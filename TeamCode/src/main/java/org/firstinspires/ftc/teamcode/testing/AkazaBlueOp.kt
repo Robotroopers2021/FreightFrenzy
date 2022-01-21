@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.control.PIDCoefficients
 import com.acmerobotics.roadrunner.control.PIDFController
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -13,17 +15,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.internal.system.Deadline
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
-import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_down_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
+import java.util.concurrent.TimeUnit
 import kotlin.math.cos
 
 @Config
 @TeleOp
-class DuckSpinner : OpMode() {
+open class AkazaBlueOp : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -35,7 +38,16 @@ class DuckSpinner : OpMode() {
     lateinit var outtakeServo: Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
+    lateinit var blinkinLedDriver: RevBlinkinLedDriver
+    lateinit var pattern: BlinkinPattern
+
     private var motionTimer = ElapsedTime()
+    private var ledTimer = ElapsedTime()
+
+    private val LED_PERIOD = 90.0
+
+    lateinit var displayKind: DisplayKind
+    lateinit var ledCycleDeadline: Deadline
 
     var value = 0.0
 
@@ -44,7 +56,6 @@ class DuckSpinner : OpMode() {
     var drive = 0.0
     var strafe = 0.0
     var rotate = 0.0
-    var duckPower = 0.75
 
     var armController = PIDFController(PIDCoefficients(kp, ki, kd))
 
@@ -54,6 +65,10 @@ class DuckSpinner : OpMode() {
     var output = 0.0
     var pidOutput = 0.0
     var feedForward = 0.0
+
+    enum class DisplayKind {
+        AUTO
+    }
 
     private fun moveArmToDegree(degrees: Double) {
         targetAngle = degrees
@@ -158,12 +173,13 @@ class DuckSpinner : OpMode() {
         }
         .state(IntakeSequenceStates.WAIT)
         .onEnter{}
-        .transitionTimed(0.1)
+        .transitionTimed(0.20)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()
             lockIndexer()
         }
+
         .build()
 
     private fun intakeControl() {
@@ -190,92 +206,45 @@ class DuckSpinner : OpMode() {
     }
 
 
-    private enum class BlueDuckSpinnerStates {
+    private enum class DuckSpinnerStates {
         RUN_SLOW,
         RUN_FAST,
         STOP
     }
 
-        private val blueDuckSpinnerSequence = StateMachineBuilder<BlueDuckSpinnerStates>()
-        .state(BlueDuckSpinnerStates.RUN_SLOW)
+    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+        .state(DuckSpinnerStates.RUN_SLOW)
         .onEnter {
             duck.power = 0.70
         }
         .transitionTimed(0.5)
-        .state(BlueDuckSpinnerStates.RUN_FAST)
+        .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
             duck.power = 1.0
         }
         .transitionTimed(1.0
         )
-        .state(BlueDuckSpinnerStates.STOP)
+        .state(DuckSpinnerStates.STOP)
         .onEnter {
             duck.power = 0.0
         }
 
         .build()
 
-
-
-    private fun blueDuckSpinnerSequenceStart() {
-        if (gamepad1.dpad_up_pressed && !blueDuckSpinnerSequence.running) {
-            blueDuckSpinnerSequence.start()
+    private fun duckSpinnerSequenceStart() {
+        if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
+            duckSpinnerSequence.start()
         }
-        if (!gamepad1.dpad_up_pressed && blueDuckSpinnerSequence.running) {
-            blueDuckSpinnerSequence.stop()
-            blueDuckSpinnerSequence.reset()
+        if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
+            duckSpinnerSequence.stop()
+            duckSpinnerSequence.reset()
             motionTimer.reset()
         }
         if (!gamepad1.dpad_up_pressed) {
             duck.power = 0.0
         }
-        if (blueDuckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
-            blueDuckSpinnerSequence.update()
-        }
-
-    }
-
-    private enum class RedDuckSpinnerStates {
-        RUN_SLOW,
-        RUN_FAST,
-        STOP
-    }
-
-    private val redDuckSpinnerSequence = StateMachineBuilder<RedDuckSpinnerStates>()
-        .state(RedDuckSpinnerStates.RUN_SLOW)
-        .onEnter {
-            duck.power = -0.70
-        }
-        .transitionTimed(0.5)
-        .state(RedDuckSpinnerStates.RUN_FAST)
-        .onEnter {
-            duck.power = -1.0
-        }
-        .transitionTimed(1.0
-        )
-        .state(RedDuckSpinnerStates.STOP)
-        .onEnter {
-            duck.power = 0.0
-        }
-
-        .build()
-
-
-
-    private fun redDuckSpinnerSequenceStart() {
-        if (gamepad1.dpad_down_pressed && !redDuckSpinnerSequence.running) {
-            redDuckSpinnerSequence.start()
-        }
-        if (!gamepad1.dpad_down_pressed && redDuckSpinnerSequence.running) {
-            redDuckSpinnerSequence.stop()
-            redDuckSpinnerSequence.reset()
-            motionTimer.reset()
-        }
-        if (!gamepad1.dpad_down_pressed) {
-            duck.power = 0.0
-        }
-        if (redDuckSpinnerSequence.running && gamepad1.dpad_down_pressed) {
-            redDuckSpinnerSequence.update()
+        if (duckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
+            duckSpinnerSequence.update()
         }
 
     }
@@ -292,7 +261,6 @@ class DuckSpinner : OpMode() {
         }
     }
 
-
     private fun distanceSensorControl() {
         if (value <= 3) {
             gamepad1.rumble(750)
@@ -303,9 +271,32 @@ class DuckSpinner : OpMode() {
 
     private fun telemetry() {
         telemetry.addData("dsensor", value)
+        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
+        prevTime = System.currentTimeMillis()
+    }
+    private fun doAutoDisplay() {
+        if (ledCycleDeadline.hasExpired()) {
+            pattern = BlinkinPattern.FIRE_LARGE
+            blinkinLedDriver.setPattern(pattern)
+            ledCycleDeadline.reset()
+        }
+    }
+    private fun BlinkBlink() {
+        if (displayKind == DisplayKind.AUTO) {
+            doAutoDisplay()
+        }
+        if ((outtakeServo.position > 0.78 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
+            pattern = BlinkinPattern.GREEN
+            blinkinLedDriver.setPattern(pattern)
+        } else if((outtakeServo.position < 0.78 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
+            pattern = BlinkinPattern.BLUE
+            blinkinLedDriver.setPattern(pattern)
+        }
     }
 
-
+    private fun getValue() {
+        value = distanceSensor.getDistance(DistanceUnit.INCH)
+    }
 
     override fun init() {
         //Connect Motor
@@ -315,14 +306,19 @@ class DuckSpinner : OpMode() {
         br = hardwareMap.get(DcMotor::class.java, "BR")
         arm = hardwareMap.dcMotor["Arm"]
         duck = hardwareMap.get(DcMotor::class.java, "DuckL")
-        distanceSensor = hardwareMap.get(
-            Rev2mDistanceSensor::class.java,
-            "distanceSensor"
-        ) as Rev2mDistanceSensor
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+
+        displayKind = DisplayKind.AUTO
+
+        blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
+        pattern = BlinkinPattern.BLUE
+        blinkinLedDriver.setPattern(pattern)
+
+        ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)
 
         duck.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
@@ -354,12 +350,10 @@ class DuckSpinner : OpMode() {
         intakeControl()
         outtakeControl()
         //distanceSensorControl()
-        blueDuckSpinnerSequenceStart()
-        redDuckSpinnerSequenceStart()
+        duckSpinnerSequenceStart()
+        BlinkBlink()
+        getValue()
         telemetry()
-        value = distanceSensor.getDistance(DistanceUnit.INCH)
-        telemetry.addData("loop time", System.currentTimeMillis()-prevTime)
-        prevTime = System.currentTimeMillis()
     }
 
     companion object {

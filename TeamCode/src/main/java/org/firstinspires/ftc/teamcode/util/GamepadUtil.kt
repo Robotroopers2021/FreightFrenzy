@@ -10,4 +10,7 @@ object GamepadUtil {
 
     val Gamepad.dpad_up_pressed
         get() = dpad_up
+
+    val Gamepad.dpad_down_pressed
+        get() = dpad_down
 }
