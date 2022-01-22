@@ -218,7 +218,7 @@ open class AkazaRedOp : OpMode() {
         .onEnter {
             duck.power = -0.25
         }
-        .transitionTimed(0.3)
+        .transitionTimed(0.45)
         .state(RedDuckSpinnerStates.RUN_FAST)
         .onEnter {
             duck.power = -0.35

@@ -219,7 +219,7 @@ open class AkazaBlueOp : OpMode() {
         .onEnter {
             duck.power = 0.25
         }
-        .transitionTimed(0.3)
+        .transitionTimed(0.5)
         .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
             duck.power = 0.35
