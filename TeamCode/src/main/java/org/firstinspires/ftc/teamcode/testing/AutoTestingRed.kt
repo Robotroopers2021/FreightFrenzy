@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.testing
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
@@ -114,7 +115,7 @@ class AutoTestingRed : OpMode() {
                 PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneBottomWarehouseTraj)
             }
         }
-        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
+        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 3.0)}
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
@@ -199,7 +200,7 @@ class AutoTestingRed : OpMode() {
 
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(34.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .splineToConstantHeading(Vector2d(49.5, -67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
@@ -207,7 +208,7 @@ class AutoTestingRed : OpMode() {
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(2.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -215,7 +216,7 @@ class AutoTestingRed : OpMode() {
 
         CycleOneBottomWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, -48.0 , Math.toRadians(270.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(36.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .splineToConstantHeading(Vector2d(49.5, -67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
@@ -223,7 +224,7 @@ class AutoTestingRed : OpMode() {
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(2.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -286,7 +287,7 @@ class AutoTestingRed : OpMode() {
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, -69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, -70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }

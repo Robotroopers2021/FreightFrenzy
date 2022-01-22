@@ -84,6 +84,7 @@ open class AkazaRedOp : OpMode() {
     private fun armControl() {
         when {
             gamepad1.left_bumper -> {
+                lockIndexer()
                 moveArmToDegree(depositAngle)
             }
             gamepad1.right_bumper -> {
@@ -148,7 +149,7 @@ open class AkazaRedOp : OpMode() {
     }
 
     private fun lockIndexer() {
-        outtakeServo.position = 0.80
+        outtakeServo.position = 0.77
     }
 
     private enum class IntakeSequenceStates {
@@ -208,26 +209,30 @@ open class AkazaRedOp : OpMode() {
     private enum class RedDuckSpinnerStates {
         RUN_SLOW,
         RUN_FAST,
+        YEET,
         STOP
     }
 
     private val redDuckSpinnerSequence = StateMachineBuilder<RedDuckSpinnerStates>()
         .state(RedDuckSpinnerStates.RUN_SLOW)
         .onEnter {
-            duck.power = -0.70
+            duck.power = -0.25
         }
-        .transitionTimed(0.5)
+        .transitionTimed(0.3)
         .state(RedDuckSpinnerStates.RUN_FAST)
         .onEnter {
-            duck.power = -1.0
+            duck.power = -0.35
         }
-        .transitionTimed(1.0
-        )
-        .state(RedDuckSpinnerStates.STOP)
+        .transitionTimed(0.5)
+        .state(RedDuckSpinnerStates.YEET)
         .onEnter {
+            duck.power = -0.85
+        }
+        .transitionTimed(0.4)
+        .state(RedDuckSpinnerStates.STOP)
+        .onEnter{
             duck.power = 0.0
         }
-
         .build()
 
 
@@ -258,7 +263,7 @@ open class AkazaRedOp : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.80
+            outtakeServo.position = 0.77
         }
     }
 
@@ -286,11 +291,11 @@ open class AkazaRedOp : OpMode() {
         if (displayKind == DisplayKind.AUTO) {
             doAutoDisplay()
         }
-        if ((outtakeServo.position > 0.78 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
-            pattern = BlinkinPattern.GREEN
+        if ((outtakeServo.position > 0.75 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
+            pattern = BlinkinPattern.RAINBOW_FOREST_PALETTE
             blinkinLedDriver.setPattern(pattern)
-        } else if((outtakeServo.position < 0.78 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
-            pattern = BlinkinPattern.BLUE
+        } else if((outtakeServo.position < 0.75 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
+            pattern = BlinkinPattern.RAINBOW_LAVA_PALETTE
             blinkinLedDriver.setPattern(pattern)
         }
     }
@@ -316,7 +321,7 @@ open class AkazaRedOp : OpMode() {
         displayKind = DisplayKind.AUTO
 
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
-        pattern = BlinkinPattern.BLUE
+        pattern = BlinkinPattern.RAINBOW_LAVA_PALETTE
         blinkinLedDriver.setPattern(pattern)
 
         ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)

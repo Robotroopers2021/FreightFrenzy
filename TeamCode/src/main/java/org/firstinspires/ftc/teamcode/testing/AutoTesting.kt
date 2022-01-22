@@ -116,7 +116,7 @@ class AutoTesting : OpMode() {
                 Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneBottomWarehouseTraj)
             }
         }
-        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
+        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 3.0)}
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
@@ -209,7 +209,7 @@ class AutoTesting : OpMode() {
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(2.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -225,7 +225,7 @@ class AutoTesting : OpMode() {
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(2.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -288,7 +288,7 @@ class AutoTesting : OpMode() {
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
