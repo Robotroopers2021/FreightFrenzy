@@ -60,7 +60,7 @@ class AutoTestingRed : OpMode() {
     }
 
     private fun moveOuttakeToLock(){
-        outtakeServo.position = 0.77
+        outtakeServo.position = 0.78
     }
 
     private fun moveOuttakeToOpen(){
@@ -151,7 +151,7 @@ class AutoTestingRed : OpMode() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.77
+        outtakeServo.position = 0.78
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor

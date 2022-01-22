@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "CompTeleOp")
+@Autonomous(preselectTeleOp = "AkazaBlueOp")
 class AkazaAutoBlueNear : OpMode()  {
 
     private var motionTimer = ElapsedTime()
@@ -44,7 +44,7 @@ class AkazaAutoBlueNear : OpMode()  {
     }
 
     private fun moveOuttakeToLock(){
-        outtakeServo.position = 0.80
+        outtakeServo.position = 0.78
     }
 
     private fun moveOuttakeToOpen(){
@@ -81,7 +81,7 @@ class AkazaAutoBlueNear : OpMode()  {
         DuckL = hardwareMap.get(DcMotor::class.java, "DuckL")
         drive = SampleMecanumDrive(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.80
+        outtakeServo.position = 0.78
         arm.init(hardwareMap)
 
         DuckSpinnerTraj = drive.trajectorySequenceBuilder(Pose2d (-36.0, 60.0, Math.toRadians(90.0)))
@@ -101,9 +101,9 @@ class AkazaAutoBlueNear : OpMode()  {
             .setReversed(false)
         .lineToConstantHeading( Vector2d(-59.0, 57.0))
         .addTemporalMarker {
-            DuckL.setPower( 0.75 )
+            DuckL.setPower( 0.25 )
         }
-        .waitSeconds( 2.2 )
+        .waitSeconds( 6.0 )
             .addTemporalMarker {
             DuckL.setPower(0.0)
         }

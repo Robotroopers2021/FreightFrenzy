@@ -8,19 +8,21 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
-import org.firstinspires.ftc.teamcode.vision.Webcam
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "CompTeleOp")
+@Autonomous(preselectTeleOp = "AkazaBlueOp")
 class AkazaAutoBlueFar : OpMode() {
 
     private var startPose = Pose2d(11.0, 57.25, Math.toRadians(90.0))
 
     private var motionTimer = ElapsedTime()
+
+    private var value = 0.0
 
     private lateinit var outtakeServo: Servo
 
@@ -40,6 +42,8 @@ class AkazaAutoBlueFar : OpMode() {
 
     private lateinit var CycleOneWarehouseTraj : TrajectorySequence
 
+    private lateinit var CycleOneBottomWarehouseTraj : TrajectorySequence
+
     private lateinit var CycleOneDepsoitTraj : TrajectorySequence
 
     private lateinit var CycleTwoWarehouseTraj : TrajectorySequence
@@ -56,7 +60,7 @@ class AkazaAutoBlueFar : OpMode() {
     }
 
     private fun moveOuttakeToLock(){
-        outtakeServo.position = 0.80
+        outtakeServo.position = 0.78
     }
 
     private fun moveOuttakeToOpen(){
@@ -101,29 +105,36 @@ class AkazaAutoBlueFar : OpMode() {
                 Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
             }
         }
+        .onExit (motionTimer::reset)
         .transition{!drive.isBusy}
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
-            drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+            when (webcam.pipeline.cupState) {
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneBottomWarehouseTraj)
+            }
         }
-        .transition {!drive.isBusy }
+        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 3.0)}
         .state(InitialDepositStates.CYCLE_ONE_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleOneDepsoitTraj)
         }
+        .onExit (motionTimer::reset)
         .transition{!drive.isBusy}
         .state(InitialDepositStates.CYCLE_TWO_WAREHOUSE)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleTwoWarehouseTraj)
             arm.moveArmToBottomPos()
         }
-        .transition { !drive.isBusy}
+        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
         .state(InitialDepositStates.CYCLE_TWO_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
             stopIntake()
         }
         .transition{!drive.isBusy}
+        .onExit (motionTimer::reset)
         .state(InitialDepositStates.PARK_AT_END)
         .onEnter{
             drive.followTrajectorySequenceAsync(ParkAtEnd)
@@ -140,7 +151,7 @@ class AkazaAutoBlueFar : OpMode() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        outtakeServo.position = 0.80
+        outtakeServo.position = 0.78
         intakeMotor = hardwareMap.dcMotor["Intake"]
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
@@ -166,21 +177,25 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(7.0, 44.0, Math.toRadians(50.0)), Math.toRadians(220.0))
+            .splineToSplineHeading( Pose2d(8.0, 41.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.autoBottomPos()
             }
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .lineToSplineHeading( Pose2d(-11.0, 48.0, Math.toRadians(90.0)))
-            .setReversed(true)
-            .splineToConstantHeading( Vector2d(-11.0, 45.0,), Math.toRadians(90.0))
             .build()
 
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
@@ -193,7 +208,23 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(2.5) {
+                intakeFreight()
+            }
+            .waitSeconds(0.5)
+            .build()
+
+        CycleOneBottomWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 48.0 , Math.toRadians(90.0)))
+            .setReversed(false)
+            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
+            .addTemporalMarker(0.1) {
+                moveOuttakeToOpen()
+            }
+            .addTemporalMarker( 0.75) {
+                arm.moveArmToBottomPos()
+            }
+            .addTemporalMarker(2.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -230,7 +261,7 @@ class AkazaAutoBlueFar : OpMode() {
                 intakeFreight()
             }
             .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(52.0, 69.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(52.0, 67.75), Math.toRadians(350.0))
             .waitSeconds(1.0)
             .build()
 
@@ -251,12 +282,12 @@ class AkazaAutoBlueFar : OpMode() {
                 moveOuttakeToOut()
             }
             .splineToConstantHeading( Vector2d(40.0, 69.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, 44.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .build()
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
@@ -292,6 +323,7 @@ class AkazaAutoBlueFar : OpMode() {
         initialDepositStateMachine.update()
         drive.update()
         arm.update()
+        value = distanceSensor.getDistance(DistanceUnit.INCH)
         telemetry.addData("Cup State", webcam.pipeline.cupState)
         telemetry.update()
     }
