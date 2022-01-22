@@ -149,7 +149,7 @@ open class AkazaRedOp : OpMode() {
     }
 
     private fun lockIndexer() {
-        outtakeServo.position = 0.77
+        outtakeServo.position = 0.78
     }
 
     private enum class IntakeSequenceStates {
@@ -263,7 +263,7 @@ open class AkazaRedOp : OpMode() {
             outtakeServo.position = 0.6
         }
         if (gamepad2.x) {
-            outtakeServo.position = 0.77
+            outtakeServo.position = 0.78
         }
     }
 
