@@ -25,94 +25,16 @@ public class MeepMeepTesting {
                 .setConstraints(50, 30, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(12.5, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(42.5, 65.75, Math.toRadians(0.0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(11.0, 62.0, Math.toRadians(90.0)))
                                 .setReversed(true)
-                                .splineToConstantHeading(new Vector2d(40.0, 65.75), Math.toRadians(180.0))
-                                .splineToSplineHeading(new Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+                                .splineToSplineHeading(new Pose2d(3.0, 37.0, Math.toRadians(45.0)), Math.toRadians(220.0))
+                                .setReversed(false)
+                                .splineToSplineHeading(new Pose2d(22.0, 63.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+                                .splineToConstantHeading(new Vector2d(42.0, 63.75), Math.toRadians(0.0))
+                                .setReversed(true)
+                                .splineToConstantHeading(new Vector2d(22.0, 63.75), Math.toRadians(180.0))
+                                .splineToSplineHeading(new Pose2d(2.0, 40.0, Math.toRadians(45.0)), Math.toRadians(250.0))
 
-
-//                                //TODO Initial Deposit Trajectory
-//
-//                                .setReversed(true)
-//                                .splineToSplineHeading(new Pose2d(0, 42, Math.toRadians(50)), Math.toRadians(220))
-//                                .addTemporalMarker(0.2, () -> {
-//
-//                                        })
-//                                .addTemporalMarker( 1.5, () -> {
-//
-//                                })
-//                                .lineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)))
-//                                .setReversed(false)
-//
-//                                //TODO Move Into Warehouse 1
-//
-//                                .splineToSplineHeading(new Pose2d(43, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
-//                                .setReversed(true)
-//
-//                                //TODO Cycle Deposit 1
-//
-//                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
-//                                .addTemporalMarker(6.5, () -> {
-//
-//                                })
-//                                .addTemporalMarker(8.2, () -> {
-//
-//                                })
-//                                .addTemporalMarker( 9.5, () -> {
-//
-//                                })
-//                                .setReversed(false)
-//
-//                                //TODO Move Into Warehouse 2
-//
-//                                .splineToSplineHeading(new Pose2d(46, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
-//                                .setReversed(true)
-//
-//                                //TODO Cycle Deposit 2
-//
-//                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
-//                                .addTemporalMarker(13.5, () -> {
-//
-//                                })
-//                                .addTemporalMarker(14.2, () -> {
-//
-//                                })
-//                                .addTemporalMarker( 15.5, () -> {
-//
-//                                })
-//                                .setReversed(false)
-//
-//                                //TODO Move Into Warehouse 3
-//
-//                                .splineToSplineHeading(new Pose2d(49, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
-//                                .setReversed(true)
-//
-//                                //TODO Cycle Deposit 3
-//
-//                                .splineToSplineHeading(new Pose2d(-11, 45, Math.toRadians(90)), Math.toRadians(270))
-//                                .addTemporalMarker(19.5, () -> {
-//
-//                                })
-//                                .addTemporalMarker(21.2, () -> {
-//
-//                                })
-//                                .addTemporalMarker( 22.5, () -> {
-//
-//                                })
-//                                .setReversed(false)
-//
-//                                //TODO Park In Warehouse
-//
-//                                .splineToSplineHeading(new Pose2d(40, 64.5, Math.toRadians(0.0)), Math.toRadians(0))
-//                                .setReversed(true)
-
-
-                                //good cycle spline!!!
-
-//                                .splineToSplineHeading(new Pose2d(43, -65, Math.toRadians(0.0)), Math.toRadians(0))
-//                                .setReversed(true)
-//                                .splineToSplineHeading(new Pose2d(-10, -43, Math.toRadians(270)), Math.toRadians(90))
-//                                .setReversed(false)
 
 
 
