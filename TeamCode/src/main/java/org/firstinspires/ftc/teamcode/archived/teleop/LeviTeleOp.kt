@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.Arm
-import org.firstinspires.ftc.teamcode.Jugaad
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 
 @Config

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.auto
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
@@ -9,15 +9,17 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.archived.teleop.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.vision.*
+import org.firstinspires.ftc.teamcode.vision.Pipeline
+import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "AkazaRedOp")
-class AkazaAutoRedFar : OpMode() {
+@Autonomous(preselectTeleOp = "AkazaBlueOp")
+class AkazaAutoBlueFar : OpMode() {
 
-    private var startPose = Pose2d(11.0, -57.25, Math.toRadians(270.0))
+    private var startPose = Pose2d(11.0, 57.25, Math.toRadians(90.0))
 
     private var motionTimer = ElapsedTime()
 
@@ -31,7 +33,7 @@ class AkazaAutoRedFar : OpMode() {
 
     private val arm = Arm()
 
-    private val webcam = WebcamRed()
+    private val webcam = WebcamTest()
 
     private lateinit var InitialDepositTrajTop : TrajectorySequence
 
@@ -99,9 +101,9 @@ class AkazaAutoRedFar : OpMode() {
         .state(InitialDepositStates.INITIAL_DEPOSIT)
         .onEnter {
             when (webcam.pipeline.cupState) {
-                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
-                PipelineRed.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
-                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
             }
         }
         .onExit (motionTimer::reset)
@@ -109,9 +111,9 @@ class AkazaAutoRedFar : OpMode() {
         .state(InitialDepositStates.CYCLE_ONE_WAREHOUSE)
         .onEnter{
             when (webcam.pipeline.cupState) {
-                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
-                PipelineRed.CupStates.CENTER -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
-                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneBottomWarehouseTraj)
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(CycleOneWarehouseTraj)
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(CycleOneBottomWarehouseTraj)
             }
         }
         .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 3.0)}
@@ -157,19 +159,19 @@ class AkazaAutoRedFar : OpMode() {
 
         InitialDepositTrajTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(3.0, -30.0, Math.toRadians(310.0)), Math.toRadians(140.0))
+            .splineToSplineHeading( Pose2d(3.0, 30.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToTopPos()
             }
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
-            .lineToSplineHeading( Pose2d(-11.0, -45.0, Math.toRadians(270.0)))
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(7.5, -37.5, Math.toRadians(310.0)), Math.toRadians(140.0))
+            .splineToSplineHeading( Pose2d(7.5, 37.5, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.moveArmToMidPos()
             }
@@ -179,12 +181,12 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(2.25) {
                 moveOuttakeToOpen()
             }
-            .lineToSplineHeading( Pose2d(-11.0, -45.0, Math.toRadians(270.0)))
+            .lineToSplineHeading( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
             .build()
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(8.0, -41.0, Math.toRadians(310.0)), Math.toRadians(140.0))
+            .splineToSplineHeading( Pose2d(8.0, 41.0, Math.toRadians(50.0)), Math.toRadians(220.0))
             .addTemporalMarker(0.2) {
                 arm.autoBottomPos()
             }
@@ -194,13 +196,13 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(2.25) {
                 moveOuttakeToOpen()
             }
-            .lineToSplineHeading( Pose2d(-11.0, -48.0, Math.toRadians(270.0)))
+            .lineToSplineHeading( Pose2d(-11.0, 48.0, Math.toRadians(90.0)))
             .build()
 
-        CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
+        CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(34.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(49.5, -67.75), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
@@ -213,10 +215,10 @@ class AkazaAutoRedFar : OpMode() {
             .waitSeconds(0.5)
             .build()
 
-        CycleOneBottomWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, -48.0 , Math.toRadians(270.0)))
+        CycleOneBottomWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 48.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(36.0, -65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(49.5, -67.75), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
@@ -229,7 +231,7 @@ class AkazaAutoRedFar : OpMode() {
             .waitSeconds(0.5)
             .build()
 
-        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, -67.75, Math.toRadians(0.0)))
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, 67.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 getFreightOut()
@@ -244,14 +246,14 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
-            .splineToConstantHeading( Vector2d(40.0, -67.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)), Math.toRadians(90.0))
-            .splineToConstantHeading( Vector2d(-11.0, -41.0 ), Math.toRadians(90.0))
+            .splineToConstantHeading( Vector2d(40.0, 67.75), Math.toRadians(180.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToConstantHeading( Vector2d(-11.0, 41.0 ), Math.toRadians(270.0))
             .setReversed(false)
-            .splineToConstantHeading( Vector2d(-11.0, -45.0), Math.toRadians(270.0))
+            .splineToConstantHeading( Vector2d(-11.0, 45.0), Math.toRadians(90.0))
             .build()
 
-        CycleTwoWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
+        CycleTwoWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
@@ -259,12 +261,12 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(1.5) {
                 intakeFreight()
             }
-            .splineToSplineHeading(Pose2d(40.0, -69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(52.0, -67.75), Math.toRadians(10.0))
+            .splineToSplineHeading(Pose2d(40.0, 69.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(52.0, 67.75), Math.toRadians(350.0))
             .waitSeconds(1.0)
             .build()
 
-        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(52.0, -69.75, Math.toRadians(0.0)))
+        CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(52.0, 69.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
@@ -280,13 +282,13 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
-            .splineToConstantHeading( Vector2d(40.0, -69.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)), Math.toRadians(90.0))
+            .splineToConstantHeading( Vector2d(40.0, 69.75), Math.toRadians(180.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .build()
 
-        ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)))
+        ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, -70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(40.0, 70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }

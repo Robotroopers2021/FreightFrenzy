@@ -1,11 +1,21 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.mule;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@TeleOp(name = "Mule1")
-public class Mule1 extends OpMode {
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
+
+@TeleOp(name = "Mule2")
+public class Mule2 extends OpMode {
 
     DcMotor FR = null;
     DcMotor FL = null;
@@ -34,10 +44,10 @@ public class Mule1 extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
-        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         //Set Up Motor Direction
         FR.setDirection(DcMotor.Direction.FORWARD);
         FL.setDirection(DcMotor.Direction.REVERSE);
@@ -50,19 +60,19 @@ public class Mule1 extends OpMode {
 
     @Override
     public void loop() {
-        drive = -gamepad1.left_stick_y;
-        strafe = gamepad1.left_stick_x;
-        rotate = -gamepad1.right_stick_x;
+        drive = -gamepad1.left_stick_y *0.5;
+        strafe = gamepad1.left_stick_x *0.5;
+        rotate = gamepad1.right_stick_x *0.5;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
         BLPower = (drive - strafe + rotate);
         BRPower = (drive + strafe - rotate);
 
-        FL.setPower(-FLPower);
-        FR.setPower(-FRPower);
-        BL.setPower(-BLPower);
-        BR.setPower(-BRPower);
+        FL.setPower(FLPower);
+        FR.setPower(FRPower);
+        BL.setPower(BLPower);
+        BR.setPower(BRPower);
 
         if(gamepad1.dpad_up) {
             Arm.setPower(ArmPower);
@@ -79,3 +89,8 @@ public class Mule1 extends OpMode {
         }
     }
 }
+
+
+
+
+

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archived.auto;
 
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
-@Autonomous (name= "GOTWStrafeRed")
-public class GOTWStrafeRed extends LinearOpMode {
+@Autonomous (name= "GOTWRedFar")
+public class GOTWRedFar extends LinearOpMode {
 
     SampleMecanumDrive drive;
 
@@ -32,7 +32,6 @@ public class GOTWStrafeRed extends LinearOpMode {
         drive.setPoseEstimate(startPose);
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(new Pose2d(15, -56, Math.toRadians(0)))
                 .lineToConstantHeading(new Vector2d(41, -56))
-                .lineToConstantHeading(new Vector2d(41, -27))
                 .build();
         waitForStart();
         drive.followTrajectorySequence(traj1);

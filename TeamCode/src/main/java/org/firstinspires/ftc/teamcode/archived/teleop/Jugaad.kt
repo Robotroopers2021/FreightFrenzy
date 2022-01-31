@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.archived.teleop
 
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
-import org.firstinspires.ftc.teamcode.vision.Webcam
 
 class Jugaad(
     private val intakeMotor: DcMotor,

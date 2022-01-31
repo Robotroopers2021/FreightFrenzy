@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.mule;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -9,19 +9,24 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
-@TeleOp(name = "Mule2")
-public class Mule2 extends OpMode {
+@TeleOp(name = "MuleTeleop")
+public class MuleTeleop extends OpMode {
 
     DcMotor FR = null;
     DcMotor FL = null;
     DcMotor BR = null;
     DcMotor BL = null;
     DcMotor Arm = null;
+
+
+    DistanceSensor distanceSensor;
 
     double drive;
     double strafe;
@@ -32,7 +37,7 @@ public class Mule2 extends OpMode {
     double BLPower;
     double BRPower;
 
-    double ArmPower =0.5;
+    double ArmPower;
 
     @Override
     public void init() {
@@ -44,6 +49,8 @@ public class Mule2 extends OpMode {
 
         Arm = hardwareMap.dcMotor.get("Arm");
 
+        distanceSensor = hardwareMap.get(DistanceSensor.class,"distanceSensor");
+
         FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -54,25 +61,32 @@ public class Mule2 extends OpMode {
         BR.setDirection(DcMotor.Direction.FORWARD);
         BL.setDirection(DcMotor.Direction.REVERSE);
 
-        telemetry.addData("STATUS", "Initialized");
+
+            telemetry.addData("STATUS", "Initialized");
+            telemetry.update();
 
     }
 
     @Override
     public void loop() {
-        drive = -gamepad1.left_stick_y *0.5;
-        strafe = gamepad1.left_stick_x *0.5;
-        rotate = gamepad1.right_stick_x *0.5;
+        double value = distanceSensor.getDistance(DistanceUnit.INCH);
+        telemetry.addData("Distance",value);
+        telemetry.update();
+
+        drive = -gamepad1.left_stick_y *0.75;
+        strafe = gamepad1.left_stick_x *0.75;
+        rotate = -gamepad1.right_stick_x *0.75;
 
         FLPower = (drive + strafe + rotate);
         FRPower = (drive - strafe - rotate);
         BLPower = (drive - strafe + rotate);
         BRPower = (drive + strafe - rotate);
 
-        FL.setPower(FLPower);
-        FR.setPower(FRPower);
-        BL.setPower(BLPower);
-        BR.setPower(BRPower);
+        FL.setPower(-FLPower);
+        FR.setPower(-FRPower);
+        BL.setPower(-BLPower);
+        BR.setPower(-BRPower);
+
 
         if(gamepad1.dpad_up) {
             Arm.setPower(ArmPower);
@@ -87,9 +101,14 @@ public class Mule2 extends OpMode {
         else {
             Arm.setPower(0);
         }
+//        if (value < 3) {
+//            Arm.setPower(0.3);
+//        }
+//        else {
+//            Arm.setPower(0);
+//        }
     }
 }
-
 
 
 
