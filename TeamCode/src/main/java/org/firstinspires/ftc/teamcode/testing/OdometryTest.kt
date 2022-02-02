@@ -125,6 +125,8 @@ open class Odometrytesting : OpMode() {
         encoderRight = fr
         encoderLeft = fl
         encoderAux = br
+        
+        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         telemetry.addData("STATUS", "Initialized")
         telemetry.update()
