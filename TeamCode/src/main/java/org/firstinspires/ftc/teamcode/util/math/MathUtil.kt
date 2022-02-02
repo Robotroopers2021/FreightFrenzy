@@ -39,6 +39,10 @@ object MathUtil {
         return (1 - k) * x + k * x * x * x
     }
 
+    fun cmCalc(k: Double) : Double {
+        return k/2.54
+    }
+
     fun duckScaling(x : Double) : Double {
         return 0.5 * (x * x) + 0.5
     }
