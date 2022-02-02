@@ -37,7 +37,7 @@ open class Odometrytesting : OpMode() {
     lateinit var encoderLeft : DcMotor
     lateinit var encoderAux : DcMotor
 
-    var odoPose : Pose2d = Pose2d(0.0, 0.0, Math.toRadians(0.0))
+    lateinit var odoPose : Pose2d
 
     var drive = 0.0
     var strafe = 0.0
@@ -82,10 +82,11 @@ open class Odometrytesting : OpMode() {
         val roboth = dtheta
         
 //         odoPose = Pose2d(robotx, roboty, roboth)
-        odoPose.x = odoPose.x + robotx
-        odoPose.y = odoPose.y + roboty
-        odoPose.h = odoPose.h + roboth
+        val newX = odoPose.x + robotx
+        val newY = odoPose.y + roboty
+        val newH = odoPose.heading + roboth
 
+        odoPose = Pose2d(newX, newY, newH)
 
     }
 
@@ -129,8 +130,6 @@ open class Odometrytesting : OpMode() {
         encoderRight = fr
         encoderLeft = fl
         encoderAux = br
-        
-        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         telemetry.addData("STATUS", "Initialized")
         telemetry.update()
