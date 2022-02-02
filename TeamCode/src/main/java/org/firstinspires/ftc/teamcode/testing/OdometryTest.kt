@@ -80,7 +80,11 @@ open class Odometrytesting : OpMode() {
         val robotx = dx * Math.cos(theta) - dy * Math.sin(theta)
         val roboty = dx * Math.sin(theta) + dy * Math.cos(theta)
         val roboth = dtheta
-        odoPose = Pose2d(robotx, roboty, roboth)
+        
+//         odoPose = Pose2d(robotx, roboty, roboth)
+        odoPose.x = odoPose.x + robotx
+        odoPose.y = odoPose.y + roboty
+        odoPose.h = odoPose.h + roboth
 
 
     }
