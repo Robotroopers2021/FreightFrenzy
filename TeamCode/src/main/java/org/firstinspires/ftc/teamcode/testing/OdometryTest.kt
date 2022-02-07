@@ -24,10 +24,14 @@ import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import java.util.concurrent.TimeUnit
 import kotlin.math.cos
+import com.qualcomm.hardware.lynx.LynxModule
+
+
+
 
 @Config
 @TeleOp
-open class Odometrytesting : OpMode() {
+open class OdometryTest : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -62,7 +66,7 @@ open class Odometrytesting : OpMode() {
     fun odometry() {
         oldRightPos = currentRightPos
         oldLeftPos = currentLeftPos
-        oldAuxPos = currentAuxPos
+        oldAuxPos   = currentAuxPos
 
         currentRightPos = (-encoderRight.currentPosition).toDouble()
         currentLeftPos = (-encoderLeft.currentPosition).toDouble()
@@ -126,6 +130,10 @@ open class Odometrytesting : OpMode() {
 
         fl.direction = DcMotorSimple.Direction.REVERSE
         bl.direction = DcMotorSimple.Direction.REVERSE
+
+        var allHubs = hardwareMap.getAll(LynxModule::class.java)
+
+        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
 
         encoderRight = fr
         encoderLeft = fl
