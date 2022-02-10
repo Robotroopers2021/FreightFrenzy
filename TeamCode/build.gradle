@@ -27,3 +27,7 @@ dependencies {
 dependencies {
     implementation 'org.openftc:easyopencv:1.5.1'
 }
+dependencies {
+    //NOTE: this is the correct version, the below screenshot is outdated
+    implementation 'org.openftc:rev-extensions-2:1.2'
+}

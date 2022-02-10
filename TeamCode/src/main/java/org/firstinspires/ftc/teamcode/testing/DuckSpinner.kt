@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.internal.system.Deadline
+import org.firstinspires.ftc.teamcode.manager.BulkDataManager
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
 import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
@@ -341,9 +342,7 @@ open class DuckSpinner : OpMode() {
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
-        var allHubs = hardwareMap.getAll(LynxModule::class.java)
-
-        hardwareMap.getAll(LynxModule::class.java).forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.AUTO }
+        BulkDataManager.init(hardwareMap)
 
         outtakeServo.position = 0.90
         armController.reset()
@@ -354,8 +353,12 @@ open class DuckSpinner : OpMode() {
         telemetry.update()
     }
 
+    override fun init_loop() {
+        BulkDataManager.read()
+    }
 
     override fun loop() {
+        BulkDataManager.read()
         driveControl()
         armControl()
         intakeControl()
