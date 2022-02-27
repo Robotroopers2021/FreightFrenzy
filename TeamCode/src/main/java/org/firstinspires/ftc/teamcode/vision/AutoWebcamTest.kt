@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.testing.PipelineTesting
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
+import org.openftc.easyopencv.OpenCvPipeline
 
 class AutoWebcamTest : Subsystem{
     private lateinit var webcam : OpenCvCamera
@@ -17,9 +18,17 @@ class AutoWebcamTest : Subsystem{
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val webcamName = hardwareMap[WebcamName::class.java, "Webcam"]
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId)
-
         pipeline = PipelineTesting()
         webcam.setPipeline(pipeline)
+        webcam.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
+            override fun onOpened() {
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT)
+            }
+
+            override fun onError(errorCode: Int) {
+
+            }
+        })
 
     }
 
@@ -31,7 +40,6 @@ class AutoWebcamTest : Subsystem{
     }
 
     fun takePicture() {
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT)
         armpos = (pipeline.storedx/10)
     }
 

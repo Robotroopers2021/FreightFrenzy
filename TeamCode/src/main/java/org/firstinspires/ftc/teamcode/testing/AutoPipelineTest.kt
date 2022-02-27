@@ -28,7 +28,7 @@ class AutoPipelineTest : OpMode()  {
 
     override fun init() {
         drive = SampleMecanumDrive(hardwareMap)
-        webcam.takePicture()
+        webcam.init(hardwareMap)
     }
 
     override fun init_loop() {

@@ -23,11 +23,11 @@ class PipelineTesting : OpenCvPipeline() {
 
         Imgproc.cvtColor(autoMatrix, grayMatrix, Imgproc.COLOR_RGB2HSV)
 
-        for(i in 1..320 step -5) {
-            for(j in 120..240 step -5) {
-                val fmat = grayMatrix.submat(i, i+1, j, j+1)
+        for(i in 320 downTo 2 step 5) {
+            for(j in 240 downTo 120 step 5) {
+                val fmat = grayMatrix.submat(i-1, i+0, j-1, j+0)
                 val total = Core.mean(fmat).`val`[2]
-                if ( total >= 200) {
+                if (total >= 200) {
                     storedx = i
                     storedy = j
                     break
