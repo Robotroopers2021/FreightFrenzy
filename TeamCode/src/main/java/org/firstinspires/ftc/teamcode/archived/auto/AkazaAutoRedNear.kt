@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "AkazaBlueOp")
-class AkazaAutoBlueNear : OpMode()  {
+@Autonomous(preselectTeleOp = "AkazaRedOp")
+class AkazaAutoRedNear : OpMode()  {
 
     private var motionTimer = ElapsedTime()
 
@@ -62,13 +62,13 @@ class AkazaAutoBlueNear : OpMode()  {
         .onEnter {
             when (webcam.pipeline.cupState) {
                 Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajTop
+                    InitialDepositTrajBottom
                 )
                 Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
                     InitialDepositTrajMiddle
                 )
                 Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajBottom
+                    InitialDepositTrajTop
                 )
             }
         }
@@ -99,15 +99,15 @@ class AkazaAutoBlueNear : OpMode()  {
                 moveOuttakeToOpen()
             }
             .setReversed(false)
-        .lineToConstantHeading( Vector2d(-59.0, 57.0))
-        .addTemporalMarker {
-            DuckL.setPower( 0.25 )
-        }
-        .waitSeconds( 6.0 )
+            .lineToConstantHeading( Vector2d(-59.0, 57.0))
             .addTemporalMarker {
-            DuckL.setPower(0.0)
-        }
-        .lineToSplineHeading( Pose2d(-61.0, 33.0, Math.toRadians(0.0)))
+                DuckL.setPower( 0.25 )
+            }
+            .waitSeconds( 6.0 )
+            .addTemporalMarker {
+                DuckL.setPower(0.0)
+            }
+            .lineToSplineHeading( Pose2d(-61.0, 33.0, Math.toRadians(0.0)))
             .build()
 
 
