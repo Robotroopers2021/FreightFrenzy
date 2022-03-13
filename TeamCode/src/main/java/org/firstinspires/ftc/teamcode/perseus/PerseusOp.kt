@@ -57,6 +57,7 @@ class PerseusOp : OpMode(){
         arm = hardwareMap.get(DcMotor::class.java, "Arm")
         turret = hardwareMap.get(DcMotor::class.java, "Turret")
         duck = hardwareMap.get(DcMotor::class.java, "Duck")
+        intake = hardwareMap.get(DcMotor::class.java, "Intake")
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -66,6 +67,7 @@ class PerseusOp : OpMode(){
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         turret.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         duck.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        intake.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         fl.direction = DcMotorSimple.Direction.REVERSE
         bl.direction = DcMotorSimple.Direction.REVERSE

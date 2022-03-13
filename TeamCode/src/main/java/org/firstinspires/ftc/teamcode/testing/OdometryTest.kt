@@ -1,29 +1,12 @@
-package org.firstinspires.ftc.teamcode.archived.teleop
+package org.firstinspires.ftc.teamcode.testing
 
-import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.acmerobotics.roadrunner.control.PIDCoefficients
-import com.acmerobotics.roadrunner.control.PIDFController
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.robotcore.internal.system.Deadline
-import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
-import org.firstinspires.ftc.teamcode.util.GamepadUtil.dpad_up_pressed
-import org.firstinspires.ftc.teamcode.util.GamepadUtil.left_trigger_pressed
-import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
-import java.util.concurrent.TimeUnit
-import kotlin.math.cos
 import com.qualcomm.hardware.lynx.LynxModule
 
 
@@ -41,18 +24,20 @@ open class OdometryTest : OpMode() {
     lateinit var encoderLeft : DcMotor
     lateinit var encoderAux : DcMotor
 
-    lateinit var odoPose : Pose2d
+    var odoPose = Pose2d(0.0,0.0,0.0)
 
     var drive = 0.0
     var strafe = 0.0
     var rotate = 0.0
 
+    var TICKS_PER_INCH = 1892.3724
+
     //constants that define the geometry of the robot
-    var L = MathUtil.cmCalc(0.0)   //distance between encoderRight and encoderLeft in cm
+    var trackwidth = MathUtil.cmCalc(5.0)   //distance between encoderRight and encoderLeft in cm
     var B = MathUtil.cmCalc(0.0)   //distance between midpoint of encoderRight and encoderAux in cm
     var R = MathUtil.cmCalc(0.0)   //wheel radius in cm
     var N = 0.0                       //encoder ticks per revolution, Rev encoder
-    var cm_per_tick = 2.0 * Math.PI * R/N
+    var inches_per_tick = Math.PI * 2.3622/4000
 
     //odometry update variables
     var currentRightPos = 0.0
@@ -76,15 +61,15 @@ open class OdometryTest : OpMode() {
         val dn2 = currentRightPos - oldRightPos
         val dn3 = currentAuxPos - oldAuxPos
 
-        val dtheta = cm_per_tick * (dn1 - dn2) / L
-        val dx = cm_per_tick * (dn1 - dn2) / 2.0
-        val dy = cm_per_tick * (dn3 - (dn2 - dn1) * B / L)
+        val dtheta = inches_per_tick * (dn1 - dn2) / trackwidth
+        val dx = inches_per_tick * (dn1 - dn2) / 2.0
+        val dy = inches_per_tick * (dn3 - (dn2 - dn1) * B / trackwidth)
 
         val theta = odoPose.heading + (dtheta / 2.0)
         val robotx = dx * Math.cos(theta) - dy * Math.sin(theta)
         val roboty = dx * Math.sin(theta) + dy * Math.cos(theta)
         val roboth = dtheta
-        
+
 //         odoPose = Pose2d(robotx, roboty, roboth)
         val newX = odoPose.x + robotx
         val newY = odoPose.y + roboty
@@ -95,9 +80,9 @@ open class OdometryTest : OpMode() {
     }
 
     private fun driveControl() {
-        drive = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_y.toDouble()) * 0.85
-        strafe = MathUtil.cubicScaling(0.75, gamepad1.left_stick_x.toDouble()) * 0.85
-        rotate = gamepad1.right_stick_x.toDouble() * 0.65
+        drive = MathUtil.cubicScaling(0.75, gamepad1.left_stick_y.toDouble()) * 0.85
+        strafe = MathUtil.cubicScaling(0.75, -gamepad1.left_stick_x.toDouble()) * 0.85
+        rotate = -gamepad1.right_stick_x.toDouble() * 0.65
         fl.power = drive + strafe + rotate
         fr.power = drive - strafe - rotate
         bl.power = drive - strafe + rotate
@@ -108,7 +93,10 @@ open class OdometryTest : OpMode() {
     private fun telemetry() {
         telemetry.addData("Left", currentLeftPos)
         telemetry.addData("Right", currentRightPos)
-        telemetry.addData("Angle", currentAuxPos)
+        telemetry.addData("Aux", currentAuxPos)
+        telemetry.addData("x", odoPose.x)
+        telemetry.addData("y",odoPose.y)
+        telemetry.addData("heading", odoPose.heading)
     }
 
     override fun init() {
