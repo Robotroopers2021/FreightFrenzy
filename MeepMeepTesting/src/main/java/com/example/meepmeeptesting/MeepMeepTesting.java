@@ -25,36 +25,11 @@ public class MeepMeepTesting {
                 .setConstraints(70, 50, Math.toRadians(150), Math.toRadians(60), 13.25)
                 .setBotDimensions(12.0, 18.0)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(9.0, 62.0, Math.toRadians(90.0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(-38.0, -62.0, Math.toRadians(270.0)))
                                 .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
-                                .setReversed(false)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToSplineHeading(new Pose2d(40.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
-                                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
-                                .setReversed(false)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToSplineHeading(new Pose2d(45.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
-                                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
-                                .setReversed(false)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToSplineHeading(new Pose2d(50.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
-                                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
-                                .setReversed(false)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToSplineHeading(new Pose2d(55.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .setReversed(true)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
-                                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
-                                .setReversed(false)
-                                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                                .splineToSplineHeading(new Pose2d(45.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                                .splineToSplineHeading(new Pose2d(-30.0, -37.0, Math.toRadians(220.0)), Math.toRadians(55.0))
+                                .lineToConstantHeading(new Vector2d(-59.0, -57.0))
+                                .lineToSplineHeading(new Pose2d(-61.0, -36.0, Math.toRadians(0.0)))
 
 
 
@@ -88,7 +63,7 @@ public class MeepMeepTesting {
 //                                .setReversed(false)
 
 
-                .build())
-        .start();
+                                .build())
+                .start();
     }
 }

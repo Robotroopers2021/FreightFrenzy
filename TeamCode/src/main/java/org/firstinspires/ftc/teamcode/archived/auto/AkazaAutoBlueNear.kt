@@ -82,9 +82,9 @@ class AkazaAutoBlueNear : OpMode()  {
         outtakeServo.position = 0.78
         arm.init(hardwareMap)
 
-        InitialDepositTrajTop = drive.trajectorySequenceBuilder(Pose2d (-36.0, 60.0, Math.toRadians(90.0)))
+        InitialDepositTrajTop = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-21.0, 45.0, Math.toRadians(110.0)), Math.toRadians(325.0))
+            .splineToSplineHeading( Pose2d(-30.0, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
             .waitSeconds(1.0)
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
@@ -97,20 +97,20 @@ class AkazaAutoBlueNear : OpMode()  {
                 moveOuttakeToOpen()
             }
             .setReversed(false)
-        .lineToConstantHeading( Vector2d(-59.0, 57.0))
-        .addTemporalMarker {
-            DuckL.setPower( 0.25 )
-        }
-        .waitSeconds( 6.0 )
+            .lineToConstantHeading( Vector2d(-59.0, 57.0))
             .addTemporalMarker {
-            DuckL.setPower(0.0)
-        }
-        .lineToSplineHeading( Pose2d(-61.0, 33.0, Math.toRadians(0.0)))
+                DuckL.setPower( 0.25 )
+            }
+            .waitSeconds( 6.0 )
+            .addTemporalMarker {
+                DuckL.setPower(0.0)
+            }
+            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
             .build()
 
-        InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(Pose2d (-36.0, 60.0, Math.toRadians(90.0)))
+        InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-21.0, 45.0, Math.toRadians(110.0)), Math.toRadians(325.0))
+            .splineToSplineHeading( Pose2d(-30.0, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
             .addTemporalMarker(0.1) {
                 arm.moveArmToMidPos()
             }
@@ -130,12 +130,12 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker {
                 DuckL.setPower(0.0)
             }
-            .lineToSplineHeading( Pose2d(-61.0, 33.0, Math.toRadians(0.0)))
+            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
             .build()
 
-        InitialDepositTrajBottom = drive.trajectorySequenceBuilder(Pose2d (-36.0, 60.0, Math.toRadians(90.0)))
+        InitialDepositTrajBottom = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-21.0, 45.0, Math.toRadians(110.0)), Math.toRadians(325.0))
+            .splineToSplineHeading( Pose2d(-30.0, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
             .addTemporalMarker(0.1) {
                 arm.autoBottomPos()
             }
@@ -155,11 +155,11 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker {
                 DuckL.setPower(0.0)
             }
-            .lineToSplineHeading( Pose2d(-61.0, 33.0, Math.toRadians(0.0)))
+            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
             .build()
 
 
-        drive.poseEstimate = Pose2d(-36.0, 60.0, Math.toRadians(90.0))
+        drive.poseEstimate = Pose2d(-38.0, 62.0, Math.toRadians(90.0))
 
     }
 
