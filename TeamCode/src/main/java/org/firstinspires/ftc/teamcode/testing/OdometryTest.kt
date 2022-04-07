@@ -24,6 +24,10 @@ open class OdometryTest : OpMode() {
     lateinit var encoderLeft : DcMotor
     lateinit var encoderAux : DcMotor
 
+    var rightOffset = 0.0
+    var leftOffset = 0.0
+    var auxOffset = 0.0
+
     var odoPose = Pose2d(0.0,0.0,0.0)
 
     var drive = 0.0
@@ -33,9 +37,9 @@ open class OdometryTest : OpMode() {
     var TICKS_PER_INCH = 1892.3724
 
     //constants that define the geometry of the robot
-    var trackwidth = MathUtil.cmCalc(5.0)   //distance between encoderRight and encoderLeft in cm
-    var B = MathUtil.cmCalc(0.0)   //distance between midpoint of encoderRight and encoderAux in cm
-    var R = MathUtil.cmCalc(0.0)   //wheel radius in cm
+    var trackwidth = MathUtil.cmCalc(7.1)   //distance between encoderRight and encoderLeft in cm
+    var B = MathUtil.cmCalc(0.0)   //distance between midpoint of encoderRight and mecanum wheel in cm
+    var R = MathUtil.cmCalc(1.25)   //wheel radius in cm
     var N = 0.0                       //encoder ticks per revolution, Rev encoder
     var inches_per_tick = Math.PI * 2.3622/4000
 
@@ -53,9 +57,9 @@ open class OdometryTest : OpMode() {
         oldLeftPos = currentLeftPos
         oldAuxPos   = currentAuxPos
 
-        currentRightPos = (-encoderRight.currentPosition).toDouble()
-        currentLeftPos = (-encoderLeft.currentPosition).toDouble()
-        currentAuxPos = encoderAux.currentPosition.toDouble()
+        currentRightPos = (-encoderRight.currentPosition).toDouble() - rightOffset
+        currentLeftPos = (-encoderLeft.currentPosition).toDouble() - leftOffset
+        currentAuxPos = encoderAux.currentPosition.toDouble() - auxOffset
 
         val dn1  = currentLeftPos - oldLeftPos
         val dn2 = currentRightPos - oldRightPos
@@ -97,6 +101,12 @@ open class OdometryTest : OpMode() {
         telemetry.addData("x", odoPose.x)
         telemetry.addData("y",odoPose.y)
         telemetry.addData("heading", odoPose.heading)
+        telemetry.addData("rightOffset", rightOffset)
+        telemetry.addData("leftOffset", leftOffset)
+        telemetry.addData("auxOffset", auxOffset)
+        telemetry.addData("fr", fr.currentPosition)
+        telemetry.addData("fl", fl.currentPosition)
+        telemetry.addData("br", br.currentPosition)
     }
 
     override fun init() {
@@ -126,6 +136,10 @@ open class OdometryTest : OpMode() {
         encoderRight = fr
         encoderLeft = fl
         encoderAux = br
+
+        rightOffset = encoderRight.currentPosition.toDouble()
+        leftOffset = encoderLeft.currentPosition.toDouble()
+        auxOffset = encoderAux.currentPosition.toDouble()
 
         telemetry.addData("STATUS", "Initialized")
         telemetry.update()

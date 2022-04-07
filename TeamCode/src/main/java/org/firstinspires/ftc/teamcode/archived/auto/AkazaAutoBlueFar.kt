@@ -51,6 +51,10 @@ class AkazaAutoBlueFar : OpMode() {
 
     private lateinit var CycleTwoDepsoitTraj : TrajectorySequence
 
+    private lateinit var CycleThreeWarehouseTraj : TrajectorySequence
+
+    private lateinit var CycleThreeDepsoitTraj : TrajectorySequence
+
     private lateinit var ParkAtEnd :TrajectorySequence
 
 
@@ -92,8 +96,9 @@ class AkazaAutoBlueFar : OpMode() {
         CYCLE_ONE_DEPOSIT,
         CYCLE_TWO_WAREHOUSE,
         CYCLE_TWO_DEPOSIT,
-        PARK_AT_END,
-
+        CYCLE_THREE_WAREHOUSE,
+        CYCLE_THREE_DEPOSIT,
+        PARK_AT_END
     }
 
 
@@ -132,6 +137,19 @@ class AkazaAutoBlueFar : OpMode() {
         .state(InitialDepositStates.CYCLE_TWO_DEPOSIT)
         .onEnter{
             drive.followTrajectorySequenceAsync(CycleTwoDepsoitTraj)
+            stopIntake()
+        }
+        .transition{!drive.isBusy}
+        .onExit (motionTimer::reset)
+        .state(InitialDepositStates.CYCLE_THREE_WAREHOUSE)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(CycleThreeWarehouseTraj)
+            arm.moveArmToBottomPos()
+        }
+        .transition { !drive.isBusy || (value < 3 && motionTimer.seconds() > 2.0)}
+        .state(InitialDepositStates.CYCLE_THREE_DEPOSIT)
+        .onEnter{
+            drive.followTrajectorySequenceAsync(CycleThreeDepsoitTraj)
             stopIntake()
         }
         .transition{!drive.isBusy}
@@ -175,7 +193,7 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(0.2) {
                 arm.moveArmToMidPos()
             }
-            .addTemporalMarker(1.5) {
+            .addTemporalMarker(1.0) {
                 moveOuttakeToOut()
             }
             .addTemporalMarker(2.25) {
@@ -202,14 +220,14 @@ class AkazaAutoBlueFar : OpMode() {
         CycleOneWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
             .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(49.5, 65.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(2.5) {
+            .addTemporalMarker(1.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
@@ -218,22 +236,22 @@ class AkazaAutoBlueFar : OpMode() {
         CycleOneBottomWarehouseTraj = drive.trajectorySequenceBuilder(Pose2d(-11.0, 48.0 , Math.toRadians(90.0)))
             .setReversed(false)
             .splineToSplineHeading(Pose2d(40.0, 65.75, Math.toRadians(0.0)), Math.toRadians(0.0))
-            .splineToConstantHeading(Vector2d(49.5, 67.75), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(49.5, 65.75), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
             .addTemporalMarker( 0.75) {
                 arm.moveArmToBottomPos()
             }
-            .addTemporalMarker(2.5) {
+            .addTemporalMarker(1.5) {
                 intakeFreight()
             }
             .waitSeconds(0.5)
             .build()
 
-        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, 67.75, Math.toRadians(0.0)))
+        CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, 65.75, Math.toRadians(0.0)))
             .setReversed(true)
-            .addTemporalMarker(0.1) {
+            .addTemporalMarker(0.75) {
                 getFreightOut()
             }
             .addTemporalMarker(1.1) {
@@ -250,7 +268,7 @@ class AkazaAutoBlueFar : OpMode() {
             .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .splineToConstantHeading( Vector2d(-11.0, 41.0 ), Math.toRadians(270.0))
             .setReversed(false)
-            .splineToConstantHeading( Vector2d(-11.0, 45.0), Math.toRadians(90.0))
+            .splineToConstantHeading( Vector2d(-11.0, 50.0), Math.toRadians(90.0))
             .build()
 
         CycleTwoWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
@@ -269,10 +287,13 @@ class AkazaAutoBlueFar : OpMode() {
         CycleTwoDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(52.0, 69.75, Math.toRadians(0.0)))
             .setReversed(true)
             .addTemporalMarker(0.1) {
+                intakeFreight()
+            }
+            .addTemporalMarker(1.0) {
                 moveOuttakeToLock()
                 getFreightOut()
             }
-            .addTemporalMarker(1.1) {
+            .addTemporalMarker(1.5) {
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -283,18 +304,51 @@ class AkazaAutoBlueFar : OpMode() {
                 moveOuttakeToOut()
             }
             .splineToConstantHeading( Vector2d(40.0, 69.75), Math.toRadians(180.0))
-            .splineToSplineHeading( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.25 , Math.toRadians(90.0)), Math.toRadians(270.0))
             .build()
+
+        CycleThreeWarehouseTraj = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0, Math.toRadians(90.0)))
+            .setReversed(false)
+            .splineToSplineHeading(Pose2d(40.0, 73.25, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToConstantHeading(Vector2d(55.0, 66.75), Math.toRadians(340.0))
+            .addTemporalMarker(0.1) {
+                moveOuttakeToOpen()
+            }
+            .addTemporalMarker(1.5) {
+                intakeFreight()
+            }
+            .waitSeconds(1.0)
+            .build()
+
+        CycleThreeDepsoitTraj = drive.trajectorySequenceBuilder(( Pose2d(55.0, 66.75, Math.toRadians(0.0))))
+            .setReversed(true)
+            .addTemporalMarker(0.75) {
+                moveOuttakeToLock()
+                getFreightOut()
+            }
+            .addTemporalMarker(1.25) {
+                moveOuttakeToLock()
+                stopIntake()
+            }
+            .addTemporalMarker(1.5) {
+                arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(2.75) {
+                moveOuttakeToOut()
+            }
+            .splineToConstantHeading( Vector2d(40.0, 70.25), Math.toRadians(180.0))
+            .splineToSplineHeading( Pose2d(-11.0, 45.25 , Math.toRadians(90.0)), Math.toRadians(270.0))
+            .build()
+
 
         ParkAtEnd = drive.trajectorySequenceBuilder( Pose2d(-11.0, 45.0 , Math.toRadians(90.0)))
             .setReversed(false)
-            .splineToSplineHeading(Pose2d(40.0, 70.75, Math.toRadians(0.0)), Math.toRadians(0.0))
+            .splineToSplineHeading(Pose2d(43.0, 75.75, Math.toRadians(0.0)), Math.toRadians(0.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToOpen()
             }
             .waitSeconds(1.0)
             .build()
-
 
         drive.poseEstimate = startPose
 

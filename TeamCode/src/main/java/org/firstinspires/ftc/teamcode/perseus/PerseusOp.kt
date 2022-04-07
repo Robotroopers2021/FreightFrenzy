@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.util.math.MathUtil
 
 @Config
 @TeleOp
-class PerseusOp : OpMode(){
+class erseusOp : OpMode(){
     //drive train motors
     lateinit var fl : DcMotor
     lateinit var fr : DcMotor

@@ -30,8 +30,36 @@ public class GOTWBlueFar extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(15, 56, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
-        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(new Pose2d(15, 56, Math.toRadians(0)))
-                .lineToConstantHeading(new Vector2d(41, 56))
+        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(new Pose2d(9.0, 62.0, Math.toRadians(90.0)))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(40.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(45.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(50.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(55.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToSplineHeading(new Pose2d(3.5, 37.5, Math.toRadians(50.0)), Math.toRadians(230.0))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(20.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .splineToSplineHeading(new Pose2d(45.5, 63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
                 .build();
         waitForStart();
         drive.followTrajectorySequence(traj1);
