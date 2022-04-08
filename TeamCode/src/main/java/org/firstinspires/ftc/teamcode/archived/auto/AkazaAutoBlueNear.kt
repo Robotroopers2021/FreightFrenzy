@@ -84,7 +84,7 @@ class AkazaAutoBlueNear : OpMode()  {
 
         InitialDepositTrajTop = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-30.0, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
+            .splineToSplineHeading( Pose2d(-27.5, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
             .waitSeconds(1.0)
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
@@ -92,12 +92,12 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker(2.1) {
                 moveOuttakeToOut()
             }
-            .addTemporalMarker(3.0) {
+            .addTemporalMarker(2.5) {
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
             }
             .setReversed(false)
-            .lineToConstantHeading( Vector2d(-59.0, 57.0))
+            .splineToSplineHeading( Pose2d(-59.0, 60.0, Math.toRadians(100.0)), Math.toRadians(100.0))
             .addTemporalMarker {
                 DuckL.setPower( 0.25 )
             }
@@ -117,13 +117,12 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
-            .addTemporalMarker(3.0) {
+            .addTemporalMarker(2.5) {
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
             }
             .setReversed(false)
-            .lineToConstantHeading( Vector2d(-59.0, 57.0))
-            .addTemporalMarker {
+            .splineToSplineHeading( Pose2d(-59.0, 60.0, Math.toRadians(100.0)), Math.toRadians(100.0))            .addTemporalMarker {
                 DuckL.setPower( 0.25 )
             }
             .waitSeconds( 6.0 )
@@ -142,13 +141,12 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker(1.5) {
                 moveOuttakeToOut()
             }
-            .addTemporalMarker(3.0) {
+            .addTemporalMarker(2.5) {
                 arm.moveArmToBottomPos()
                 moveOuttakeToOpen()
             }
             .setReversed(false)
-            .lineToConstantHeading( Vector2d(-59.0, 57.0))
-            .addTemporalMarker {
+            .splineToSplineHeading( Pose2d(-59.0, 60.0, Math.toRadians(100.0)), Math.toRadians(100.0))            .addTemporalMarker {
                 DuckL.setPower( 0.25 )
             }
             .waitSeconds( 6.0 )

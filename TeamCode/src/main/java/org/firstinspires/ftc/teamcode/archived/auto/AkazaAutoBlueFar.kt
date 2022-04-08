@@ -261,6 +261,9 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
@@ -300,6 +303,9 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
@@ -332,6 +338,9 @@ class AkazaAutoBlueFar : OpMode() {
             }
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
             }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()

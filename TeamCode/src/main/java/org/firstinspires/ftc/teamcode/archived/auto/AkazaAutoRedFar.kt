@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.vision.PipelineRed
 import org.firstinspires.ftc.teamcode.vision.WebcamRed
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "AkazaBlueOp")
+@Autonomous(preselectTeleOp = "AkazaRedOp")
 class AkazaAutoRedFar : OpMode() {
 
     private var startPose = Pose2d(11.0, -57.25, Math.toRadians(270.0))
@@ -263,6 +263,9 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
@@ -302,6 +305,9 @@ class AkazaAutoRedFar : OpMode() {
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
             }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
+            }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
             }
@@ -334,6 +340,9 @@ class AkazaAutoRedFar : OpMode() {
             }
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(2.25) {
+                moveOuttakeToOpen()
             }
             .addTemporalMarker(2.75) {
                 moveOuttakeToOut()
