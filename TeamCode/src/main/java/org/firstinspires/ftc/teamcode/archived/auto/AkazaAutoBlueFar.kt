@@ -251,11 +251,16 @@ class AkazaAutoBlueFar : OpMode() {
 
         CycleOneDepsoitTraj = drive.trajectorySequenceBuilder(Pose2d(49.5, 65.75, Math.toRadians(0.0)))
             .setReversed(true)
-            .addTemporalMarker(0.75) {
+            .addTemporalMarker(0.1) {
+                intakeFreight()
+            }
+            .addTemporalMarker(0.5) {
                 getFreightOut()
             }
-            .addTemporalMarker(1.1) {
+            .addTemporalMarker(0.75) {
                 moveOuttakeToLock()
+            }
+            .addTemporalMarker(1.1) {
                 stopIntake()
             }
             .addTemporalMarker(1.5) {
@@ -292,9 +297,11 @@ class AkazaAutoBlueFar : OpMode() {
             .addTemporalMarker(0.1) {
                 intakeFreight()
             }
+            .addTemporalMarker(0.5) {
+                getFreightOut()
+            }
             .addTemporalMarker(1.0) {
                 moveOuttakeToLock()
-                getFreightOut()
             }
             .addTemporalMarker(1.5) {
                 moveOuttakeToLock()
@@ -328,9 +335,14 @@ class AkazaAutoBlueFar : OpMode() {
 
         CycleThreeDepsoitTraj = drive.trajectorySequenceBuilder(( Pose2d(55.0, 66.75, Math.toRadians(0.0))))
             .setReversed(true)
+            .addTemporalMarker(0.1) {
+                intakeFreight()
+            }
+            .addTemporalMarker(0.5) {
+                getFreightOut()
+            }
             .addTemporalMarker(0.75) {
                 moveOuttakeToLock()
-                getFreightOut()
             }
             .addTemporalMarker(1.25) {
                 moveOuttakeToLock()

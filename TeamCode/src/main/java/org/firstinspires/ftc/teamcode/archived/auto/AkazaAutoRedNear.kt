@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.vision.PipelineRed
 import org.firstinspires.ftc.teamcode.vision.WebcamRed
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
-@Autonomous(preselectTeleOp = "AkazaBlueOp")
+@Autonomous(preselectTeleOp = "AkazaRedOp")
 class AkazaAutoRedNear : OpMode()  {
 
     private var motionTimer = ElapsedTime()
@@ -61,15 +61,9 @@ class AkazaAutoRedNear : OpMode()  {
         .state(DuckSpinnerStates.DUCK_SPINNER)
         .onEnter {
             when (webcam.pipeline.cupState) {
-                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajTop
-                )
-                PipelineRed.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajMiddle
-                )
-                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
-                    InitialDepositTrajBottom
-                )
+                PipelineRed.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(InitialDepositTrajBottom)
+                PipelineRed.CupStates.CENTER -> drive.followTrajectorySequenceAsync(InitialDepositTrajMiddle)
+                PipelineRed.CupStates.LEFT -> drive.followTrajectorySequenceAsync(InitialDepositTrajTop)
             }
         }
         .transition{!drive.isBusy}

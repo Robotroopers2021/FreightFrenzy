@@ -292,10 +292,10 @@ open class AkazaBlueOp : OpMode() {
             doAutoDisplay()
         }
         if ((outtakeServo.position > 0.75 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
-            pattern = BlinkinPattern.RAINBOW_FOREST_PALETTE
+            pattern = BlinkinPattern.GREEN
             blinkinLedDriver.setPattern(pattern)
         } else if((outtakeServo.position < 0.75 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
-            pattern = BlinkinPattern.RAINBOW_LAVA_PALETTE
+            pattern = BlinkinPattern.RED
             blinkinLedDriver.setPattern(pattern)
         }
     }
@@ -321,7 +321,7 @@ open class AkazaBlueOp : OpMode() {
         displayKind = DisplayKind.AUTO
 
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
-        pattern = BlinkinPattern.RAINBOW_LAVA_PALETTE
+        pattern = BlinkinPattern.RED
         blinkinLedDriver.setPattern(pattern)
 
         ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)
