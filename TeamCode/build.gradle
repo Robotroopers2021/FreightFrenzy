@@ -27,6 +27,7 @@ dependencies {
 
 dependencies {
     implementation 'org.openftc:easyopencv:1.5.1'
+    implementation 'com.github.NoahBres:MeepMeep:2.0.0'
 }
 dependencies {
     //NOTE: this is the correct version, the below screenshot is outdated

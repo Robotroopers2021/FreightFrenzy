@@ -10,6 +10,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
@@ -36,6 +37,7 @@ open class AkazaRedOp : OpMode() {
     lateinit var duck: DcMotor
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
+    lateinit var capServo : CRServo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
     lateinit var blinkinLedDriver: RevBlinkinLedDriver
@@ -144,6 +146,10 @@ open class AkazaRedOp : OpMode() {
         intakeMotor.power = -1.0
     }
 
+    private fun reverseIntake(){
+        intakeMotor.power = 1.0
+    }
+
     private fun openIndexer() {
         outtakeServo.position = 0.90
     }
@@ -154,31 +160,38 @@ open class AkazaRedOp : OpMode() {
 
     private enum class IntakeSequenceStates {
         INTAKE_OUTTAKE_RESET,
-        INTAKE,
         WAIT,
-        STOP_AND_LOCK
+        STOP_AND_LOCK,
+        INTAKE_REVERSE,
+        INTAKE_OFF
     }
 
     private val intakeSequence = StateMachineBuilder<IntakeSequenceStates>()
         .state(IntakeSequenceStates.INTAKE_OUTTAKE_RESET)
         .onEnter {
             openIndexer()
-        }
-        .transitionTimed(0.15)
-        .state(IntakeSequenceStates.INTAKE)
-        .onEnter {
             startIntake()
         }
         .transition {
-            value <= 3.0
+            value <= 75.0
         }
         .state(IntakeSequenceStates.WAIT)
         .onEnter{}
-        .transitionTimed(0.20)
+        .transitionTimed(0.05)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()
             lockIndexer()
+        }
+        .transitionTimed(0.01)
+        .state(IntakeSequenceStates.INTAKE_REVERSE)
+        .onEnter{
+            reverseIntake()
+        }
+        .transitionTimed(0.5)
+        .state(IntakeSequenceStates.INTAKE_OFF)
+        .onEnter{
+            stopIntake()
         }
 
         .build()
@@ -192,7 +205,7 @@ open class AkazaRedOp : OpMode() {
             intakeMotor.power = 0.0
         }
 
-        if (gamepad1.left_trigger_pressed && !intakeSequence.running && value > 3) {
+        if (gamepad1.left_trigger_pressed && !intakeSequence.running && value > 75.0) {
             intakeSequence.start()
         }
 
@@ -205,6 +218,7 @@ open class AkazaRedOp : OpMode() {
             intakeSequence.update()
         }
     }
+
 
     private enum class RedDuckSpinnerStates {
         RUN_SLOW,
@@ -267,12 +281,8 @@ open class AkazaRedOp : OpMode() {
         }
     }
 
-    private fun distanceSensorControl() {
-        if (value <= 3) {
-            gamepad1.rumble(750)
-        } else {
-            gamepad1.stopRumble()
-        }
+    private fun capControl() {
+        capServo.power = -gamepad2.left_stick_y.toDouble() * 0.25
     }
 
     private fun telemetry() {
@@ -292,16 +302,16 @@ open class AkazaRedOp : OpMode() {
             doAutoDisplay()
         }
         if ((outtakeServo.position > 0.75 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
-            pattern = BlinkinPattern.GREEN
+            pattern = BlinkinPattern.DARK_GREEN
             blinkinLedDriver.setPattern(pattern)
         } else if((outtakeServo.position < 0.75 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
-            pattern = BlinkinPattern.RED
+            pattern = BlinkinPattern.DARK_RED
             blinkinLedDriver.setPattern(pattern)
         }
     }
 
     private fun getValue() {
-        value = distanceSensor.getDistance(DistanceUnit.INCH)
+        value = distanceSensor.getDistance(DistanceUnit.MM)
     }
 
     override fun init() {
@@ -317,11 +327,12 @@ open class AkazaRedOp : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
+        capServo = hardwareMap.get(CRServo::class.java, "Cap") as CRServo
 
         displayKind = DisplayKind.AUTO
 
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver::class.java, "blinkin")
-        pattern = BlinkinPattern.RED
+        pattern = BlinkinPattern.DARK_RED
         blinkinLedDriver.setPattern(pattern)
 
         ledCycleDeadline = Deadline(LED_PERIOD.toLong(), TimeUnit.SECONDS)
@@ -338,7 +349,7 @@ open class AkazaRedOp : OpMode() {
 
         arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo.position = 0.90
         armController.reset()
@@ -355,11 +366,11 @@ open class AkazaRedOp : OpMode() {
         armControl()
         intakeControl()
         outtakeControl()
-        //distanceSensorControl()
         redDuckSpinnerSequenceStart()
         BlinkBlink()
         getValue()
         telemetry()
+        capControl()
     }
 
     companion object {
@@ -368,7 +379,6 @@ open class AkazaRedOp : OpMode() {
         @JvmStatic var kd = 0.00075
         @JvmStatic var targetAngle = 0.0
         @JvmStatic var kcos = 0.275
-        @JvmStatic var kv = 0.0
         @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 172.0

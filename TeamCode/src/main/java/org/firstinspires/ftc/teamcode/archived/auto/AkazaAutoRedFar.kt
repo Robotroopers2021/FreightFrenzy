@@ -276,7 +276,7 @@ class AkazaAutoRedFar : OpMode() {
             }
             .splineToConstantHeading( Vector2d(40.0, -67.75), Math.toRadians(180.0))
             .splineToSplineHeading( Pose2d(-11.0, -45.0 , Math.toRadians(270.0)), Math.toRadians(90.0))
-            .splineToConstantHeading( Vector2d(-11.0, -41.0 ), Math.toRadians(90.0))
+            .splineToConstantHeading( Vector2d(-11.0, -42.0 ), Math.toRadians(90.0))
             .setReversed(false)
             .splineToConstantHeading( Vector2d(-11.0, -50.0), Math.toRadians(270.0))
             .build()
