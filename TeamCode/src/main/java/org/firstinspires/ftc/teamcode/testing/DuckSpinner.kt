@@ -9,6 +9,7 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -28,6 +29,7 @@ import kotlin.math.cos
 
 @Config
 @TeleOp
+@Disabled
 open class DuckSpinner : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor

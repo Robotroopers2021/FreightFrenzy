@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous(preselectTeleOp = "AkazaBlueOp")
+@Disabled
 class AutoTesting : OpMode() {
 
     private var startPose = Pose2d(11.0, 57.25, Math.toRadians(90.0))

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.perseus
 
 import com.acmerobotics.dashboard.config.Config
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.util.math.MathUtil
 
 @Config
 @TeleOp
+@Disabled
 class erseusOp : OpMode(){
     //drive train motors
     lateinit var fl : DcMotor

@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import com.qualcomm.hardware.lynx.LynxModule
-
-
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 
 
 @Config
 @TeleOp
+@Disabled
 open class OdometryTest : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
