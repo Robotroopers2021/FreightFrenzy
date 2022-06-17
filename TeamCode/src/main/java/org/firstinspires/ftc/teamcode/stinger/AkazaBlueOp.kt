@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.archived.teleop
+package org.firstinspires.ftc.teamcode.stinger
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
@@ -27,7 +27,7 @@ import kotlin.math.cos
 
 @Config
 @TeleOp
-open class AkazaRedOp : OpMode() {
+open class AkazaBlueOp : OpMode() {
     lateinit var fl: DcMotor
     lateinit var fr: DcMotor
     lateinit var bl: DcMotor
@@ -91,7 +91,8 @@ open class AkazaRedOp : OpMode() {
             }
             gamepad1.right_bumper -> {
                 moveArmToDegree(restAngle)
-                outtakeServo.position = 0.90
+                lockIndexer()
+                stopIntake()
             }
             gamepad1.a -> {
                 moveArmToDegree(sharedAngle)
@@ -220,51 +221,50 @@ open class AkazaRedOp : OpMode() {
     }
 
 
-    private enum class RedDuckSpinnerStates {
+    private enum class DuckSpinnerStates {
         RUN_SLOW,
         RUN_FAST,
         YEET,
         STOP
     }
 
-    private val redDuckSpinnerSequence = StateMachineBuilder<RedDuckSpinnerStates>()
-        .state(RedDuckSpinnerStates.RUN_SLOW)
+    private val duckSpinnerSequence = StateMachineBuilder<DuckSpinnerStates>()
+        .state(DuckSpinnerStates.RUN_SLOW)
         .onEnter {
-            duck.power = -0.25
-        }
-        .transitionTimed(0.45)
-        .state(RedDuckSpinnerStates.RUN_FAST)
-        .onEnter {
-            duck.power = -0.35
+            duck.power = 0.25
         }
         .transitionTimed(0.5)
-        .state(RedDuckSpinnerStates.YEET)
+        .state(DuckSpinnerStates.RUN_FAST)
         .onEnter {
-            duck.power = -0.85
+            duck.power = 0.35
+        }
+        .transitionTimed(0.5)
+        .state(DuckSpinnerStates.YEET)
+        .onEnter{
+            duck.power = 0.85
         }
         .transitionTimed(0.4)
-        .state(RedDuckSpinnerStates.STOP)
-        .onEnter{
+        .state(DuckSpinnerStates.STOP)
+        .onEnter {
             duck.power = 0.0
         }
+
         .build()
 
-
-
-    private fun redDuckSpinnerSequenceStart() {
-        if (gamepad1.dpad_up_pressed && !redDuckSpinnerSequence.running) {
-            redDuckSpinnerSequence.start()
+    private fun duckSpinnerSequenceStart() {
+        if (gamepad1.dpad_up_pressed && !duckSpinnerSequence.running) {
+            duckSpinnerSequence.start()
         }
-        if (!gamepad1.dpad_up_pressed && redDuckSpinnerSequence.running) {
-            redDuckSpinnerSequence.stop()
-            redDuckSpinnerSequence.reset()
+        if (!gamepad1.dpad_up_pressed && duckSpinnerSequence.running) {
+            duckSpinnerSequence.stop()
+            duckSpinnerSequence.reset()
             motionTimer.reset()
         }
         if (!gamepad1.dpad_up_pressed) {
             duck.power = 0.0
         }
-        if (redDuckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
-            redDuckSpinnerSequence.update()
+        if (duckSpinnerSequence.running && gamepad1.dpad_up_pressed) {
+            duckSpinnerSequence.update()
         }
 
     }
@@ -366,7 +366,7 @@ open class AkazaRedOp : OpMode() {
         armControl()
         intakeControl()
         outtakeControl()
-        redDuckSpinnerSequenceStart()
+        duckSpinnerSequenceStart()
         BlinkBlink()
         getValue()
         telemetry()
