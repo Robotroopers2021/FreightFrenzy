@@ -25,36 +25,37 @@ object MeepMeep {
                     SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                     .setReversed(false)
                         //first half of warehouse one
-                    .splineToSplineHeading( Pose2d(17.0, 64.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
+                    .splineToSplineHeading( Pose2d(17.0, 66.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
                         //second half of warehouse one
-                    .splineToConstantHeading( Vector2d(42.0, 64.0), Math.toRadians(0.0),
+                    .splineToConstantHeading( Vector2d(42.0, 66.0), Math.toRadians(0.0),
                         SampleMecanumDrive.getVelocityConstraint(40.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(20.0))
                     .setReversed(true)
                         //exiting warehouse one
-                    .splineToConstantHeading( Vector2d(17.0, 64.0), -Math.toRadians(180.0),
+                    .splineToConstantHeading( Vector2d(10.0, 66.0), -Math.toRadians(180.0),
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         //deposit one
-                    .splineTo( Vector2d(-5.0, 44.2), Math.toRadians(260.0),
+                    .lineToSplineHeading( Pose2d(-5.0, 44.2, Math.toRadians(85.0)),
                     SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                     SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                     .setReversed(false)
                         //first half of warehouse two
-                    .splineToSplineHeading( Pose2d(17.0, 64.0, Math.toRadians(360.0)), Math.toRadians(360.0),
+                    .splineToSplineHeading( Pose2d(17.0, 66.0, Math.toRadians(360.0)), Math.toRadians(360.0),
                     SampleMecanumDrive.getVelocityConstraint(45.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                     SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                     )
                         //second half of warehouse two
-                    .splineToConstantHeading( Vector2d(48.0, 64.0), Math.toRadians(0.0),
+                    .splineToConstantHeading( Vector2d(48.0, 66.0), Math.toRadians(0.0),
                         SampleMecanumDrive.getVelocityConstraint(40.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(20.0))
                     .setReversed(true)
                         //exiting warehouse two
-                    .splineToConstantHeading( Vector2d(17.0, 64.0), -Math.toRadians(180.0),
+                    .splineToConstantHeading( Vector2d(17.0, 66.0), -Math.toRadians(180.0),
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         //deposit two
+                    .lineToConstantHeading(Vector2d(13.0, 64.0))
                     .splineTo( Vector2d(-5.0, 44.2), Math.toRadians(260.0),
                         SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
