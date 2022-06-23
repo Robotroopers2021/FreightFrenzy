@@ -32,7 +32,7 @@ class StingerAuto : OpMode() {
     private lateinit var depositFour : TrajectorySequence
     private lateinit var finalPark : TrajectorySequence
 
-    val startPose = Pose2d(-38.0, 62.0, Math.toRadians(90.0))
+    private var startPose = Pose2d(11.0, 63.0, Math.toRadians(90.0))
 
     private var value = 0.0
 
@@ -165,6 +165,7 @@ class StingerAuto : OpMode() {
     override fun init() {
         drive = SampleMecanumDrive(hardwareMap)
         arm.init(hardwareMap)
+        webcam.init(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
         outtakeServo.position = 0.78
         intakeMotor = hardwareMap.dcMotor["Intake"]
@@ -179,6 +180,34 @@ class StingerAuto : OpMode() {
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.2) {
                 arm.moveArmToTopPos()
+            }
+            .addTemporalMarker(1.0) {
+                moveOuttakeToOut()
+            }
+            .build()
+
+        initialDepositMid = drive.trajectorySequenceBuilder(startPose)
+            .setReversed(true)
+            //initial deposit
+            .lineToLinearHeading( Pose2d(-5.0, 49.0, -Math.toRadians(295.0)),
+                SampleMecanumDrive.getVelocityConstraint(45.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+            .addTemporalMarker(0.05) {
+                arm.moveArmToMidPos()
+            }
+            .addTemporalMarker(1.0) {
+                moveOuttakeToOut()
+            }
+            .build()
+
+        initialDepositBottom = drive.trajectorySequenceBuilder(startPose)
+            .setReversed(true)
+            //initial deposit
+            .lineToLinearHeading( Pose2d(-5.0, 49.0, -Math.toRadians(295.0)),
+                SampleMecanumDrive.getVelocityConstraint(45.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+            .addTemporalMarker(0.05) {
+                arm.autoBottomPos()
             }
             .addTemporalMarker(1.0) {
                 moveOuttakeToOut()
@@ -468,8 +497,20 @@ class StingerAuto : OpMode() {
         drive.poseEstimate = startPose
     }
 
+    override fun init_loop() {
+        super.init_loop()
+        webcam.update()
+        telemetry.addData("Cup State", webcam.pipeline.cupState)
+        telemetry.addData("Left Total", webcam.pipeline.LeftTotal)
+        telemetry.addData("Center Total", webcam.pipeline.CenterTotal)
+        telemetry.addData("Right Total", webcam.pipeline.RightTotal)
+        telemetry.update()
+
+    }
+
     override fun start() {
         super.start()
+        webcam.reset()
         initialDepositStateMachine.start()
     }
 
@@ -478,5 +519,7 @@ class StingerAuto : OpMode() {
         value = distanceSensor.getDistance(DistanceUnit.MM)
         drive.update()
         arm.update()
+        telemetry.addData("Cup State", webcam.pipeline.cupState)
+        telemetry.update()
     }
 }

@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.archived.auto
+package org.firstinspires.ftc.teamcode.stinger
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -11,10 +10,8 @@ import org.firstinspires.ftc.teamcode.archived.teleop.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.vision.Pipeline
 import org.firstinspires.ftc.teamcode.vision.PipelineRed
 import org.firstinspires.ftc.teamcode.vision.WebcamRed
-import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous(preselectTeleOp = "AkazaRedOp")
 class AkazaAutoRedNear : OpMode()  {
