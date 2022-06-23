@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.util.GamepadUtil.right_trigger_pressed
 import org.firstinspires.ftc.teamcode.util.math.MathUtil
 import java.util.concurrent.TimeUnit
 import kotlin.math.cos
+import kotlin.math.pow
 
 @Config
 @TeleOp
@@ -37,7 +38,7 @@ open class AkazaBlueOp : OpMode() {
     lateinit var duck: DcMotor
     lateinit var arm: DcMotor
     lateinit var outtakeServo: Servo
-    lateinit var capServo : CRServo
+    lateinit var capServo : Servo
     lateinit var distanceSensor: Rev2mDistanceSensor
 
     lateinit var blinkinLedDriver: RevBlinkinLedDriver
@@ -45,6 +46,10 @@ open class AkazaBlueOp : OpMode() {
 
     private var motionTimer = ElapsedTime()
     private var ledTimer = ElapsedTime()
+
+    private var capUp = 0.1
+    private var capDown = -0.1
+
 
     private val LED_PERIOD = 90.0
 
@@ -54,6 +59,8 @@ open class AkazaBlueOp : OpMode() {
     var value = 0.0
 
     var prevTime : Long = 0
+
+    var capPos = 1.0
 
     var drive = 0.0
     var strafe = 0.0
@@ -105,6 +112,9 @@ open class AkazaBlueOp : OpMode() {
             }
             gamepad1.y -> {
                 moveArmToDegree(middlePos)
+            }
+            gamepad2.y-> {
+                moveArmToDegree(-250.0)
             }
         }
 
@@ -178,7 +188,7 @@ open class AkazaBlueOp : OpMode() {
         }
         .state(IntakeSequenceStates.WAIT)
         .onEnter{}
-        .transitionTimed(0.05)
+        .transitionTimed(0.2)
         .state(IntakeSequenceStates.STOP_AND_LOCK)
         .onEnter {
             stopIntake()
@@ -219,7 +229,6 @@ open class AkazaBlueOp : OpMode() {
             intakeSequence.update()
         }
     }
-
 
     private enum class DuckSpinnerStates {
         RUN_SLOW,
@@ -282,7 +291,34 @@ open class AkazaBlueOp : OpMode() {
     }
 
     private fun capControl() {
-        capServo.power = -gamepad2.left_stick_y.toDouble() * 0.25
+        if(gamepad2.dpad_up) {
+            capPos = capPos + 0.01
+        } else if(gamepad2.dpad_down) {
+            capPos = capPos - 0.01
+        }
+
+        if(gamepad2.left_bumper) {
+            //pickup pos
+            capPos = 0.0
+        }
+
+        if(gamepad2.right_bumper) {
+            //drop pos
+            capPos = 0.4
+        }
+
+        if(gamepad2.left_trigger_pressed) {
+            //ready to drop pos
+            capPos = 0.3
+        }
+
+        if(gamepad2.right_trigger_pressed) {
+            //rest pos
+            capPos = 1.0
+
+        }
+
+        capServo.position = capPos
     }
 
     private fun telemetry() {
@@ -307,6 +343,9 @@ open class AkazaBlueOp : OpMode() {
         } else if((outtakeServo.position < 0.75 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
             pattern = BlinkinPattern.DARK_RED
             blinkinLedDriver.setPattern(pattern)
+        } else if (gamepad1.right_bumper && ledTimer.seconds() < LED_PERIOD &&
+            (outtakeServo.position > 0.75 && outtakeServo.position < 0.82)) {
+            pattern = BlinkinPattern.DARK_RED
         }
     }
 
@@ -327,7 +366,8 @@ open class AkazaBlueOp : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
-        capServo = hardwareMap.get(CRServo::class.java, "Cap") as CRServo
+        capServo = hardwareMap.get(Servo::class.java, "Cap") as Servo
+        capServo.position = 1.0
 
         displayKind = DisplayKind.AUTO
 

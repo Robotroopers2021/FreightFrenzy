@@ -30,6 +30,7 @@ object MeepMeep {
                     .splineToConstantHeading( Vector2d(42.0, 66.0), Math.toRadians(0.0),
                         SampleMecanumDrive.getVelocityConstraint(40.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(20.0))
+                    .splineToConstantHeading(Vector2d(46.0, 62.0, ), Math.toRadians(340.0))
                     .setReversed(true)
                         //exiting warehouse one
                     .splineToConstantHeading( Vector2d(10.0, 66.0), -Math.toRadians(180.0),

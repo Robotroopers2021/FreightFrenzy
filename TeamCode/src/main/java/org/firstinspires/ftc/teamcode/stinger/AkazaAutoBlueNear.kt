@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.archived.auto
+package org.firstinspires.ftc.teamcode.stinger
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -37,7 +36,6 @@ class AkazaAutoBlueNear : OpMode()  {
 
     private fun moveOuttakeToOut(){
         outtakeServo.position = 0.60
-
     }
 
     private fun moveOuttakeToLock(){
@@ -46,13 +44,21 @@ class AkazaAutoBlueNear : OpMode()  {
 
     private fun moveOuttakeToOpen(){
         outtakeServo.position = 0.90
+    }
 
+    private fun intakeFreight(){
+        intakeMotor.power = -1.0
+    }
+
+    private fun stopIntake(){
+        intakeMotor.power = 0.0
     }
 
     lateinit var drive: SampleMecanumDrive
 
     private enum class DuckSpinnerStates {
-        DUCK_SPINNER
+        DUCK_SPINNER,
+        INTAKE_DUCK
     }
 
     private val duckSpinnerStateMachine = StateMachineBuilder<DuckSpinnerStates>()

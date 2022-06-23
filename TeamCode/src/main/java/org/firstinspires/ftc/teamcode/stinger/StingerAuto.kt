@@ -15,10 +15,13 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
+import org.firstinspires.ftc.teamcode.vision.WebcamTest
 
 @Autonomous
 class StingerAuto : OpMode() {
-    private lateinit var initialDeposit : TrajectorySequence
+    private lateinit var initialDepositTop : TrajectorySequence
+    private lateinit var initialDepositMid : TrajectorySequence
+    private lateinit var initialDepositBottom : TrajectorySequence
     private lateinit var warehouseOne : TrajectorySequence
     private lateinit var depositOne : TrajectorySequence
     private lateinit var warehouseTwo : TrajectorySequence
@@ -29,11 +32,13 @@ class StingerAuto : OpMode() {
     private lateinit var depositFour : TrajectorySequence
     private lateinit var finalPark : TrajectorySequence
 
-    val startPose = Pose2d(6.25, 63.0, Math.toRadians(90.0))
+    val startPose = Pose2d(-38.0, 62.0, Math.toRadians(90.0))
 
     private var value = 0.0
 
     private var motionTimer = ElapsedTime()
+
+    private val webcam = WebcamTest()
 
     private lateinit var distanceSensor : Rev2mDistanceSensor
 
@@ -88,7 +93,17 @@ class StingerAuto : OpMode() {
     private val initialDepositStateMachine = StateMachineBuilder<InitialDepositStates>()
         .state(InitialDepositStates.INITIAL_DEPOSIT)
         .onEnter{
-            drive.followTrajectorySequenceAsync(initialDeposit)
+            when (webcam.pipeline.cupState) {
+                Pipeline.CupStates.RIGHT -> drive.followTrajectorySequenceAsync(
+                    initialDepositTop
+                )
+                Pipeline.CupStates.CENTER -> drive.followTrajectorySequenceAsync(
+                    initialDepositMid
+                )
+                Pipeline.CupStates.LEFT -> drive.followTrajectorySequenceAsync(
+                    initialDepositBottom
+                )
+            }
         }
         .onExit (motionTimer::reset)
         .transition{!drive.isBusy}
@@ -156,7 +171,7 @@ class StingerAuto : OpMode() {
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor::class.java, "distanceSensor") as Rev2mDistanceSensor
 
-        initialDeposit = drive.trajectorySequenceBuilder(startPose)
+        initialDepositTop = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
             //initial deposit
             .lineToLinearHeading( Pose2d(-5.0, 45.0, -Math.toRadians(295.0)),
@@ -170,17 +185,18 @@ class StingerAuto : OpMode() {
             }
             .build()
 
-        warehouseOne = drive.trajectorySequenceBuilder(initialDeposit.end())
+        warehouseOne = drive.trajectorySequenceBuilder(initialDepositTop.end())
             .setReversed(false)
             //first half of warehouse one
             .splineToSplineHeading( Pose2d(17.0, 68.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
             //second half of warehouse one
+            .splineToConstantHeading( Vector2d(32.0, 68.0), Math.toRadians(0.0),
+                SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .splineToConstantHeading( Vector2d(36.0, 68.0), Math.toRadians(0.0),
-                SampleMecanumDrive.getVelocityConstraint(60.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                SampleMecanumDrive.getAccelerationConstraint(60.0))
-            .splineToConstantHeading( Vector2d(44.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(20.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(20.0))
+            .splineToConstantHeading(Vector2d(40.0, 62.0, ), Math.toRadians(340.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
             }
@@ -198,28 +214,29 @@ class StingerAuto : OpMode() {
         depositOne = drive.trajectorySequenceBuilder(warehouseOne.end())
             .setReversed(true)
             //exiting warehouse one
+            .splineToConstantHeading( Vector2d(34.0, 68.0), Math.toRadians(0.0))
             .splineToConstantHeading( Vector2d(17.0, 68.0), -Math.toRadians(180.0),
                 SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             //deposit one
-            .lineToLinearHeading(Pose2d(-1.0, 44.2, Math.toRadians(65.0)),
+            .lineToLinearHeading(Pose2d(-7.0, 40.2, Math.toRadians(65.0)),
                 SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.05) {
                 moveOuttakeToLock()
                 stopIntake()
             }
-            .addTemporalMarker(0.1) {
+            .addTemporalMarker(0.2) {
                 getFreightOut()
             }
-            .addTemporalMarker(0.3) {
+            .addTemporalMarker(0.4) {
                 stopIntake()
             }
-            .addTemporalMarker(0.35) {
+            .addTemporalMarker(0.45) {
                 moveOuttakeToOpen()
                 getFreightOut()
             }
-            .addTemporalMarker(0.6) {
+            .addTemporalMarker(0.8) {
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -239,12 +256,13 @@ class StingerAuto : OpMode() {
             //first half of warehouse one
             .splineToSplineHeading( Pose2d(17.0, 68.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
             //second half of warehouse one
-            .splineToConstantHeading( Vector2d(38.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(32.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(60.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(60.0))
-            .splineToConstantHeading( Vector2d(48.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(38.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(20.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(20.0))
+            .splineToConstantHeading(Vector2d(42.0, 62.0, ), Math.toRadians(340.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
             }
@@ -262,28 +280,29 @@ class StingerAuto : OpMode() {
         depositTwo = drive.trajectorySequenceBuilder(warehouseTwo.end())
             .setReversed(true)
             //exiting warehouse one
+            .splineToConstantHeading( Vector2d(34.0, 68.0), Math.toRadians(0.0))
             .splineToConstantHeading( Vector2d(17.0, 68.0), -Math.toRadians(180.0),
                 SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             //deposit one
-            .lineToLinearHeading(Pose2d(2.0, 44.2, Math.toRadians(65.0)),
+            .lineToLinearHeading(Pose2d(-4.0, 40.2, Math.toRadians(65.0)),
                 SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.05) {
                 moveOuttakeToLock()
                 stopIntake()
             }
-            .addTemporalMarker(0.1) {
+            .addTemporalMarker(0.2) {
                 getFreightOut()
             }
-            .addTemporalMarker(0.3) {
+            .addTemporalMarker(0.4) {
                 stopIntake()
             }
-            .addTemporalMarker(0.35) {
+            .addTemporalMarker(0.45) {
                 moveOuttakeToOpen()
                 getFreightOut()
             }
-            .addTemporalMarker(0.6) {
+            .addTemporalMarker(0.8) {
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -303,12 +322,13 @@ class StingerAuto : OpMode() {
             //first half of warehouse one
             .splineToSplineHeading( Pose2d(17.0, 68.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
             //second half of warehouse one
-            .splineToConstantHeading( Vector2d(40.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(34.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(60.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(60.0))
-            .splineToConstantHeading( Vector2d(54.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(44.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(20.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(20.0))
+            .splineToConstantHeading(Vector2d(46.0, 62.0, ), Math.toRadians(340.0))
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
             }
@@ -326,28 +346,29 @@ class StingerAuto : OpMode() {
         depositThree = drive.trajectorySequenceBuilder(warehouseThree.end())
             .setReversed(true)
             //exiting warehouse one
+            .splineToConstantHeading( Vector2d(34.0, 68.0), Math.toRadians(0.0))
             .splineToConstantHeading( Vector2d(17.0, 68.0), -Math.toRadians(180.0),
                 SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             //deposit one
-            .lineToLinearHeading(Pose2d(4.0, 44.2, Math.toRadians(65.0)),
+            .lineToLinearHeading(Pose2d(-2.0, 38.2, Math.toRadians(65.0)),
                 SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.05) {
                 moveOuttakeToLock()
                 stopIntake()
             }
-            .addTemporalMarker(0.1) {
+            .addTemporalMarker(0.2) {
                 getFreightOut()
             }
-            .addTemporalMarker(0.3) {
+            .addTemporalMarker(0.4) {
                 stopIntake()
             }
-            .addTemporalMarker(0.35) {
+            .addTemporalMarker(0.45) {
                 moveOuttakeToOpen()
                 getFreightOut()
             }
-            .addTemporalMarker(0.6) {
+            .addTemporalMarker(0.8) {
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -367,10 +388,10 @@ class StingerAuto : OpMode() {
             //first half of warehouse one
             .splineToSplineHeading( Pose2d(17.0, 68.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
             //second half of warehouse one
-            .splineToConstantHeading( Vector2d(42.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(36.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(60.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(60.0))
-            .splineToConstantHeading( Vector2d(58.0, 68.0), Math.toRadians(0.0),
+            .splineToConstantHeading( Vector2d(48.0, 68.0), Math.toRadians(0.0),
                 SampleMecanumDrive.getVelocityConstraint(20.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(20.0))
             .addTemporalMarker(0.1) {
@@ -390,28 +411,29 @@ class StingerAuto : OpMode() {
         depositFour = drive.trajectorySequenceBuilder(warehouseFour.end())
             .setReversed(true)
             //exiting warehouse one
+            .splineToConstantHeading( Vector2d(32.0, 68.0), Math.toRadians(0.0))
             .splineToConstantHeading( Vector2d(17.0, 68.0), -Math.toRadians(180.0),
                 SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             //deposit one
-            .lineToLinearHeading(Pose2d(6.0, 44.2, Math.toRadians(65.0)),
+            .lineToLinearHeading(Pose2d(0.0, 38.2, Math.toRadians(65.0)),
                 SampleMecanumDrive.getVelocityConstraint(55.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.05) {
                 moveOuttakeToLock()
                 stopIntake()
             }
-            .addTemporalMarker(0.1) {
+            .addTemporalMarker(0.2) {
                 getFreightOut()
             }
-            .addTemporalMarker(0.3) {
+            .addTemporalMarker(0.4) {
                 stopIntake()
             }
-            .addTemporalMarker(0.35) {
+            .addTemporalMarker(0.45) {
                 moveOuttakeToOpen()
                 getFreightOut()
             }
-            .addTemporalMarker(0.6) {
+            .addTemporalMarker(0.8) {
                 moveOuttakeToLock()
                 stopIntake()
             }
@@ -429,14 +451,9 @@ class StingerAuto : OpMode() {
         finalPark = drive.trajectorySequenceBuilder(depositFour.end())
             .setReversed(false)
             //first half of warehouse one
-            .splineToSplineHeading( Pose2d(17.0, 68.0, Math.toRadians(360.0)), -Math.toRadians(360.0))
-            //second half of warehouse one
-            .splineToConstantHeading( Vector2d(30.0, 68.0), Math.toRadians(0.0),
-                SampleMecanumDrive.getVelocityConstraint(60.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                SampleMecanumDrive.getAccelerationConstraint(60.0))
-            .splineToConstantHeading( Vector2d(60.0, 68.0), Math.toRadians(0.0),
-                SampleMecanumDrive.getVelocityConstraint(20.0, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                SampleMecanumDrive.getAccelerationConstraint(20.0))
+            .splineToSplineHeading( Pose2d(68.0, 47.0, Math.toRadians(360.0)), -Math.toRadians(360.0),
+                SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
             .addTemporalMarker(0.1) {
                 moveOuttakeToLock()
             }
@@ -445,9 +462,6 @@ class StingerAuto : OpMode() {
             }
             .addTemporalMarker(0.8) {
                 moveOuttakeToOpen()
-            }
-            .addTemporalMarker(1.5) {
-                intakeFreight()
             }
             .build()
 
