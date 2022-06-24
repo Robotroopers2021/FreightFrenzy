@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.archived.teleop
+package org.firstinspires.ftc.teamcode.stinger
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket

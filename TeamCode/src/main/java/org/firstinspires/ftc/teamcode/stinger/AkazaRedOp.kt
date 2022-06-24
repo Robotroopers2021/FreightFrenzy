@@ -105,7 +105,7 @@ open class AkazaRedOp : OpMode() {
                 moveArmToDegree(sharedAngle)
             }
             gamepad1.x -> {
-                moveArmToDegree(sharedAngleAlliance)
+                moveArmToDegree(middlePosTwo)
             }
             gamepad1.b -> {
                 moveArmToDegree(sharedAngleEnemy)
@@ -304,14 +304,9 @@ open class AkazaRedOp : OpMode() {
             capPos = 0.0
         }
 
-        if(gamepad2.right_bumper) {
-            //drop pos
-            capPos = 0.4
-        }
-
         if(gamepad2.left_trigger_pressed) {
             //ready to drop pos
-            capPos = 0.3
+            capPos = 0.6
         }
 
         if(gamepad2.right_trigger_pressed) {
@@ -424,8 +419,8 @@ open class AkazaRedOp : OpMode() {
         @JvmStatic var depositAngle = 94.0
         @JvmStatic var restAngle = -55.0
         @JvmStatic var sharedAngle = 172.0
-        @JvmStatic var sharedAngleAlliance = 178.0
+        @JvmStatic var middlePosTwo = 136.0
         @JvmStatic var sharedAngleEnemy = 164.0
-        @JvmStatic var middlePos = 134.0
+        @JvmStatic var middlePos = 139.0
     }
 }

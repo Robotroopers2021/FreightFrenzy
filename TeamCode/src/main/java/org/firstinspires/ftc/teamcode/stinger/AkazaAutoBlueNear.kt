@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.archived.teleop.Arm
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.drive.opmode.SampleMecanumDuck
 import org.firstinspires.ftc.teamcode.stateMachine.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.vision.Pipeline
@@ -54,7 +54,7 @@ class AkazaAutoBlueNear : OpMode()  {
         intakeMotor.power = 0.0
     }
 
-    lateinit var drive: SampleMecanumDrive
+    lateinit var drive: SampleMecanumDuck
 
     private enum class DuckSpinnerStates {
         DUCK_SPINNER,
@@ -83,14 +83,14 @@ class AkazaAutoBlueNear : OpMode()  {
     override fun init() {
         webcam.init(hardwareMap)
         DuckL = hardwareMap.get(DcMotor::class.java, "DuckL")
-        drive = SampleMecanumDrive(hardwareMap)
+        drive = SampleMecanumDuck(hardwareMap)
         outtakeServo = hardwareMap.get(Servo::class.java, "Outtake") as Servo
         outtakeServo.position = 0.78
         arm.init(hardwareMap)
 
         InitialDepositTrajTop = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
             .setReversed(true)
-            .splineToSplineHeading( Pose2d(-27.5, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
+            .splineToSplineHeading( Pose2d(-24.5, 37.0, Math.toRadians(140.0)), Math.toRadians(325.0))
             .waitSeconds(1.0)
             .addTemporalMarker(1.5) {
                 arm.moveArmToTopPos()
@@ -111,7 +111,7 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker {
                 DuckL.setPower(0.0)
             }
-            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
+            .lineToSplineHeading( Pose2d(-65.0, 36.0, Math.toRadians(0.0)))
             .build()
 
         InitialDepositTrajMiddle = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
@@ -135,7 +135,7 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker {
                 DuckL.setPower(0.0)
             }
-            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
+            .lineToSplineHeading( Pose2d(-65.0, 36.0, Math.toRadians(0.0)))
             .build()
 
         InitialDepositTrajBottom = drive.trajectorySequenceBuilder(Pose2d (-38.0, 62.0, Math.toRadians(90.0)))
@@ -159,7 +159,7 @@ class AkazaAutoBlueNear : OpMode()  {
             .addTemporalMarker {
                 DuckL.setPower(0.0)
             }
-            .lineToSplineHeading( Pose2d(-61.0, 36.0, Math.toRadians(0.0)))
+            .lineToSplineHeading( Pose2d(-65.0, 36.0, Math.toRadians(0.0)))
             .build()
 
 
