@@ -333,7 +333,7 @@ open class AkazaBlueOp : OpMode() {
             doAutoDisplay()
         }
         if ((outtakeServo.position > 0.75 && outtakeServo.position < 0.82) && ledTimer.seconds() < LED_PERIOD) {
-            pattern = BlinkinPattern.DARK_GREEN
+            pattern = BlinkinPattern.LIGHT_CHASE_BLUE
             blinkinLedDriver.setPattern(pattern)
         } else if((outtakeServo.position < 0.75 || outtakeServo.position > 0.82) && ledTimer.seconds() < LED_PERIOD){
             pattern = BlinkinPattern.DARK_RED
