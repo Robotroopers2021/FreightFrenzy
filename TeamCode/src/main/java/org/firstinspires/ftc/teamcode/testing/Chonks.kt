@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 
 @Config
 @TeleOp
@@ -25,15 +26,18 @@ open class Chonks : OpMode() {
 
     override fun init() {
 
-        fl = hardwareMap.get(DcMotor::class.java, "frontLeft")
-        fr = hardwareMap.get(DcMotor::class.java, "frontRight")
-        bl = hardwareMap.get(DcMotor::class.java, "backLeft")
-        br = hardwareMap.get(DcMotor::class.java, "backRight")
+        fl = hardwareMap.get(DcMotor::class.java, "FL")
+        fr = hardwareMap.get(DcMotor::class.java, "FR")
+        bl = hardwareMap.get(DcMotor::class.java, "BL")
+        br = hardwareMap.get(DcMotor::class.java, "BR")
 
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         bl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         br.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        fl.direction = DcMotorSimple.Direction.REVERSE
+        bl.direction = DcMotorSimple.Direction.REVERSE
 
 
 
